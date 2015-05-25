@@ -57,7 +57,7 @@ ADDED from AndroidManifest.xml:24:9
 		ADDED from AndroidManifest.xml:26:13
 	android:name
 		ADDED from AndroidManifest.xml:25:13
-receiver#ibeacon.smartadsv1.BluetoothLEReceiver
+receiver#ibeacon.smartadsv1.util.BluetoothLEReceiver
 ADDED from AndroidManifest.xml:30:9
 	android:exported
 		ADDED from AndroidManifest.xml:33:13

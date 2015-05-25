@@ -4,5 +4,7 @@
     <string name="app_name">SmartAdsV1</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_ad_notify">AdNotify</string>
+    <string name="action_share">Share</string>
 
 </resources>

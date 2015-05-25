@@ -1,10 +1,6 @@
 package ibeacon.smartadsv1.activity;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,55 +12,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.estimote.sdk.Beacon;
+
+import java.util.ArrayList;
+
 import ibeacon.smartadsv1.R;
+import ibeacon.smartadsv1.service.OperationService;
+import ibeacon.smartadsv1.util.BundleDefined;
 
 
 public class MainActivity extends ActionBarActivity {
 
 
-    private BroadcastReceiver beaconReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d("Broadcast", "beacon received");
-            String uuid = intent.getStringExtra("uuid");
-
-            long endTime = System.currentTimeMillis() + 8*1000;
-            while (System.currentTimeMillis() < endTime) {
-                synchronized (this) {
-                    try {
-                        wait(endTime - System.currentTimeMillis());
-                    } catch (Exception e) {
-                    }
-                }
-            }
-
-            Log.d("System", "Resumed");
-            //String threadID = new Long(Thread.currentThread().getId()).toString();
-            String threadID = new Integer(android.os.Process.myTid()).toString();
-            Log.d("Thread onReceive", threadID);
-            Toast.makeText(getApplicationContext(), uuid, Toast.LENGTH_SHORT).show();
-        }
-    };
-
-    private BroadcastReceiver regionExited = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d("Broadcast", "beacon exited");
-            Toast.makeText(getApplicationContext(), "Region exited", Toast.LENGTH_LONG).show();
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(beaconReceiver, new IntentFilter("beaconReceived"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(regionExited, new IntentFilter("regionExited"));
-
-        //String threadID = new Long(Thread.currentThread().getId()).toString();
-        String threadID = new Integer(android.os.Process.myTid()).toString();
-        Log.d("Thread Activity", threadID);
+        Log.d("Thread MainActivity", String.format("%d", android.os.Process.myTid()));
 
         Button button = (Button) findViewById(R.id.btnAddText);
 
@@ -76,8 +42,24 @@ public class MainActivity extends ActionBarActivity {
                 linearLayout.addView(moreText);
             }
         });
+
+        //testOPservice();
     }
 
+    private void testOPservice() {
+
+        Intent intentOP = new Intent(getApplicationContext(), OperationService.class);
+        Bundle bundle = new Bundle();
+        ArrayList<Beacon> beaconArrayList = new ArrayList<>();
+        Beacon beacon = new Beacon("12345678123456781234567812345678", "dummy1", "0x24", 1, 2, 1, 1);
+        beaconArrayList.add(beacon);
+        bundle.putParcelableArrayList(BundleDefined.LIST_BEACON, beaconArrayList);
+        bundle.putString(BundleDefined.INTENT_TYPE, BundleDefined.INTENT_RECEIVEDBEACONS);
+        intentOP.putExtras(bundle);
+
+        startService(intentOP);
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -99,5 +81,12 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onDestroy() {
+        Intent intentOP = new Intent(getApplicationContext(), OperationService.class);
+        stopService(intentOP);
+        super.onDestroy();
     }
 }

@@ -1,19 +1,39 @@
 package ibeacon.smartadsv1.service;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.*;
 import android.os.Process;
+import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.estimote.sdk.Beacon;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import ibeacon.smartadsv1.MyBeaconManager;
+import java.util.ArrayList;
+import java.util.List;
 
-public class OperationService extends Service {
+import ibeacon.smartadsv1.R;
+import ibeacon.smartadsv1.activity.AdNotifyActitivty;
+import ibeacon.smartadsv1.model.Ad;
+import ibeacon.smartadsv1.model.MyBeacon;
+import ibeacon.smartadsv1.model.MyBeaconManager;
+import ibeacon.smartadsv1.util.BundleDefined;
+import ibeacon.smartadsv1.util.Config;
+import ibeacon.smartadsv1.util.MessageDefined;
+
+public class OperationService extends Service implements IOperationCallback {
 
     private MyBeaconManager beaconManager;
     private OperationHandler mOperationHandler;
-
+    private Looper mOperationLooper;
+    private HandlerThread mOperationHandlerThread;
+    private ServerHandlerThread mServerThread;
 
     private final class OperationHandler extends Handler {
         public OperationHandler(Looper looper) {
@@ -23,12 +43,22 @@ public class OperationService extends Service {
         @Override
         public void handleMessage(Message msg) {
 
-            //Todo: parse different type of messages here
+            Log.d("Thread OP handleMessage", String.format("%d", android.os.Process.myTid()));
 
-            //raise a new notification
+            switch (msg.what) {
+                case MessageDefined.GET_CUSTOMER_CONTEXTADS:
 
-            //destroy service when last message is processed
-            //stopSelf(msg.arg1);
+                    List<MyBeacon> refreshedBeacons = beaconManager.getRefreshedBeacon((List<Beacon>) msg.obj);
+                    mServerThread.getContextAdsTask(refreshedBeacons);
+
+                    break;
+                case MessageDefined.SERVICE_STOP:
+                    stopSelf();
+                    break;
+                default:
+                    break;
+            }
+
         }
     }
 
@@ -39,39 +69,65 @@ public class OperationService extends Service {
 
     @Override
     public void onCreate() {
-
-
+        Log.d("Thread Service onCreate", String.format("%d", android.os.Process.myTid()));
         beaconManager = new MyBeaconManager();
+        //Todo: Get list beacon from DB
 
-        HandlerThread handlerThread = new HandlerThread("ServiceOperation", Process.THREAD_PRIORITY_BACKGROUND);
-        handlerThread.start();
-        mOperationHandler = new OperationHandler(handlerThread.getLooper());
+        mOperationHandlerThread = new HandlerThread("ServiceOperation", Process.THREAD_PRIORITY_BACKGROUND);
+        mOperationHandlerThread.start();
+        mOperationLooper = mOperationHandlerThread.getLooper();
+        mOperationHandler = new OperationHandler(mOperationLooper);
 
+        Log.d("Thread Service onCreate completed", String.format("%d", android.os.Process.myTid()));
+
+        mServerThread = new ServerHandlerThread(mOperationHandler, this);
+        mServerThread.start();
+        mServerThread.prepareHandler();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+        Log.d("Thread OP onStart", String.format("%d", android.os.Process.myTid()));
 
-        //Currently just create a new beacon
-
-        String uuid = intent.getStringExtra("uuid");
-
-        //create dummy beacon with UUID for testing. In future, need to use Parcelable<Beacon>.
-
-        Beacon beacon = new Beacon(uuid, "mybeacon", null, 1, 1, 100, 10);
-        if (beaconManager.isNewBeacon(beacon))
-        {
-            //Todo: raise a new notification
-        }
-
-        //send new message to the queue
         Message msg = mOperationHandler.obtainMessage();
         msg.arg1 = startId;
-        msg.arg2 = beacon.getMinor();
-        msg.sendToTarget();
 
-        return START_STICKY;
+        String intentType = intent.getExtras().getString(BundleDefined.INTENT_TYPE);
+
+        //create message associated with intent.
+        //Send message to handler thread
+        switch (intentType) {
+
+            case BundleDefined.INTENT_RECEIVEDBEACONS:
+                ArrayList<Parcelable> parcelableArrayList = intent.getExtras().getParcelableArrayList(BundleDefined.LIST_BEACON);
+                if (parcelableArrayList.size() == 0) {
+                    Log.d("OP create msg", "list beacon = 0");
+                    break;
+                }
+
+                List<Beacon> beaconReceivedList = new ArrayList<>();
+                for (Parcelable parcelable : parcelableArrayList) {
+                    beaconReceivedList.add((Beacon) parcelable);
+                }
+
+                msg.what = MessageDefined.GET_CUSTOMER_CONTEXTADS;
+                msg.obj = beaconReceivedList;
+
+                mOperationHandler.sendMessage(msg);
+
+                break;
+
+            case BundleDefined.INTENT_STOPSERVICE:
+                msg.what = MessageDefined.SERVICE_STOP;
+                mOperationHandler.sendMessage(msg);
+                break;
+            default:
+
+                break;
+        }
+
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -79,5 +135,52 @@ public class OperationService extends Service {
         super.onDestroy();
     }
 
+
+    /**
+     *  Implement Callback operation
+     */
+
+    @Override
+    public void receivedContextAds(List<Ad> contextAdList){
+        //Todo: Check if these ads should be displayed to user ?
+
+        //Debug
+        GsonBuilder gsonbuilder = new GsonBuilder();
+        Gson gson = gsonbuilder.create();
+        Log.d("Callback contextAdlist", gson.toJson(contextAdList));
+
+        Bundle bundle = new Bundle();
+        String urlPath = Config.HOST + "/ads/" + String.format("%d", contextAdList.get(0).getId());
+        bundle.putString(BundleDefined.URL, urlPath);
+        NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle("Received new Ass")
+                .setContentText(contextAdList.get(0).getTitle())
+                .setDefaults(Notification.DEFAULT_SOUND | Notification.FLAG_AUTO_CANCEL)
+                ;
+
+        Intent notifyIntent = new Intent(this, AdNotifyActitivty.class);
+        notifyIntent.putExtras(bundle);
+
+        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        notiBuilder.setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+
+        Handler uiHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message inputMessage) {
+
+                NotificationCompat.Builder notiBuilder = (NotificationCompat.Builder) inputMessage.obj;
+                NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                notificationManager.notify(1, notiBuilder.build());
+            }
+        };
+
+        uiHandler.obtainMessage(MessageDefined.START_ACTIVITY, notiBuilder).sendToTarget();
+
+    }
 
 }
