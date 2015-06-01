@@ -1,16 +1,13 @@
 package ibeacon.smartadsv1.activity;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.estimote.sdk.Beacon;
 
@@ -21,45 +18,30 @@ import ibeacon.smartadsv1.service.OperationService;
 import ibeacon.smartadsv1.util.BundleDefined;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity
+        implements NavigationDrawerCallback {
 
-
+    private NavigationDrawerFragment mNavigationDrawerFragment;
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.d("Thread MainActivity", String.format("%d", android.os.Process.myTid()));
+        mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
+        setSupportActionBar(mToolbar);
 
-        Button button = (Button) findViewById(R.id.btnAddText);
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+                getFragmentManager().findFragmentById(R.id.fragment_drawer);
 
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                TextView moreText = new TextView(getApplicationContext());
-                moreText.setText("Hello World");
-                LinearLayout linearLayout = (LinearLayout) findViewById(R.id.main_view);
-                linearLayout.addView(moreText);
-            }
-        });
+        //Set up the drawer.
+        mNavigationDrawerFragment.setup(R.id.fragment_drawer,
+                (DrawerLayout) findViewById(R.id.drawer), mToolbar);
 
         //testOPservice();
     }
 
-    private void testOPservice() {
-
-        Intent intentOP = new Intent(getApplicationContext(), OperationService.class);
-        Bundle bundle = new Bundle();
-        ArrayList<Beacon> beaconArrayList = new ArrayList<>();
-        Beacon beacon = new Beacon("12345678123456781234567812345678", "dummy1", "0x24", 1, 2, 1, 1);
-        beaconArrayList.add(beacon);
-        bundle.putParcelableArrayList(BundleDefined.LIST_BEACON, beaconArrayList);
-        bundle.putString(BundleDefined.INTENT_TYPE, BundleDefined.INTENT_RECEIVEDBEACONS);
-        intentOP.putExtras(bundle);
-
-        startService(intentOP);
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -89,4 +71,29 @@ public class MainActivity extends ActionBarActivity {
         stopService(intentOP);
         super.onDestroy();
     }
+
+
+    @Override
+    public void onNavigationDrawerItemSelected(int position) {
+
+    }
+
+    /**
+     * Debug & testing offline
+     */
+    private void testOPservice() {
+
+        Intent intentOP = new Intent(getApplicationContext(), OperationService.class);
+        Bundle bundle = new Bundle();
+        ArrayList<Beacon> beaconArrayList = new ArrayList<>();
+        Beacon beacon = new Beacon("12345678123456781234567812345678", "dummy1", "0x24", 1, 2, 1, 1);
+        beaconArrayList.add(beacon);
+        bundle.putParcelableArrayList(BundleDefined.LIST_BEACON, beaconArrayList);
+        bundle.putString(BundleDefined.INTENT_TYPE, BundleDefined.INTENT_RECEIVEDBEACONS);
+        intentOP.putExtras(bundle);
+
+        startService(intentOP);
+
+    }
+
 }
