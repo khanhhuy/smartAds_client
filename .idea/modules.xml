@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SmartAdsV1.iml" filepath="$PROJECT_DIR$/SmartAdsV1.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ttlvclient.iml" filepath="$PROJECT_DIR$/ttlvclient.iml" />
     </modules>
   </component>
 </project>
