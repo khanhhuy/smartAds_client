@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import ibeacon.smartadsv1.service.BeaconService;
+import ibeacon.smartadsv1.service.ContextAdsService;
 
 public class BluetoothLEReceiver extends BroadcastReceiver {
 
@@ -16,7 +16,7 @@ public class BluetoothLEReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
 
-        beaconServiceIntent = new Intent(context, BeaconService.class);
+        beaconServiceIntent = new Intent(context, ContextAdsService.class);
         Log.d("BluetoothLE", "On Receive starting");
 
         if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {

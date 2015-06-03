@@ -44,12 +44,12 @@
         </receiver>
 
         <service
-            android:name=".service.BeaconService"
+            android:name=".service.ContextAdsService"
             android:enabled="true"
             android:exported="false" >
         </service>
         <service
-            android:name=".service.OperationService"
+            android:name=".old.OperationService"
             android:enabled="true"
             android:exported="false" >
         </service>
