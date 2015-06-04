@@ -49,7 +49,7 @@ category#android.intent.category.LAUNCHER
 ADDED from AndroidManifest.xml:20:17
 	android:name
 		ADDED from AndroidManifest.xml:20:27
-service#ibeacon.smartadsv1.service.BeaconService
+service#ibeacon.smartadsv1.service.ContextAdsService
 ADDED from AndroidManifest.xml:24:9
 	android:exported
 		ADDED from AndroidManifest.xml:27:13

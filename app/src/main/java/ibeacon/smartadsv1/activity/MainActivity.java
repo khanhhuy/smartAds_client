@@ -7,7 +7,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -16,7 +15,8 @@ import com.estimote.sdk.Beacon;
 import java.util.ArrayList;
 
 import ibeacon.smartadsv1.R;
-import ibeacon.smartadsv1.service.OperationService;
+import ibeacon.smartadsv1.service.ContextAdsService;
+import ibeacon.smartadsv1.old.OperationService;
 import ibeacon.smartadsv1.util.BundleDefined;
 
 
@@ -43,6 +43,10 @@ public class MainActivity extends AppCompatActivity
                 (DrawerLayout) findViewById(R.id.drawer), mToolbar);
 
         initFragment();
+        Intent beaconServiceIntent = new Intent(this, ContextAdsService.class);
+        startService(beaconServiceIntent);
+
+//d917df8a9118bfecc58f50ee9232194368d2c511
         //testOPservice();
 
     }
@@ -68,6 +72,11 @@ public class MainActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override

@@ -30,6 +30,11 @@ public class Ad {
         this.last_updated = last_updated;
     }
 
+    public Ad(int id, String title) {
+        this.id = id;
+        this.title = title;
+    }
+
     public int getId() {
         return id;
     }

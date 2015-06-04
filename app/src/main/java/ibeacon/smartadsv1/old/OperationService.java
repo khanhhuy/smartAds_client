@@ -1,10 +1,9 @@
-package ibeacon.smartadsv1.service;
+package ibeacon.smartadsv1.old;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.os.*;
 import android.os.Process;
@@ -22,14 +21,14 @@ import ibeacon.smartadsv1.R;
 import ibeacon.smartadsv1.activity.AdNotifyActitivty;
 import ibeacon.smartadsv1.model.Ad;
 import ibeacon.smartadsv1.model.MyBeacon;
-import ibeacon.smartadsv1.model.MyBeaconManager;
+import ibeacon.smartadsv1.model.BeaconFilterer;
 import ibeacon.smartadsv1.util.BundleDefined;
 import ibeacon.smartadsv1.util.Config;
 import ibeacon.smartadsv1.util.MessageDefined;
 
 public class OperationService extends Service implements IOperationCallback {
 
-    private MyBeaconManager beaconManager;
+    private BeaconFilterer beaconManager;
     private OperationHandler mOperationHandler;
     private Looper mOperationLooper;
     private HandlerThread mOperationHandlerThread;
@@ -48,7 +47,7 @@ public class OperationService extends Service implements IOperationCallback {
             switch (msg.what) {
                 case MessageDefined.GET_CUSTOMER_CONTEXTADS:
 
-                    List<MyBeacon> refreshedBeacons = beaconManager.getRefreshedBeacon((List<Beacon>) msg.obj);
+                    List<MyBeacon> refreshedBeacons = beaconManager.filterBeacons((List<Beacon>) msg.obj);
                     mServerThread.getContextAdsTask(refreshedBeacons);
 
                     break;
@@ -70,7 +69,7 @@ public class OperationService extends Service implements IOperationCallback {
     @Override
     public void onCreate() {
         Log.d("Thread Service onCreate", String.format("%d", android.os.Process.myTid()));
-        beaconManager = new MyBeaconManager();
+        beaconManager = new BeaconFilterer();
         //Todo: Get list beacon from DB
 
         mOperationHandlerThread = new HandlerThread("ServiceOperation", Process.THREAD_PRIORITY_BACKGROUND);
@@ -78,7 +77,7 @@ public class OperationService extends Service implements IOperationCallback {
         mOperationLooper = mOperationHandlerThread.getLooper();
         mOperationHandler = new OperationHandler(mOperationLooper);
 
-        Log.d("Thread Service onCreate completed", String.format("%d", android.os.Process.myTid()));
+        //Log.d("Thread Service onCreate completed", String.format("%d", android.os.Process.myTid()));
 
         mServerThread = new ServerHandlerThread(mOperationHandler, this);
         mServerThread.start();

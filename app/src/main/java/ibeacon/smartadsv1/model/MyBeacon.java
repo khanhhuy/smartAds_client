@@ -29,16 +29,16 @@ public class MyBeacon extends Beacon {
         return lastReceived;
     }
 
-    public void setLastReceived(Long lastReceived) {
-        this.lastReceived = lastReceived;
-    }
-
     public boolean isRefresh() {
-        Log.d("Refresh time (ms)", String.format("%d", System.currentTimeMillis() - lastReceived));
+        Log.d(Config.TAG, "Minor "+getMinor()+ " Refresh time "+ (System.currentTimeMillis() - lastReceived));
         if ((System.currentTimeMillis() - lastReceived) > Config.MIN_RECEIVED_TIME_SEC*1000)
             return  true;
         else
             return false;
+    }
+
+    public void refreshLastReceived() {
+        lastReceived=System.currentTimeMillis();
     }
 
 //    @Override

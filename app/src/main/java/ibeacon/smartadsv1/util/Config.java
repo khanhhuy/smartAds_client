@@ -9,4 +9,6 @@ public class Config {
     //public static String HOST = "http://smartads.esy.es";
     public static String HOST = "http://smartads.byethost7.com";
     public static int CUSTOMER_ID = 1;
+
+    public static final String TAG="DHSmartAds";
 }
