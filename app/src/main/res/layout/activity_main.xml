@@ -9,6 +9,13 @@
         <include android:id="@+id/toolbar_actionbar" layout="@layout/toolbar_default"
             android:layout_width="match_parent" android:layout_height="wrap_content" />
 
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/listAdsDumb"
+            >
+        </ListView>
+
         <FrameLayout android:id="@+id/container" android:clickable="true"
             android:layout_width="match_parent" android:layout_height="match_parent"
             android:paddingLeft="10dp"
@@ -21,6 +28,6 @@
         android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
         android:name="ibeacon.smartadsv1.activity.NavigationDrawerFragment"
         android:layout_width="@dimen/navigation_drawer_width" android:layout_height="match_parent"
-        android:layout_gravity="start" app:layout="@layout/fragment_navigation_drawer" />
+        android:layout_gravity="start"/>
 
 </android.support.v4.widget.DrawerLayout>

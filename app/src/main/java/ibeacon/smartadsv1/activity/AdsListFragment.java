@@ -7,49 +7,40 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import ibeacon.smartadsv1.R;
+import ibeacon.smartadsv1.adapter.AdListAdapter;
+import ibeacon.smartadsv1.model.Ad;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link AdsThumbnailFragment.OnFragmentInteractionListener} interface
+ * {@link AdsListFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link AdsThumbnailFragment#newInstance} factory method to
+ * Use the @link AdsListFragment#newInstance factory method to
  * create an instance of this fragment.
  */
-public class AdsThumbnailFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class AdsListFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
+    private AdListAdapter adapter;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AdsThumbnailFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AdsThumbnailFragment newInstance(String param1, String param2) {
-        AdsThumbnailFragment fragment = new AdsThumbnailFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    private List<Ad> mlistAd;
+
+    public AdsListFragment() {
+        // Required empty public constructor
+        mlistAd = new ArrayList<>();
+        createDummyAdsList();
     }
 
-    public AdsThumbnailFragment() {
-        // Required empty public constructor
+    private void createDummyAdsList() {
+        mlistAd.add(new Ad(1, "Pepsi discount", "15%", new Date(), new Date()));
+        mlistAd.add(new Ad(2, "Unilever discount", "All products for 30%", new Date(), new Date()));
     }
 
     @Override
@@ -60,8 +51,14 @@ public class AdsThumbnailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_ads_thumbnail, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_ads_list, container, false);
+        adapter = new AdListAdapter(getActivity(), R.layout.card_ads_item, mlistAd);
+
+        ListView listView = (ListView) view.findViewById(R.id.listAds);
+        listView.setAdapter(adapter);
+
+        return  view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -74,12 +71,14 @@ public class AdsThumbnailFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        /*
         try {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+        */
     }
 
     @Override

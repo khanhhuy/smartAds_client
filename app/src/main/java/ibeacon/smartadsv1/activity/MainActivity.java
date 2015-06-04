@@ -1,5 +1,7 @@
 package ibeacon.smartadsv1.activity;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +26,7 @@ public class MainActivity extends AppCompatActivity
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private Toolbar mToolbar;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +42,9 @@ public class MainActivity extends AppCompatActivity
         mNavigationDrawerFragment.setup(R.id.fragment_drawer,
                 (DrawerLayout) findViewById(R.id.drawer), mToolbar);
 
+        initFragment();
         //testOPservice();
+
     }
 
 
@@ -93,6 +98,16 @@ public class MainActivity extends AppCompatActivity
         intentOP.putExtras(bundle);
 
         startService(intentOP);
+
+    }
+
+    private void initFragment() {
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        AdsListFragment adsListFragment = new AdsListFragment();
+
+        fragmentTransaction.add(R.id.container, adsListFragment);
+        fragmentTransaction.commit();
 
     }
 
