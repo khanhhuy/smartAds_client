@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import static com.estimote.sdk.BeaconManager.MonitoringListener;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import ibeacon.smartadsv1.R;
@@ -145,45 +146,54 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
 
     @Override
     public void onReceivedContextAds(List<Ad> contextAdList) {
+
         //Todo: Check if these ads should be displayed to user ?
+
         if (contextAdList.isEmpty()) {
             return;
         }
-        //Debug
-        GsonBuilder gsonbuilder = new GsonBuilder();
-        Gson gson = gsonbuilder.create();
-        Log.d("Callback contextAdlist", gson.toJson(contextAdList));
 
-        Bundle bundle = new Bundle();
-        String urlPath = Config.HOST + "/ads/" + String.format("%d", contextAdList.get(0).getId());
-        bundle.putString(BundleDefined.URL, urlPath);
-        NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("Received new Ass")
-                .setContentText(contextAdList.get(0).getTitle())
-                .setDefaults(Notification.DEFAULT_SOUND | Notification.FLAG_AUTO_CANCEL);
+        Bundle bundle;
 
-        Intent notifyIntent = new Intent(this, AdNotifyActitivty.class);
-        notifyIntent.putExtras(bundle);
+        for (Ad contextAd : contextAdList){
 
-        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            bundle = new Bundle();
+            String urlPath = Config.HOST + "/ads/" + String.format("%d", contextAd.getId());
+            bundle.putString(BundleDefined.URL, urlPath);
 
-        notiBuilder.setContentIntent(pendingIntent)
-                .setAutoCancel(true);
+            NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setContentTitle("Received new Ad")
+                    .setContentText(contextAd.getTitle())
+                    .setDefaults(Notification.DEFAULT_SOUND | Notification.FLAG_AUTO_CANCEL);
 
 
-        uiHandler = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message inputMessage) {
+            Intent notifyIntent = new Intent(this, AdNotifyActitivty.class);
+            notifyIntent.putExtras(bundle);
+            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, new Random().nextInt(1000) + 1,
+                                                                        notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-                NotificationCompat.Builder notiBuilder = (NotificationCompat.Builder) inputMessage.obj;
-                NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                notificationManager.notify(1, notiBuilder.build());
-            }
-        };
+            notiBuilder.setContentIntent(pendingIntent).setAutoCancel(true);
 
-        uiHandler.obtainMessage(MessageDefined.START_ACTIVITY, notiBuilder).sendToTarget();
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            notificationManager.notify(new Random().nextInt(1000) + 1, notiBuilder.build());
+
+        }
+
+
+
+//        new Handler(Looper.getMainLooper()) {
+//            @Override
+//            public void handleMessage(Message inputMessage) {
+//
+//                NotificationCompat.Builder notiBuilder = (NotificationCompat.Builder) inputMessage.obj;
+//                NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//                notificationManager.notify(1, notiBuilder.build());
+//            }
+//        }.obtainMessage(MessageDefined.START_ACTIVITY, notiBuilder).sendToTarget();
+//
+//        uiHandler.obtainMessage(MessageDefined.START_ACTIVITY, notiBuilder).sendToTarget();
 
     }
 
