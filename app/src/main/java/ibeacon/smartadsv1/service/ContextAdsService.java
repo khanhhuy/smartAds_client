@@ -112,6 +112,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
                         beaconManager.startMonitoring(region);
 
                     } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             });
