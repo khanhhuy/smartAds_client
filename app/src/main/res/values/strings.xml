@@ -13,4 +13,7 @@
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <string name="fragment_list_featured_ads">Featured ads</string>
+    <string name="fragment_list_received_ads">Your ads</string>
+
 </resources>

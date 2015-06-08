@@ -9,17 +9,8 @@
         <include android:id="@+id/toolbar_actionbar" layout="@layout/toolbar_default"
             android:layout_width="match_parent" android:layout_height="wrap_content" />
 
-        <ListView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/listAdsDumb"
-            >
-        </ListView>
-
         <FrameLayout android:id="@+id/container" android:clickable="true"
             android:layout_width="match_parent" android:layout_height="match_parent"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
             />
     </LinearLayout>
 

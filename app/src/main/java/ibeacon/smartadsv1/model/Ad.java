@@ -1,5 +1,7 @@
 package ibeacon.smartadsv1.model;
 
+import android.graphics.drawable.Drawable;
+
 import java.util.Date;
 
 /**
@@ -11,6 +13,7 @@ public class Ad {
     private String description;
     private Date expire_date;
     private Date last_updated;
+    private Drawable icon = null;
 
     public static final String ID = "id";
     public static final String TITLE = "title";
@@ -73,5 +76,13 @@ public class Ad {
 
     public void setLast_updated(Date last_updated) {
         this.last_updated = last_updated;
+    }
+
+    public Drawable getIcon() {
+        return icon;
+    }
+
+    public void setIcon(Drawable icon) {
+        this.icon = icon;
     }
 }

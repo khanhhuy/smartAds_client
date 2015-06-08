@@ -1,21 +1,27 @@
 package ibeacon.smartadsv1.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.view.animation.AccelerateInterpolator;
+import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import ibeacon.smartadsv1.R;
-import ibeacon.smartadsv1.adapter.AdListAdapter;
+import ibeacon.smartadsv1.adapter.AdListRecycleAdapter;
 import ibeacon.smartadsv1.model.Ad;
+import ibeacon.smartadsv1.util.HidingScrollListener;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,10 +31,11 @@ import ibeacon.smartadsv1.model.Ad;
  * Use the @link AdsListFragment#newInstance factory method to
  * create an instance of this fragment.
  */
-public class AdsListFragment extends Fragment {
+public class AdsListFragment extends BaseFragment {
 
     private OnFragmentInteractionListener mListener;
-    private AdListAdapter adapter;
+    private AdListRecycleAdapter mRecycleAdapter;
+    private RecyclerView mRecyclerView;
 
     private List<Ad> mlistAd;
 
@@ -38,9 +45,21 @@ public class AdsListFragment extends Fragment {
         createDummyAdsList();
     }
 
+    public void setup(Toolbar toolbar) {
+        mToolbar = toolbar;
+    }
+
     private void createDummyAdsList() {
         mlistAd.add(new Ad(1, "Pepsi discount", "15%", new Date(), new Date()));
         mlistAd.add(new Ad(2, "Unilever discount", "All products for 30%", new Date(), new Date()));
+        mlistAd.add(new Ad(3, "Unilever discount",
+                "All products for 30%, this text will got 2 lines I hope that", new Date(), new Date()));
+        mlistAd.add(new Ad(4, "Unilever discount", "All products for 30%", new Date(), new Date()));
+        mlistAd.add(new Ad(1, "Pepsi discount", "15%", new Date(), new Date()));
+        mlistAd.add(new Ad(2, "Unilever discount", "All products for 30%", new Date(), new Date()));
+        mlistAd.add(new Ad(3, "Unilever discount",
+                "All products for 30%, this text will got 2 lines I hope that", new Date(), new Date()));
+        mlistAd.add(new Ad(4, "Unilever discount", "All products for 30%", new Date(), new Date()));
     }
 
     @Override
@@ -53,10 +72,24 @@ public class AdsListFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_ads_list, container, false);
-        adapter = new AdListAdapter(getActivity(), R.layout.card_ads_item, mlistAd);
 
-        ListView listView = (ListView) view.findViewById(R.id.listAds);
-        listView.setAdapter(adapter);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.listAds);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecyclerView.addOnScrollListener(new HidingScrollListener() {
+            @Override
+            public void onHide() {
+                hideViews();
+            }
+
+            @Override
+            public void onShow() {
+                showViews();
+            }
+        });
+
+
+        mRecycleAdapter = new AdListRecycleAdapter(mlistAd, R.layout.card_ads_item, R.layout.header_ads_item);
+        mRecyclerView.setAdapter(mRecycleAdapter);
 
         return  view;
     }
@@ -101,5 +134,6 @@ public class AdsListFragment extends Fragment {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
+
 
 }

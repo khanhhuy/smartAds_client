@@ -47,6 +47,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
     private boolean mIsStarted = false;
     private BeaconFilterer mFilterer;
     private Connector mConnector;
+    static private Handler uiHandler;
 
     @Override
     public void onCreate() {
@@ -171,7 +172,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
                 .setAutoCancel(true);
 
 
-        Handler uiHandler = new Handler(Looper.getMainLooper()) {
+        uiHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message inputMessage) {
 

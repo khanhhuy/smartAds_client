@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity
         mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(mToolbar);
 
+        setTitle("OK123");
+
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.fragment_drawer);
 
@@ -44,9 +46,9 @@ public class MainActivity extends AppCompatActivity
 
         initFragment();
         Intent beaconServiceIntent = new Intent(this, ContextAdsService.class);
-        startService(beaconServiceIntent);
 
-//d917df8a9118bfecc58f50ee9232194368d2c511
+        //startService(beaconServiceIntent);
+
         //testOPservice();
 
     }
@@ -114,8 +116,11 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         AdsListFragment adsListFragment = new AdsListFragment();
+        adsListFragment.setup(mToolbar);
 
         fragmentTransaction.add(R.id.container, adsListFragment);
+
+        setTitle("Featured Ads");
         fragmentTransaction.commit();
 
     }
