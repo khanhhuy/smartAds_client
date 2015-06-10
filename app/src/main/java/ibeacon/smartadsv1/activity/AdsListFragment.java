@@ -1,18 +1,17 @@
 package ibeacon.smartadsv1.activity;
 
 import android.app.Activity;
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,8 +19,11 @@ import java.util.List;
 
 import ibeacon.smartadsv1.R;
 import ibeacon.smartadsv1.adapter.AdListRecycleAdapter;
+import ibeacon.smartadsv1.connector.Connector;
+import ibeacon.smartadsv1.listener.AdsContentListener;
 import ibeacon.smartadsv1.model.Ad;
-import ibeacon.smartadsv1.util.HidingScrollListener;
+import ibeacon.smartadsv1.listener.HidingScrollListener;
+import ibeacon.smartadsv1.util.Config;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,22 +33,25 @@ import ibeacon.smartadsv1.util.HidingScrollListener;
  * Use the @link AdsListFragment#newInstance factory method to
  * create an instance of this fragment.
  */
-public class AdsListFragment extends BaseFragment {
+public class AdsListFragment extends BaseFragment implements AdsContentListener {
 
     private OnFragmentInteractionListener mListener;
     private AdListRecycleAdapter mRecycleAdapter;
     private RecyclerView mRecyclerView;
+    private Connector mConnector;
 
     private List<Ad> mlistAd;
+    private Activity mActivity;
 
     public AdsListFragment() {
         // Required empty public constructor
         mlistAd = new ArrayList<>();
-        createDummyAdsList();
+        //createDummyAdsList();
     }
 
     public void setup(Toolbar toolbar) {
         mToolbar = toolbar;
+
     }
 
     private void createDummyAdsList() {
@@ -65,11 +70,15 @@ public class AdsListFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        mConnector = Connector.getInstance(mActivity);
 
         View view = inflater.inflate(R.layout.fragment_ads_list, container, false);
 
@@ -87,14 +96,22 @@ public class AdsListFragment extends BaseFragment {
             }
         });
 
-
         mRecycleAdapter = new AdListRecycleAdapter(mlistAd, R.layout.card_ads_item, R.layout.header_ads_item);
+        mRecycleAdapter.setOnitemClickListener(new AdListRecycleAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                if (position != RecyclerView.NO_POSITION)
+                    Toast.makeText(getActivity(), String.format("position = %d", position), Toast.LENGTH_SHORT).show();
+            }
+        });
+
         mRecyclerView.setAdapter(mRecycleAdapter);
+
+        mConnector.requestAllAds(this);
 
         return  view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -104,6 +121,7 @@ public class AdsListFragment extends BaseFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mActivity = activity;
         /*
         try {
             mListener = (OnFragmentInteractionListener) activity;
@@ -135,5 +153,19 @@ public class AdsListFragment extends BaseFragment {
         void onFragmentInteraction(Uri uri);
     }
 
+    @Override
+    public void adsListChange(List<Ad> newAds) {
+        Log.d(Config.TAG, "AdsList Change");
+        mlistAd.clear();
+        mRecycleAdapter.notifyItemRangeRemoved(0, mlistAd.size());
+        mlistAd.addAll(newAds);
+        mRecycleAdapter.notifyItemRangeInserted(0, mlistAd.size() - 1);
+        mConnector.requestImageThumbnail(mlistAd, this);
+    }
 
+    @Override
+    public void adsListUpdateImg(int position) {
+        Log.d(Config.TAG, "Ads update position " + position);
+        mRecycleAdapter.notifyItemChanged(position + 1);
+    }
 }

@@ -11,7 +11,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.estimote.sdk.Beacon;
 
@@ -23,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import ibeacon.smartadsv1.listener.AdsContentListener;
+import ibeacon.smartadsv1.listener.ContextAdsReceivedListener;
 import ibeacon.smartadsv1.model.Ad;
 import ibeacon.smartadsv1.util.Config;
 
@@ -34,6 +35,7 @@ public class Connector {
     private RequestQueue mRequestQueue;
     private static final String CONTEXT_ADS_BASE_URL = Config.HOST + "/customers/" + Config.CUSTOMER_ID + "/context-ads/";
     private static final String ADS_BASE_THUMBNAIL = Config.HOST + "/img/thumbnails/";
+    private static final String ALL_ADS = Config.HOST + "/ads";
     private static AtomicInteger queueCount = new AtomicInteger();
 
     public Connector(Context context) {
@@ -88,32 +90,70 @@ public class Connector {
         }
     }
 
-    private void requestImageThumbnail(final List<Ad> contextAdsList, final ContextAdsReceivedListener listener) {
+    public void requestAllAds(final AdsContentListener listener) {
+        final String url = ALL_ADS;
+        final List<Ad> allAds = new ArrayList<>();
+
+        JsonArrayRequest addAdsRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray jsonArray) {
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject jsonAd;
+                            try {
+                                jsonAd = jsonArray.getJSONObject(i);
+                                allAds.add(new Ad(jsonAd.getInt("id"), jsonAd.getString("title")));
+                                Log.d(Config.TAG, String.format("Ad id = %d, Ad title = %s",
+                                        jsonAd.getInt("id"), jsonAd.getString("title")));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        listener.adsListChange(allAds);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        Log.e(Config.TAG, "Connect to Server Error!" + url);
+                    }
+                });
+
+        addAdsRequest.setRetryPolicy(new DefaultRetryPolicy(4000,
+                5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        mRequestQueue.add(addAdsRequest);
+        Log.d(Config.TAG, "All ads requested");
+
+    }
+
+    public void requestImageThumbnail(final List<Ad> adList, final AdsContentListener listener) {
 
 
-        for (final Ad contextAd : contextAdsList) {
-            String url = ADS_BASE_THUMBNAIL + contextAd.getId() + ".png";
+        for (int i = 0; i < adList.size(); i++) {
+            final int position = i;
+            Log.d(Config.TAG, "Load image thumbnail position " + position);
+            final Ad ad = adList.get(i);
+            String url = ADS_BASE_THUMBNAIL + ad.getId() + ".png";
+            Log.d(Config.TAG, "Load image thumbnail ID " + ad.getId());
 
             ImageRequest thumbnailRequest = new ImageRequest(url,
                     new Response.Listener<Bitmap>() {
                         @Override
                         public void onResponse(Bitmap bitmap) {
-                            contextAd.setIcon(Bitmap.createScaledBitmap(bitmap, 48, 48, false));
-                            queueCount.addAndGet(-1);
-                            if (queueCount.get() == 0)
-                                listener.onReceivedContextAds(contextAdsList);
+                            ad.setIcon(bitmap);
+                            listener.adsListUpdateImg(position);
                         }
                     }, 0, 0, null,
                     new Response.ErrorListener() {
                         public void onErrorResponse(VolleyError error) {
                             //doing nothing. Default icon will be displayed.
-                            queueCount.addAndGet(-1);
-                            if (queueCount.get() == 0)
-                                listener.onReceivedContextAds(contextAdsList);
                         }
                     });
+            thumbnailRequest.setRetryPolicy(new DefaultRetryPolicy(4000,
+                    5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             mRequestQueue.add(thumbnailRequest);
-            queueCount.addAndGet(1);
         }
+
+
     }
 }

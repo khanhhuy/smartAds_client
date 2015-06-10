@@ -1,4 +1,4 @@
-package ibeacon.smartadsv1.util;
+package ibeacon.smartadsv1.listener;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -8,7 +8,7 @@ import android.util.Log;
  * Created by Huy on 6/4/2015.
  */
 public abstract class HidingScrollListener extends RecyclerView.OnScrollListener {
-    private static final int HIDE_THRESHOLD = 30;
+    private static final int HIDE_THRESHOLD = 60;
     private int scrolledDistance = 0;
     private boolean controlsVisible = true;
 
@@ -36,7 +36,6 @@ public abstract class HidingScrollListener extends RecyclerView.OnScrollListener
         }
 
         if((controlsVisible && dy>0) || (!controlsVisible && dy<0)) {
-            Log.d("scrollListener", String.format("scroll Distance = %d", scrolledDistance));
             scrolledDistance += dy;
         }
     }

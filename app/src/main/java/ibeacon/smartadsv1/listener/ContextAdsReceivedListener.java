@@ -1,4 +1,4 @@
-package ibeacon.smartadsv1.connector;
+package ibeacon.smartadsv1.listener;
 
 import java.util.List;
 

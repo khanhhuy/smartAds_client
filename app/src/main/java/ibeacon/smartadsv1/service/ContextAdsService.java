@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -17,8 +15,6 @@ import android.util.Log;
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import static com.estimote.sdk.BeaconManager.MonitoringListener;
 
@@ -28,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import ibeacon.smartadsv1.R;
 import ibeacon.smartadsv1.activity.AdNotifyActitivty;
-import ibeacon.smartadsv1.connector.ContextAdsReceivedListener;
+import ibeacon.smartadsv1.listener.ContextAdsReceivedListener;
 import ibeacon.smartadsv1.model.Ad;
 import ibeacon.smartadsv1.model.BeaconFilterer;
 import ibeacon.smartadsv1.model.MyBeacon;
@@ -36,7 +32,6 @@ import ibeacon.smartadsv1.old.OperationService;
 import ibeacon.smartadsv1.util.BundleDefined;
 import ibeacon.smartadsv1.util.Config;
 import ibeacon.smartadsv1.connector.Connector;
-import ibeacon.smartadsv1.util.MessageDefined;
 
 
 public class ContextAdsService extends Service implements ContextAdsReceivedListener {

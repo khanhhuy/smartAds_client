@@ -32,23 +32,22 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar_adslist_header);
         setSupportActionBar(mToolbar);
 
-        setTitle("OK123");
+        setTitle("Featured Ads");
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getFragmentManager().findFragmentById(R.id.fragment_drawer);
 
-        //Set up the drawer.
-        mNavigationDrawerFragment.setup(R.id.fragment_drawer,
-                (DrawerLayout) findViewById(R.id.drawer), mToolbar);
+//        Set up the drawer.
+//        mNavigationDrawerFragment = (NavigationDrawerFragment)
+//                getFragmentManager().findFragmentById(R.id.fragment_drawer);
+//        mNavigationDrawerFragment.setup(R.id.fragment_drawer,
+//                (DrawerLayout) findViewById(R.id.drawer), mToolbar);
 
         initFragment();
-        Intent beaconServiceIntent = new Intent(this, ContextAdsService.class);
 
+        //Intent beaconServiceIntent = new Intent(this, ContextAdsService.class);
         //startService(beaconServiceIntent);
-
         //testOPservice();
 
     }
@@ -118,7 +117,7 @@ public class MainActivity extends AppCompatActivity
         AdsListFragment adsListFragment = new AdsListFragment();
         adsListFragment.setup(mToolbar);
 
-        fragmentTransaction.add(R.id.container, adsListFragment);
+        fragmentTransaction.add(R.id.inner_container, adsListFragment);
 
         setTitle("Featured Ads");
         fragmentTransaction.commit();

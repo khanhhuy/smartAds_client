@@ -1,20 +1,20 @@
 package ibeacon.smartadsv1.adapter;
 
 import android.content.Context;
-import android.media.Image;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 import ibeacon.smartadsv1.R;
 import ibeacon.smartadsv1.model.Ad;
+import ibeacon.smartadsv1.util.Config;
 
 /**
  * Created by Huy on 6/4/2015.
@@ -26,6 +26,7 @@ public class AdListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.View
     private List<Ad> adList;
     private int rowLayout;
     private int rowHeader;
+    protected OnItemClickListener mItemClickListener;
 
     public AdListRecycleAdapter(List<Ad> ads, int rowLayout, int rowHeader) {
         adList = ads;
@@ -33,23 +34,23 @@ public class AdListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.rowHeader = rowHeader;
     }
 
-    public void clearListAds() {
-        int size = adList.size();
-        adList.clear();
-        this.notifyItemRangeRemoved(0, size);
-    }
-
-    public void adAds(List<Ad> newAds) {
-        adList.addAll(newAds);
-        this.notifyItemRangeInserted(0, adList.size() - 1);
-    }
-
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         if (viewType == TYPE_ITEM) {
             final View view = LayoutInflater.from(context).inflate(rowLayout, parent, false);
-            return ViewHolder.newInstance(view);
+            final ViewHolder rowViewHolder = new ViewHolder(view);
+            rowViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(Config.TAG, "onClick" + rowViewHolder.getAdapterPosition() + rowViewHolder.adTitle.getText());
+                    if (mItemClickListener != null) {
+                        mItemClickListener.onItemClick(v, rowViewHolder.getAdapterPosition() - 1); //view header.
+                    }
+                }
+            });
+
+            return rowViewHolder;
         } else if (viewType == TYPE_HEADER) {
             final View view = LayoutInflater.from(context).inflate(rowHeader, parent, false);
             return new HeaderViewHolder(view);
@@ -65,6 +66,8 @@ public class AdListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.View
             viewHolder.setAdTitle(adTitle);
             String adDesc = adList.get(position - 1).getDescription();
             viewHolder.setAdDesc(adDesc);
+            if (adList.get(position-1).getIcon() != null)
+                viewHolder.setAdThumbnail(adList.get(position-1).getIcon());
         }
     }
 
@@ -72,13 +75,11 @@ public class AdListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.View
         return adList == null ? 0 : adList.size();
     }
 
-    //our new getItemCount() that includes header View
     @Override
     public int getItemCount() {
-        return getBasicItemCount() + 1;
+        return getBasicItemCount() + 1; //header view
     }
 
-    //added a method that returns viewType for a given position
     @Override
     public int getItemViewType(int position) {
         if (isPositionHeader(position)) {
@@ -91,16 +92,24 @@ public class AdListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.View
         return position == 0;
     }
 
+    public interface OnItemClickListener {
+        public void onItemClick(View view, int position);
+    }
+
+    public void setOnitemClickListener(final OnItemClickListener mItemClickListener) {
+        this.mItemClickListener = mItemClickListener;
+    }
+
     public static class HeaderViewHolder extends RecyclerView.ViewHolder {
         public HeaderViewHolder(View itemView) {
             super(itemView);
         }
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final TextView adTitle;
-        private final TextView adDesc;
-        private final ImageView adThumbnail;
+    public class ViewHolder extends RecyclerView.ViewHolder{
+        public final TextView adTitle;
+        public final TextView adDesc;
+        public final ImageView adThumbnail;
 
         public ViewHolder(final View parent, TextView adTitle, TextView adDesc, ImageView adThumbnail) {
             super(parent);
@@ -109,13 +118,13 @@ public class AdListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.View
             this.adThumbnail = adThumbnail;
         }
 
-        public static ViewHolder newInstance(View parent) {
-            TextView adTitle = (TextView) parent.findViewById(R.id.adTitle);
-            TextView adDesc = (TextView) parent.findViewById(R.id.adDesc);
-            ImageView adThumbnail = (ImageView) parent.findViewById(R.id.adThumbnailImg);
-
-            return new ViewHolder(parent, adTitle, adDesc, adThumbnail);
+        public ViewHolder(View parent) {
+            super(parent);
+            adTitle = (TextView) parent.findViewById(R.id.adTitle);
+            adDesc = (TextView) parent.findViewById(R.id.adDesc);
+            adThumbnail = (ImageView) parent.findViewById(R.id.adThumbnailImg);
         }
+
 
         public void setAdTitle(CharSequence text) {
             adTitle.setText(text);
@@ -125,8 +134,8 @@ public class AdListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.View
             adDesc.setText(text);
         }
 
-        public void setAdThumbnail(int imgResource) {
-            adThumbnail.setImageResource(imgResource);
+        public void setAdThumbnail(Bitmap bitmap) {
+            adThumbnail.setImageBitmap(bitmap);
         }
 
 

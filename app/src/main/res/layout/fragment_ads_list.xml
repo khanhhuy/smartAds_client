@@ -1,15 +1,10 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="ibeacon.smartadsv1.activity.AdsListFragment">
-
-    <android.support.v7.widget.RecyclerView
+<android.support.v7.widget.RecyclerView
+        android:id="@+id/listAds"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/listAds"
+        android:orientation="vertical"
+        tools:context="ibeacon.smartadsv1.activity.AdsListFragment"
         >
-    </android.support.v7.widget.RecyclerView>
-
-
-</LinearLayout>
+</android.support.v7.widget.RecyclerView>
