@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ibeacon.smartadsv1.R;
-import ibeacon.smartadsv1.activity.AdNotifyActitivty;
+import ibeacon.smartadsv1.activity.ViewDetailAdsActivity;
 import ibeacon.smartadsv1.model.Ad;
 import ibeacon.smartadsv1.model.MyBeacon;
 import ibeacon.smartadsv1.model.BeaconFilterer;
@@ -158,7 +158,7 @@ public class OperationService extends Service implements IOperationCallback {
                 .setDefaults(Notification.DEFAULT_SOUND | Notification.FLAG_AUTO_CANCEL)
                 ;
 
-        Intent notifyIntent = new Intent(this, AdNotifyActitivty.class);
+        Intent notifyIntent = new Intent(this, ViewDetailAdsActivity.class);
         notifyIntent.putExtras(bundle);
 
         notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

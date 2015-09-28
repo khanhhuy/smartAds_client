@@ -23,7 +23,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import ibeacon.smartadsv1.R;
-import ibeacon.smartadsv1.activity.AdNotifyActitivty;
+import ibeacon.smartadsv1.activity.ViewDetailAdsActivity;
 import ibeacon.smartadsv1.listener.ContextAdsReceivedListener;
 import ibeacon.smartadsv1.model.Ad;
 import ibeacon.smartadsv1.model.BeaconFilterer;
@@ -163,7 +163,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
                     .setDefaults(Notification.DEFAULT_SOUND | Notification.FLAG_AUTO_CANCEL);
 
 
-            Intent notifyIntent = new Intent(this, AdNotifyActitivty.class);
+            Intent notifyIntent = new Intent(this, ViewDetailAdsActivity.class);
             notifyIntent.putExtras(bundle);
             notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, new Random().nextInt(1000) + 1,

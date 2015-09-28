@@ -77,7 +77,6 @@ public class Connector {
                 @Override
                 public void onErrorResponse(VolleyError volleyError) {
                     Log.e(Config.TAG, "Connect to Server Error!" + url);
-
                 }
             });
 

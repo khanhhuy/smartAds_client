@@ -1,27 +1,25 @@
 package ibeacon.smartadsv1.activity;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ShareActionProvider;
 
 import ibeacon.smartadsv1.R;
 import ibeacon.smartadsv1.util.BundleDefined;
 
-public class AdNotifyActitivty extends ActionBarActivity {
+public class ViewDetailAdsActivity extends AppCompatActivity {
 
     String url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ad_notify);
+        setContentView(R.layout.activity_view_detail_ads);
         Bundle bun = getIntent().getExtras();
 
         String title = null;
@@ -45,15 +43,6 @@ public class AdNotifyActitivty extends ActionBarActivity {
         Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(i);
     }
-
-    private class MyWebViewClient extends WebViewClient {
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            view.loadUrl(url);
-            return true;
-        }
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -85,5 +74,13 @@ public class AdNotifyActitivty extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private class MyWebViewClient extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            view.loadUrl(url);
+            return true;
+        }
     }
 }
