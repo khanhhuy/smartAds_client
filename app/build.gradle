@@ -5,8 +5,8 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
-        applicationId "ibeacon.smartadsv1"
-        minSdkVersion 19
+        applicationId "vn.edu.hcmut.cse.smartads"
+        minSdkVersion 18
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
@@ -18,11 +18,11 @@ android {
         }
     }
 }
-    repositories {
-        flatDir {
-            dirs 'libs'
-        }
+repositories {
+    flatDir {
+        dirs 'libs'
     }
+}
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.1.1'
