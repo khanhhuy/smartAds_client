@@ -185,12 +185,12 @@ public class LoginActivity extends Activity implements LoginResponseListener {
     public void onError(String message) {
         showProgress(false);
         if (message == null) {
-            message="There is an error, please try again!";
+            message=getString(R.string.error_login_network_problem);
         }
-        mPasswordView.setError(message);
+        mPasswordView.requestFocus();
         AlertDialog.Builder builder  = new AlertDialog.Builder(this);
         builder.setMessage(message);
-        builder.setPositiveButton("OK", null).setIcon(android.R.drawable.ic_dialog_alert);
+        builder.setPositiveButton(getString(R.string.button_ok), null).setIcon(android.R.drawable.ic_dialog_alert);
         builder.create().show();
     }
 }

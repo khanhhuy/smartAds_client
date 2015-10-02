@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
+import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.listener.AdsContentListener;
 import vn.edu.hcmut.cse.smartads.listener.ContextAdsReceivedListener;
 import vn.edu.hcmut.cse.smartads.listener.LoginResponseListener;
@@ -31,19 +31,20 @@ import vn.edu.hcmut.cse.smartads.model.Ad;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
 /**
- * Created by minhdaobui on 6/3/2015.
+ * Created by Minh Dao Bui on 6/3/2015.
  */
 public class Connector {
     private static Connector sInstance;
-    private RequestQueue mRequestQueue;
     private static final String CONTEXT_ADS_BASE_URL = Config.HOST + "/customers/" + Config.CUSTOMER_ID + "/context-ads/";
     private static final String ADS_BASE_THUMBNAIL = Config.HOST + "/img/thumbnails/";
     private static final String ALL_ADS = Config.HOST + "/ads";
-    public static final String LOGIN_URL = Config.HOST + "/auth/login";
-    private static AtomicInteger queueCount = new AtomicInteger();
+    private static final String LOGIN_URL = Config.HOST + "/auth/login";
+    private final Context mContext;
+    private final RequestQueue mRequestQueue;
 
-    public Connector(Context context) {
+    private Connector(Context context) {
         mRequestQueue = Volley.newRequestQueue(context.getApplicationContext());
+        mContext=context;
     }
 
     public static synchronized Connector getInstance(Context context) {
@@ -179,14 +180,19 @@ public class Connector {
                     }
                 }
                 else{
-                    listener.onError("Wrong email or password");
+                    listener.onError(mContext.getString(R.string.error_login_incorrect));
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Log.e(Config.TAG, "Login: onErrorResponse "+volleyError.getMessage());
-                listener.onError(volleyError.getMessage());
+                Log.e(Config.TAG, "Login: onErrorResponse " + volleyError.getMessage());
+                String message=mContext.getString(R.string.error_login_network_problem);
+                if ( volleyError.getMessage()!=null) {
+                    message+=System.getProperty("line.separator") + "(" +
+                            volleyError.getMessage() + ")";
+                }
+                listener.onError(message);
             }
         });
         mRequestQueue.add(request);

@@ -15,5 +15,9 @@
 
     <string name="fragment_list_featured_ads">Featured ads</string>
     <string name="fragment_list_received_ads">Your ads</string>
+    <string name="error_login_incorrect">Wrong email or password</string>
+    <string name="error_login_network_problem">Sorry, unable to login.
+Please check your network connection or try again later.</string>
+    <string name="button_ok">OK</string>
 
 </resources>
