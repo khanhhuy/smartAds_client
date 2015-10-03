@@ -17,7 +17,7 @@
     <string name="error_login_incorrect">Wrong email or password</string>
     <string name="error_network_problem">Sorry, unable to connect to SmartAds Server.\nPlease check your network connection or try again later.</string>
     <string name="btn_ok">OK</string>
-    <string name="title_activity_sign_up">SignUpActivity</string>
+    <string name="title_activity_sign_up">Sign Up</string>
     <string name="btn_next">Next</string>
     <string name="hint_signup_email">Your Loyalty Membership email</string>
     <string name="btn_signup">Sign Up</string>
@@ -32,5 +32,6 @@
     <string name="error_confirm_not_match">Passwords didn\'t match</string>
     <string name="signup_success">An email has been sent to you. Please click the link on it to complete the registration. Thank you!</string>
     <string name="success">Success!</string>
+    <string name="smartads">SmartAds</string>
 
 </resources>

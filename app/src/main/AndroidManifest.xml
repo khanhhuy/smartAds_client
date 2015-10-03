@@ -53,12 +53,13 @@
         <activity
             android:name=".activity.LoginActivity"
             android:label="@string/title_activity_login"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
+            android:windowSoftInputMode="adjustPan|stateVisible" >
         </activity>
         <activity
             android:name=".activity.SignUpActivity"
             android:label="@string/title_activity_sign_up"
-            android:parentActivityName=".activity.LoginActivity" >
+            android:parentActivityName=".activity.LoginActivity"
+            android:windowSoftInputMode="adjustPan|stateVisible">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="vn.edu.hcmut.cse.smartads.activity.LoginActivity" />

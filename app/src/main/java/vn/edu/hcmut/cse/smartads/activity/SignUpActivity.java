@@ -3,9 +3,11 @@ package vn.edu.hcmut.cse.smartads.activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -31,6 +33,8 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         mViewAnimator = (ViewAnimator) findViewById(R.id.signup_view_switcher);
         mEmailEdit = (EditText) findViewById(R.id.signup_edit_email);
         Button btnNext = (Button) findViewById(R.id.btn_next_signup);
@@ -164,14 +168,33 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
+    private boolean handleBackPressed() {
+        int displayedChild = mViewAnimator.getDisplayedChild();
+        if (displayedChild==1) {
+            mViewAnimator.showPrevious();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public void onBackPressed() {
-        int displayedChild = mViewAnimator.getDisplayedChild();
-        if (displayedChild > 0) {
-            mViewAnimator.showPrevious();
-        } else {
+        if (!handleBackPressed()) {
             super.onBackPressed();
         }
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (handleBackPressed()) {
+                    return true;
+                }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public void hideProgressAndShowError(String message) {

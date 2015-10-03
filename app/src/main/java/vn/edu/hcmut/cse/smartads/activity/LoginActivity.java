@@ -1,13 +1,9 @@
 package vn.edu.hcmut.cse.smartads.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -33,7 +29,6 @@ public class LoginActivity extends Activity implements LoginResponseListener {
     // UI references.
     private EditText mEmailView;
     private EditText mPasswordView;
-    private View mLoginFormView;
     private Connector mConnector;
     private ProgressDialog mProgressDialog;
 
@@ -74,7 +69,6 @@ public class LoginActivity extends Activity implements LoginResponseListener {
             }
         });
 
-        mLoginFormView = findViewById(R.id.email_login_form);
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle("Please Wait..");
         mProgressDialog.setMessage("Loading...");
@@ -191,7 +185,7 @@ public class LoginActivity extends Activity implements LoginResponseListener {
         editor.putBoolean("loggedIn", true);
         editor.putString("customerID", customerID);
         editor.putString("accessToken", accessToken);
-        editor.commit();
+        editor.apply();
 
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
