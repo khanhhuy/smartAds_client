@@ -1,4 +1,4 @@
-package vn.edu.hcmut.cse.smartads.listener;
+package vn.edu.hcmut.cse.smartads.connector;
 
 import java.util.List;
 

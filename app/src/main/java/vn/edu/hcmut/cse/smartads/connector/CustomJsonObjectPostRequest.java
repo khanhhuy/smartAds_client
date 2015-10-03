@@ -1,5 +1,6 @@
 package vn.edu.hcmut.cse.smartads.connector;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
@@ -35,6 +36,7 @@ public class CustomJsonObjectPostRequest extends Request<JSONObject> {
         super(method, url, errorListener);
         this.listener = reponseListener;
         this.params = params;
+        this.setRetryPolicy(new DefaultRetryPolicy(5000,1,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
     }
 
     protected Map<String, String> getParams()

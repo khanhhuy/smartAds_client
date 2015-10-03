@@ -11,6 +11,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.estimote.sdk.Beacon;
 
@@ -25,8 +26,6 @@ import java.util.Map;
 
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.listener.AdsContentListener;
-import vn.edu.hcmut.cse.smartads.listener.ContextAdsReceivedListener;
-import vn.edu.hcmut.cse.smartads.listener.LoginResponseListener;
 import vn.edu.hcmut.cse.smartads.model.Ad;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
@@ -39,12 +38,14 @@ public class Connector {
     private static final String ADS_BASE_THUMBNAIL = Config.HOST + "/img/thumbnails/";
     private static final String ALL_ADS = Config.HOST + "/ads";
     private static final String LOGIN_URL = Config.HOST + "/auth/login";
+    private static final String ACCOUNT_STATUS_URL = Config.HOST + "/account-status?email=%s";
+    private static final String REGISTER_URL = Config.HOST + "/auth/register";
     private final Context mContext;
     private final RequestQueue mRequestQueue;
 
     private Connector(Context context) {
         mRequestQueue = Volley.newRequestQueue(context.getApplicationContext());
-        mContext=context;
+        mContext = context;
     }
 
     public static synchronized Connector getInstance(Context context) {
@@ -162,24 +163,23 @@ public class Connector {
     }
 
     public void postLogin(String email, String password, final LoginResponseListener listener) {
-        Map<String,String> params=new HashMap<>();
-        params.put("email",email);
-        params.put("password",password);
+        Map<String, String> params = new HashMap<>();
+        params.put("email", email);
+        params.put("password", password);
 
-        CustomJsonObjectPostRequest request = new CustomJsonObjectPostRequest(LOGIN_URL,params, new Response.Listener<JSONObject>() {
+        CustomJsonObjectPostRequest request = new CustomJsonObjectPostRequest(LOGIN_URL, params, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
-                Log.e(Config.TAG, "Login: onResponse" + jsonObject);
+                Log.d(Config.TAG, "Login: onResponse" + jsonObject);
                 if (!jsonObject.has("errors")) {
                     try {
-                        String customerID=jsonObject.getString("customerID");
-                        String accessToken=jsonObject.getString("accessToken");
-                        listener.onSuccess(customerID,accessToken);
+                        String customerID = jsonObject.getString("customerID");
+                        String accessToken = jsonObject.getString("accessToken");
+                        listener.onSuccess(customerID, accessToken);
                     } catch (JSONException e) {
                         listener.onError(null);
                     }
-                }
-                else{
+                } else {
                     listener.onError(mContext.getString(R.string.error_login_incorrect));
                 }
             }
@@ -187,15 +187,86 @@ public class Connector {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 Log.e(Config.TAG, "Login: onErrorResponse " + volleyError.getMessage());
-                String message=mContext.getString(R.string.error_login_network_problem);
-                if ( volleyError.getMessage()!=null) {
-                    message+=System.getProperty("line.separator") + "(" +
-                            volleyError.getMessage() + ")";
-                }
+                String message = getNetworkErrorMessage(volleyError);
                 listener.onError(message);
             }
         });
         mRequestQueue.add(request);
         Log.d(Config.TAG, "Login request sent!");
+    }
+
+    private String getNetworkErrorMessage(VolleyError volleyError) {
+        String message = mContext.getString(R.string.error_network_problem);
+        if (volleyError.getMessage() != null) {
+            message += System.getProperty("line.separator") + "(" +
+                    volleyError.getMessage() + ")";
+        }
+        return message;
+    }
+
+    public void requestAccountStatus(String email, final AccountStatusResponseListener listener) {
+        String url = String.format(ACCOUNT_STATUS_URL, email);
+        JsonObjectRequest request = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                if (!jsonObject.has("errors")) {
+                    try {
+                        String accountStatus = jsonObject.getString("result");
+                        listener.onSuccess(accountStatus);
+                    } catch (JSONException e) {
+                        listener.onError(null);
+                    }
+                } else {
+                    listener.onError(null);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.e(Config.TAG, "Login: onErrorResponse " + volleyError.getMessage());
+                String message = getNetworkErrorMessage(volleyError);
+                listener.onError(message);
+            }
+        });
+        mRequestQueue.add(request);
+        Log.d(Config.TAG, "account status request sent!");
+    }
+
+    public void register(String email, String password, final RegisterResponseListener listener) {
+        Map<String, String> params = new HashMap<>();
+        params.put("email", email);
+        params.put("password", password);
+
+        CustomJsonObjectPostRequest request = new CustomJsonObjectPostRequest(REGISTER_URL, params, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                Log.d(Config.TAG, "Login: onResponse" + jsonObject);
+                if (!jsonObject.has("errors")) {
+                    try {
+                        boolean result = jsonObject.getBoolean("result");
+                        if (result) {
+                            listener.onSuccess();
+                        } else {
+                            listener.onError(null);
+                        }
+                    } catch (JSONException e) {
+                        listener.onError(null);
+                    }
+                } else {
+                    listener.onError(null);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.e(Config.TAG, "Login: onErrorResponse " + volleyError.getMessage());
+                String message = getNetworkErrorMessage(volleyError);
+                listener.onError(message);
+            }
+        });
+        request.setRetryPolicy(new DefaultRetryPolicy(10000,
+                0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        mRequestQueue.add(request);
+        Log.d(Config.TAG, "Register request sent!");
     }
 }

@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.activity.ViewDetailAdsActivity;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
-import vn.edu.hcmut.cse.smartads.listener.ContextAdsReceivedListener;
+import vn.edu.hcmut.cse.smartads.connector.ContextAdsReceivedListener;
 import vn.edu.hcmut.cse.smartads.listener.BeaconFilterer;
 import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.model.Ad;

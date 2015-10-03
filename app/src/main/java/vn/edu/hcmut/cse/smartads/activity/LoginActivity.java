@@ -4,7 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -20,7 +20,7 @@ import android.widget.TextView;
 
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
-import vn.edu.hcmut.cse.smartads.listener.LoginResponseListener;
+import vn.edu.hcmut.cse.smartads.connector.LoginResponseListener;
 import vn.edu.hcmut.cse.smartads.util.Utils;
 
 /**
@@ -33,9 +33,9 @@ public class LoginActivity extends Activity implements LoginResponseListener {
     // UI references.
     private EditText mEmailView;
     private EditText mPasswordView;
-    private View mProgressView;
     private View mLoginFormView;
     private Connector mConnector;
+    private ProgressDialog mProgressDialog;
 
 
     @Override
@@ -66,8 +66,23 @@ public class LoginActivity extends Activity implements LoginResponseListener {
             }
         });
 
+        Button btnSignUp = (Button) findViewById(R.id.btn_signup);
+        btnSignUp.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openSignUp();
+            }
+        });
+
         mLoginFormView = findViewById(R.id.email_login_form);
-        mProgressView = findViewById(R.id.login_progress);
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setTitle("Please Wait..");
+        mProgressDialog.setMessage("Loading...");
+    }
+
+    private void openSignUp() {
+        Intent intent=new Intent(this,SignUpActivity.class);
+        startActivity(intent);
     }
 
 
@@ -129,15 +144,17 @@ public class LoginActivity extends Activity implements LoginResponseListener {
         return password.length() > 4;
     }
 
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     public void showProgress(final boolean show) {
+        if (show){
+            mProgressDialog.show();
+        }
+        else{
+            mProgressDialog.dismiss();
+        }
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
             //mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
@@ -162,7 +179,7 @@ public class LoginActivity extends Activity implements LoginResponseListener {
             // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+        }*/
     }
 
     @Override
@@ -176,7 +193,7 @@ public class LoginActivity extends Activity implements LoginResponseListener {
         editor.putString("accessToken", accessToken);
         editor.commit();
 
-        Intent intent= new Intent(this,MainActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
     }
@@ -185,13 +202,10 @@ public class LoginActivity extends Activity implements LoginResponseListener {
     public void onError(String message) {
         showProgress(false);
         if (message == null) {
-            message=getString(R.string.error_login_network_problem);
+            message = getString(R.string.error_unkown);
         }
         mPasswordView.requestFocus();
-        AlertDialog.Builder builder  = new AlertDialog.Builder(this);
-        builder.setMessage(message);
-        builder.setPositiveButton(getString(R.string.button_ok), null).setIcon(android.R.drawable.ic_dialog_alert);
-        builder.create().show();
+        Utils.showAlertDialog(this,message);
     }
 }
 
