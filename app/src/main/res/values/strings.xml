@@ -20,7 +20,7 @@
     <string name="title_activity_sign_up">Sign Up</string>
     <string name="btn_next">Next</string>
     <string name="hint_signup_email">Your Loyalty Membership email</string>
-    <string name="btn_signup">Sign Up</string>
+    <string name="signup">Sign Up</string>
     <string name="password">Password</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="error_not_member_title">Not A Loyalty Member</string>
@@ -33,5 +33,7 @@
     <string name="signup_success">An email has been sent to you. Please click the link on it to complete the registration. Thank you!</string>
     <string name="success">Success!</string>
     <string name="smartads">SmartAds</string>
+    <string name="login_have_account">Don\'t have an account?</string>
+    <string name="forgot_password">Forgot Password?</string>
 
 </resources>

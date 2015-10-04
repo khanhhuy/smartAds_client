@@ -9,7 +9,7 @@
         <item name="android:textColorPrimary">@color/myTextPrimaryColor</item>
         <!--<item name="android:navigationBarColor">@color/myNavigationColor</item>-->
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
-
+        <item name="colorButtonNormal">@color/myBtnColor</item>
         <item name="android:windowBackground">@color/myWindowBackground</item>
         <!--<item name="android:windowContentTransitions">true</item>-->
     </style>
@@ -31,5 +31,9 @@
     <style name="myButton">
         <item name="android:paddingTop">10dp</item>
         <item name="android:paddingBottom">10dp</item>
+        <item name="android:textColor">#FFF</item>
     </style>
+    <style name="myTextStyle">
+    </style>
+    <style name="AppTheme.NoActionBar.Material" parent="AppTheme.NoActionBar" />
 </resources>

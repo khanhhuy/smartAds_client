@@ -61,8 +61,8 @@ public class LoginActivity extends Activity implements LoginResponseListener {
             }
         });
 
-        Button btnSignUp = (Button) findViewById(R.id.btn_signup);
-        btnSignUp.setOnClickListener(new OnClickListener() {
+        TextView textSignUp = (TextView) findViewById(R.id.text_signup);
+        textSignUp.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 openSignUp();
@@ -96,6 +96,12 @@ public class LoginActivity extends Activity implements LoginResponseListener {
 
         boolean cancel = false;
         View focusView = null;
+
+        if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        }
 
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
