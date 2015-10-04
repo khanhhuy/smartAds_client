@@ -3,7 +3,7 @@
     <string name="app_name">SmartAds</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_ad_notify">AdNotify</string>
+    <string name="title_view_details_activity">Details</string>
     <string name="action_share">Share</string>
 
     <string name="drawer_open">Menu opened</string>
