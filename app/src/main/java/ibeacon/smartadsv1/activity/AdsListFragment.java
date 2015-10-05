@@ -1,6 +1,7 @@
 package ibeacon.smartadsv1.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -23,6 +24,7 @@ import ibeacon.smartadsv1.connector.Connector;
 import ibeacon.smartadsv1.listener.AdsContentListener;
 import ibeacon.smartadsv1.model.Ad;
 import ibeacon.smartadsv1.listener.HidingScrollListener;
+import ibeacon.smartadsv1.util.BundleDefined;
 import ibeacon.smartadsv1.util.Config;
 
 /**
@@ -100,8 +102,17 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
         mRecycleAdapter.setOnitemClickListener(new AdListRecycleAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                if (position != RecyclerView.NO_POSITION)
-                    Toast.makeText(getActivity(), String.format("position = %d", position), Toast.LENGTH_SHORT).show();
+                if (position != RecyclerView.NO_POSITION) {
+
+                    Bundle bundle = new Bundle();
+                    String urlPath = Config.HOST + "/ads/" + String.format("%d", mlistAd.get(position).getId());
+                    bundle.putString(BundleDefined.URL, urlPath);
+
+                    Intent detailAdIntent = new Intent(mActivity, AdNotifyActitivty.class);
+                    detailAdIntent.putExtras(bundle);
+                    startActivity(detailAdIntent);
+
+                }
             }
         });
 
