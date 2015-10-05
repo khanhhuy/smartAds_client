@@ -1,19 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">SmartAdsV1</string>
+    <string name="app_name">SmartAds</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_ad_notify">AdNotify</string>
+    <string name="title_view_details_activity">Details</string>
     <string name="action_share">Share</string>
 
     <string name="drawer_open">Menu opened</string>
     <string name="drawer_close">Menu closed</string>
 
-<!-- TODO: Remove or change this placeholder text -->
+    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="fragment_list_featured_ads">Featured ads</string>
     <string name="fragment_list_received_ads">Your ads</string>
+    <string name="error_login_incorrect">Wrong email or password</string>
+    <string name="error_network_problem">Sorry, unable to connect to SmartAds Server.\nPlease check your network connection or try again later.</string>
+    <string name="btn_ok">OK</string>
+    <string name="title_activity_sign_up">Sign Up</string>
+    <string name="btn_next">Next</string>
+    <string name="hint_signup_email">Your Loyalty Membership email</string>
+    <string name="signup">Sign Up</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="error_not_member_title">Not A Loyalty Member</string>
+    <string name="error_not_member">This email is not belong to any Loyalty Member.\nPlease enter the email you registered with Loyalty Membership Program.\nIf you haven\'t registered Loyalty Membership Program, you must registerthis program at Supermarket before you can use this app. Thank you!</string>
+    <string name="error_already_registed_title">Already Signed up</string>
+    <string name="error_already_registed">This account is already signed up!</string>
+    <string name="error_unkown">There is an unkown error! Please try again later</string>
+    <string name="btn_finish">Finish</string>
+    <string name="error_confirm_not_match">Passwords didn\'t match</string>
+    <string name="signup_success">An email has been sent to you. Please click the link on it to complete the registration. Thank you!</string>
+    <string name="success">Success!</string>
+    <string name="smartads">SmartAds</string>
+    <string name="login_have_account">Don\'t have an account?</string>
+    <string name="forgot_password">Forgot Password?</string>
 
 </resources>
