@@ -5,8 +5,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
@@ -16,8 +16,17 @@ import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeComparator;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import static com.estimote.sdk.BeaconManager.MonitoringListener;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -28,38 +37,51 @@ import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.connector.ContextAdsReceivedListener;
 import vn.edu.hcmut.cse.smartads.listener.BeaconFilterer;
 import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
-import vn.edu.hcmut.cse.smartads.model.Ad;
-import vn.edu.hcmut.cse.smartads.old.OperationService;
+import vn.edu.hcmut.cse.smartads.model.Ads;
+import vn.edu.hcmut.cse.smartads.model.Minor;
 import vn.edu.hcmut.cse.smartads.util.BundleDefined;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
 
 public class ContextAdsService extends Service implements ContextAdsReceivedListener {
 
+    private static final String ESTIMOTE_PROXIMITY_UUID = "B9407F30-F5F8-466E-AFF9-25556B57FE6D";
+    public static final String UPDATE_PREFS_TIME = "updatePrefsTime";
+    public static final String LAST_UPDATED = "lastUpdated";
+
     private BeaconManager beaconManager;
     private Region region;
-    private static final String ESTIMOTE_PROXIMITY_UUID = "B9407F30-F5F8-466E-AFF9-25556B57FE6D";
-    public static final String TAG = "DHSmartAds";
     private boolean mIsStarted = false;
     private BeaconFilterer mFilterer;
     private Connector mConnector;
-    static private Handler uiHandler;
+    private SharedPreferences updateTimePref;
+    final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public void onCreate() {
         Log.d("DHSmartAds", "ContextAdsService onCreate");
+        JodaTimeAndroid.init(this);
         beaconManager = new BeaconManager(this);
-        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), 0);
-        //beaconManager.setForegroundScanPeriod(TimeUnit.SECONDS.toMillis(5), 1);
-        region = new Region("rID", null, null, null);
+        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(5), TimeUnit.SECONDS.toMillis(10));
+        beaconManager.setForegroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(0));
+        region = new Region("All_Region", null, null, null);
         mFilterer = BeaconFilterer.getInstance();
         mConnector = Connector.getInstance(this);
+        updateTimePref = getSharedPreferences(UPDATE_PREFS_TIME, MODE_PRIVATE);
+
+        if (Config.DEBUG) {
+            Ads.deleteAll(Ads.class);
+            Minor.deleteAll(Minor.class);
+        }
+
         beaconManager.setMonitoringListener(new MonitoringListener() {
             @Override
             public void onEnteredRegion(Region region, List<Beacon> beacons) {
-                Log.d("DHSmartAds", "onEnteredRegion");
-                processBeacons(beacons);
+                Log.d(Config.TAG, "onEnteredRegion");
                 try {
+                    SharedPreferences.Editor editor = updateTimePref.edit();
+                    editor.putString(LAST_UPDATED, formatter.print(new DateTime()));
+                    editor.apply();
                     beaconManager.startRanging(region);
                 } catch (RemoteException e) {
                     e.printStackTrace();
@@ -80,15 +102,34 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
         beaconManager.setRangingListener(new BeaconManager.RangingListener() {
             @Override
             public void onBeaconsDiscovered(Region region, List<Beacon> beacons) {
-                Log.d("DHSmartAds", "onBeaconsDiscovered " + beacons.size());
                 processBeacons(beacons);
             }
         });
     }
 
     private void processBeacons(List<Beacon> beacons) {
+
         List<MyBeacon> filteredBeacons = mFilterer.filterBeacons(beacons);
-        mConnector.requestContextAds(filteredBeacons, ContextAdsService.this);
+
+        if (filteredBeacons.isEmpty())
+            return;
+
+        DateTime current_time = new DateTime();
+        String last_updatedStr = updateTimePref.getString(LAST_UPDATED, "");
+
+        Log.d(Config.TAG, "Last updated from server: " + last_updatedStr);
+
+        if (!last_updatedStr.isEmpty()) {
+            DateTime last_updated = DateTime.parse(last_updatedStr, formatter);
+            if (DateTimeComparator.getInstance().
+                    compare(current_time.minusHours(Config.SERVER_MIN_UPDATE_TIME_HOUR), last_updated) > 0) {
+                Log.d(Config.TAG, "Request context ads from SERVER");
+                mConnector.requestContextAds(filteredBeacons, ContextAdsService.this);
+            }
+        }
+        else {
+            onReceivedContextAds(filteredBeacons);
+        }
     }
 
     @Override
@@ -106,7 +147,6 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
                 public void onServiceReady() {
                     try {
                         beaconManager.startMonitoring(region);
-
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -124,71 +164,85 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
         try {
             beaconManager.stopMonitoring(region);
         } catch (RemoteException e) {
-            Log.e(TAG, "Cannot stop but it does not matter now", e);
+            Log.e(Config.TAG, "Cannot stop but it does not matter now", e);
         }
 
         beaconManager.disconnect();
-
-        Intent intentOP = new Intent(getApplicationContext(), OperationService.class);
-        Bundle bundle = new Bundle();
-        bundle.putString(BundleDefined.INTENT_TYPE, BundleDefined.INTENT_STOPSERVICE);
-        intentOP.putExtras(bundle);
-        startService(intentOP);
-
 
         super.onDestroy();
     }
 
     @Override
-    public void onReceivedContextAds(List<Ad> contextAdList) {
+    public void onReceivedContextAds(List<MyBeacon> receivedBeacons) {
 
-        //Todo: Check if these ads should be displayed to user ?
+        Iterator<Ads> allAds = Ads.findAll(Ads.class);
+        List<Ads> notifyAds = new ArrayList<>();
 
-        if (contextAdList.isEmpty()) {
+        while (allAds.hasNext()) {
+            Ads ads = allAds.next();
+            List<Integer> adsMinors = ads.getMinors();
+            for (MyBeacon beacon : receivedBeacons)
+                if (isNotifiedAds(ads, adsMinors, beacon.getMinor()))
+                {
+                    if (!Config.DEBUG)
+                        ads.setNotified(true);
+                    notifyAds.add(ads);
+                    break;
+                }
+        }
+
+        notifyAds(notifyAds);
+        for (Ads ads : notifyAds) {
+            ads.InsertOrUpdate();
+        }
+
+    }
+
+    private boolean isNotifiedAds(Ads ads, List<Integer> adsMinor, int minor) {
+        if (!ads.getType().equals(Ads.ENTRANCE_ADS) && !adsMinor.contains(minor))
+            return false;
+        if (ads.is_notified() || ads.is_blacklisted())
+            return  false;
+        DateTime currentDate = new DateTime();
+        if (ads.getStartDate().compareTo(currentDate) > 0 ||
+                ads.getEndDate().compareTo(currentDate) < 0)
+            return false;
+
+        return true;
+    }
+
+    public void notifyAds(List<Ads> notifyAdsList) {
+
+        if (notifyAdsList.isEmpty()) {
             return;
         }
 
         Bundle bundle;
 
-        for (Ad contextAd : contextAdList){
+        for (Ads ads : notifyAdsList){
 
             bundle = new Bundle();
-            String urlPath = Config.HOST + "/ads/" + String.format("%d", contextAd.getId());
+            String urlPath = Config.HOST + "/ads/" + String.valueOf(ads.getAdsId());
             bundle.putString(BundleDefined.URL, urlPath);
-
-            NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.drawable.ic_launcher)
-                    .setContentTitle("Received new Ad")
-                    .setContentText(contextAd.getTitle())
-                    .setDefaults(Notification.DEFAULT_SOUND | Notification.FLAG_AUTO_CANCEL);
-
 
             Intent notifyIntent = new Intent(this, ViewDetailAdsActivity.class);
             notifyIntent.putExtras(bundle);
             notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, new Random().nextInt(1000) + 1,
-                                                                        notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, new Random().nextInt(1000),
+                    notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            notiBuilder.setContentIntent(pendingIntent).setAutoCancel(true);
+            Notification notification = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setContentTitle(Config.APP_NAME)
+                    .setContentText(ads.getTitle())
+                    .setDefaults(Notification.DEFAULT_SOUND | Notification.FLAG_AUTO_CANCEL)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    .build();
 
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.notify(new Random().nextInt(1000) + 1, notiBuilder.build());
-
+            notificationManager.notify(Config.TAG, new Random().nextInt(1000) + 1, notification);
         }
-
-
-
-//        new Handler(Looper.getMainLooper()) {
-//            @Override
-//            public void handleMessage(Message inputMessage) {
-//
-//                NotificationCompat.Builder notiBuilder = (NotificationCompat.Builder) inputMessage.obj;
-//                NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//                notificationManager.notify(1, notiBuilder.build());
-//            }
-//        }.obtainMessage(MessageDefined.START_ACTIVITY, notiBuilder).sendToTarget();
-//
-//        uiHandler.obtainMessage(MessageDefined.START_ACTIVITY, notiBuilder).sendToTarget();
 
     }
 

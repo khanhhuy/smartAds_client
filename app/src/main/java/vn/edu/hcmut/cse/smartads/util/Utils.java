@@ -5,6 +5,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import vn.edu.hcmut.cse.smartads.R;
+import vn.edu.hcmut.cse.smartads.model.Ads;
 
 /**
  * Created by minhdaobui on 10/1/2015.
@@ -21,7 +22,9 @@ public class Utils {
         builder.setPositiveButton(context.getString(R.string.btn_ok), null);
         builder.create().show();
     }
+
     public static void showAlertDialog(Context context,String message ) {
-        showAlertDialog(context,null,message);
+        showAlertDialog(context, null, message);
     }
+
 }

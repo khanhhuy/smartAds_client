@@ -11,14 +11,15 @@ import vn.edu.hcmut.cse.smartads.service.ContextAdsService;
 
 public class BluetoothLEReceiver extends BroadcastReceiver {
 
-    private Intent beaconServiceIntent = null;
+    private Intent beaconServiceIntent;
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
         final String action = intent.getAction();
 
         beaconServiceIntent = new Intent(context, ContextAdsService.class);
-        Log.d("BluetoothLE", "On Receive starting");
+        Log.d(Config.TAG, "Bluetooth trigger");
 
         if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
             final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);

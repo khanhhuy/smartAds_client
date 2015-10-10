@@ -1,6 +1,7 @@
 package vn.edu.hcmut.cse.smartads.connector;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.util.Log;
 
@@ -10,23 +11,28 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
-import com.android.volley.toolbox.JsonArrayRequest;
+
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.estimote.sdk.Beacon;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import vn.edu.hcmut.cse.smartads.R;
+import vn.edu.hcmut.cse.smartads.activity.LoginActivity;
 import vn.edu.hcmut.cse.smartads.listener.AdsContentListener;
-import vn.edu.hcmut.cse.smartads.model.Ad;
+import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
+import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
 /**
@@ -34,9 +40,8 @@ import vn.edu.hcmut.cse.smartads.util.Config;
  */
 public class Connector {
     private static Connector sInstance;
-    private static final String CONTEXT_ADS_BASE_URL = Config.HOST + "/customers/" + Config.CUSTOMER_ID + "/context-ads/";
+    private static final String CONTEXT_ADS_BASE_URL = Config.HOST + "/customers/";
     private static final String ADS_BASE_THUMBNAIL = Config.HOST + "/img/thumbnails/";
-    private static final String ALL_ADS = Config.HOST + "/ads";
     private static final String LOGIN_URL = Config.HOST + "/auth/login";
     private static final String ACCOUNT_STATUS_URL = Config.HOST + "/account-status?email=%s";
     private static final String REGISTER_URL = Config.HOST + "/auth/register";
@@ -55,97 +60,103 @@ public class Connector {
         return sInstance;
     }
 
-    public void requestContextAds(List<? extends Beacon> beaconList, final ContextAdsReceivedListener listener) {
-        for (final Beacon beacon : beaconList) {
-            final String url = CONTEXT_ADS_BASE_URL + beacon.getMinor();
-            final List<Ad> contextAds = new ArrayList<>();
+    public void requestContextAds(final List<MyBeacon> beacons, final ContextAdsReceivedListener listener) {
 
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
-                @Override
-                public void onResponse(JSONArray jsonArray) {
-                    Log.d(Config.TAG, "minor " + beacon.getMinor() + " onResponse");
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject adsObject;
-                        try {
-                            adsObject = jsonArray.getJSONObject(i);
-                            contextAds.add(new Ad(adsObject.getInt("id"), adsObject.getString("title")));
-                            Log.d(Config.TAG, String.format("Ad id = %d, Ad title = %s",
-                                    adsObject.getInt("id"), adsObject.getString("title")));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+        if (beacons.isEmpty())
+            return;
+
+        MyBeacon beacon = beacons.get(0);
+
+        SharedPreferences authPrefs = mContext.getSharedPreferences(LoginActivity.AUTH_PREFS_NAME, Context.MODE_PRIVATE);
+        String customerID = authPrefs.getString(LoginActivity.CUSTOMER_ID, "");
+        if (customerID.isEmpty())
+            return;
+
+        final String url = CONTEXT_ADS_BASE_URL + customerID + "/context-ads/" + beacon.getMajor() + "/" + beacon.getMinor();
+        JsonObjectRequest contextAdsRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonContextAds) {
+                try {
+                    parseAds(jsonContextAds);
+                    Log.d(Config.TAG, "DB Ads size" + Ads.listAll(Ads.class).size());
+
+                    listener.onReceivedContextAds(beacons);
+
+                    if (Config.DEBUG)
+                        logDB();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.e(Config.TAG, "Connect to Server Error!" + url);
+            }
+        });
+
+        contextAdsRequest.setRetryPolicy(new DefaultRetryPolicy(4000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        mRequestQueue.add(contextAdsRequest);
+    }
+
+    private void parseAds(JSONObject jsonMixedAds) throws JSONException {
+        String[] adsType = new String[]{Ads.ENTRANCE_ADS, Ads.AISLE_ADS};
+        for (String type : adsType) {
+            JSONArray adsGroup = jsonMixedAds.getJSONArray(type);
+
+            for (int i = 0; i < adsGroup.length(); i++) {
+                JSONObject ads = adsGroup.getJSONObject(i);
+
+                //parse minors
+                List<Integer> minors = null;
+                if (!ads.isNull(Ads.MINORS)) {
+                    JSONArray minorsJSON = ads.getJSONArray(Ads.MINORS);
+                    minors = new ArrayList<>();
+                    for (int j = 0; j < minorsJSON.length(); j++) {
+                        minors.add(minorsJSON.getInt(j));
                     }
-                    //requestImageThumbnail(contextAds, listener);
-                    listener.onReceivedContextAds(contextAds);
                 }
-            }, new Response.ErrorListener() {
 
-                @Override
-                public void onErrorResponse(VolleyError volleyError) {
-                    Log.e(Config.TAG, "Connect to Server Error!" + url);
-                }
-            });
+                //parse date
+                DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+                DateTime startDate, endDate;
+                if (ads.isNull(Ads.START_DATE))
+                    startDate = null;
+                else
+                    startDate = DateTime.parse(ads.getString(Ads.START_DATE), formatter);
 
-            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(4000,
-                    5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            mRequestQueue.add(jsonArrayRequest);
-            Log.d(Config.TAG, "minor " + beacon.getMinor() + " requested");
+                if (ads.isNull(Ads.END_DATE))
+                    endDate = null;
+                else
+                    endDate = DateTime.parse(ads.getString(Ads.END_DATE), formatter);
 
+                //create new Ads
+                Ads newAds = new Ads(
+                        Integer.parseInt(ads.getString(Ads.ID)), ads.getString(Ads.TITLE),
+                        startDate, endDate, minors, type);
 
+                newAds.InsertOrUpdate();
+            }
         }
     }
 
-    public void requestAllAds(final AdsContentListener listener) {
-        final String url = ALL_ADS;
-        final List<Ad> allAds = new ArrayList<>();
-
-        JsonArrayRequest addAdsRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray jsonArray) {
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonAd;
-                            try {
-                                jsonAd = jsonArray.getJSONObject(i);
-                                allAds.add(new Ad(jsonAd.getInt("id"), jsonAd.getString("title")));
-                                Log.d(Config.TAG, String.format("Ad id = %d, Ad title = %s",
-                                        jsonAd.getInt("id"), jsonAd.getString("title")));
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        listener.adsListChange(allAds);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        Log.e(Config.TAG, "Connect to Server Error!" + url);
-                    }
-                });
-
-        addAdsRequest.setRetryPolicy(new DefaultRetryPolicy(4000,
-                5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        mRequestQueue.add(addAdsRequest);
-        Log.d(Config.TAG, "All ads requested");
-
-    }
-
-    public void requestImageThumbnail(final List<Ad> adList, final AdsContentListener listener) {
+    public void requestImageThumbnail(final List<Ads> adsList, final AdsContentListener listener) {
 
 
-        for (int i = 0; i < adList.size(); i++) {
+        for (int i = 0; i < adsList.size(); i++) {
             final int position = i;
             Log.d(Config.TAG, "Load image thumbnail position " + position);
-            final Ad ad = adList.get(i);
-            String url = ADS_BASE_THUMBNAIL + ad.getId() + ".png";
-            Log.d(Config.TAG, "Load image thumbnail ID " + ad.getId());
+            final Ads ads = adsList.get(i);
+            String url = ADS_BASE_THUMBNAIL + ads.getId() + ".png";
+            Log.d(Config.TAG, "Load image thumbnail ID " + ads.getId());
 
             ImageRequest thumbnailRequest = new ImageRequest(url,
                     new Response.Listener<Bitmap>() {
                         @Override
                         public void onResponse(Bitmap bitmap) {
-                            ad.setIcon(bitmap);
+                            ads.setIcon(bitmap);
                             listener.adsListUpdateImg(position);
                         }
                     }, 0, 0, null,
@@ -268,5 +279,25 @@ public class Connector {
                 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         mRequestQueue.add(request);
         Log.d(Config.TAG, "Register request sent!");
+    }
+
+    //Debug and testing function
+    public void logDB() {
+        Iterator<Ads> iterator = Ads.findAll(Ads.class);
+        while (iterator.hasNext()) {
+            Ads ads = iterator.next();
+            Log.d(Config.TAG, "Ads id = " + ads.getAdsId() + " title " + ads.getTitle() +
+                            " startDate = " + ads.getStartDate() + " endDate = " + ads.getEndDate() +
+                            " lastUpdated = " + ads.getLastUpdated() + " isNotified = " + ads.is_notified() +
+                            " isViewed = " + ads.is_viewed() + " isBlacklisted = " + ads.is_blacklisted() +
+                            " type = " + ads.getType()
+            );
+            List<Integer> minors = ads.getMinors();
+            Log.d(Config.TAG, "minors size = " + minors.size());
+            if (!minors.isEmpty()) {
+                Log.d(Config.TAG, "minors  = " + minors.toString());
+            }
+
+        }
     }
 }

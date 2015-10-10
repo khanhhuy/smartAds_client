@@ -30,8 +30,8 @@ public class MyBeacon extends Beacon {
     }
 
     public boolean isRefresh() {
-        Log.d(Config.TAG, "Minor "+getMinor()+ " Refresh time "+ (System.currentTimeMillis() - lastReceived));
-        return (System.currentTimeMillis() - lastReceived) > Config.MIN_RECEIVED_TIME_SEC * 1000;
+        Log.d(Config.TAG, "Minor " + getMinor() + " Refresh time " + (System.currentTimeMillis() - lastReceived));
+        return (System.currentTimeMillis() - lastReceived) > Config.BEACON_MIN_RECEIVED_TIME_SEC * 1000;
     }
 
     public void refreshLastReceived() {

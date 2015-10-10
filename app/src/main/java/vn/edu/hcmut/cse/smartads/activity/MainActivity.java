@@ -7,16 +7,26 @@ import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.estimote.sdk.Beacon;
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import vn.edu.hcmut.cse.smartads.R;
+import vn.edu.hcmut.cse.smartads.connector.Connector;
+import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
+import vn.edu.hcmut.cse.smartads.model.Ads;
+import vn.edu.hcmut.cse.smartads.model.Minor;
 import vn.edu.hcmut.cse.smartads.old.OperationService;
 import vn.edu.hcmut.cse.smartads.util.BundleDefined;
+import vn.edu.hcmut.cse.smartads.util.Config;
 
 
 public class MainActivity extends AppCompatActivity
@@ -28,9 +38,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
-        checkLoggedIn();
+        super.onCreate(savedInstanceState);
+        JodaTimeAndroid.init(this);
 
         setContentView(R.layout.activity_main);
 
@@ -39,6 +49,7 @@ public class MainActivity extends AppCompatActivity
 
         setTitle("Featured Ads");
 
+        checkLoggedIn();
 
 //        Set up the drawer.
 //        mNavigationDrawerFragment = (NavigationDrawerFragment)
@@ -46,11 +57,10 @@ public class MainActivity extends AppCompatActivity
 //        mNavigationDrawerFragment.setup(R.id.fragment_drawer,
 //                (DrawerLayout) findViewById(R.id.drawer), mToolbar);
 
-        initFragment();
+//        initFragment();
 
         //Intent beaconServiceIntent = new Intent(this, ContextAdsService.class);
         //startService(beaconServiceIntent);
-        //testOPservice();
 
     }
 
@@ -63,7 +73,6 @@ public class MainActivity extends AppCompatActivity
             finish();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -105,24 +114,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    /**
-     * Debug & testing offline
-     */
-    private void testOPservice() {
-
-        Intent intentOP = new Intent(getApplicationContext(), OperationService.class);
-        Bundle bundle = new Bundle();
-        ArrayList<Beacon> beaconArrayList = new ArrayList<>();
-        Beacon beacon = new Beacon("12345678123456781234567812345678", "dummy1", "0x24", 1, 2, 1, 1);
-        beaconArrayList.add(beacon);
-        bundle.putParcelableArrayList(BundleDefined.LIST_BEACON, beaconArrayList);
-        bundle.putString(BundleDefined.INTENT_TYPE, BundleDefined.INTENT_RECEIVEDBEACONS);
-        intentOP.putExtras(bundle);
-
-        startService(intentOP);
-
-    }
-
     private void initFragment() {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -134,6 +125,21 @@ public class MainActivity extends AppCompatActivity
         setTitle("Featured Ads");
         fragmentTransaction.commit();
 
+    }
+
+
+    /**
+     * Debug & testing
+     */
+
+    private void testConnector() {
+
+        Connector connector = Connector.getInstance(this);
+        Beacon beacon = new Beacon("12345678123456781234567812345678", "dummy1", "0x24", 1, 2, 1, 1);
+        MyBeacon myBeacon = new MyBeacon(beacon);
+        List<MyBeacon> beaconList = new ArrayList<>();
+        beaconList.add(myBeacon);
+        connector.requestContextAds(beaconList, null);
     }
 
 }

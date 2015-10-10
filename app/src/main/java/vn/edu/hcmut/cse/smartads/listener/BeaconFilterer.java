@@ -27,7 +27,7 @@ public class BeaconFilterer {
         List<MyBeacon> filteredBeacons = new ArrayList<>();
         for (Beacon beacon : contextBeaconList) {
             MyBeacon myBeacon = mReceivedBeacons.get(beacon.getMinor());
-            if (myBeacon!=null){
+            if (myBeacon != null){
                 if (!myBeacon.isRefresh()){
                     continue;
                 }

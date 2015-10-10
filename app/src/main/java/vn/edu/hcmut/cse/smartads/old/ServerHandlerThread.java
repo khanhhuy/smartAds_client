@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
-import vn.edu.hcmut.cse.smartads.model.Ad;
+import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.util.Config;
 import vn.edu.hcmut.cse.smartads.util.MessageDefined;
 
@@ -54,13 +54,13 @@ public class ServerHandlerThread extends HandlerThread {
                 switch (msg.what) {
                     case MessageDefined.GET_CUSTOMER_CONTEXTADS:
 
-                        final List<Ad> contextAdList = getContextAds((List<MyBeacon>) msg.obj);
+                        final List<Ads> contextAdsList = getContextAds((List<MyBeacon>) msg.obj);
 
-                        if (contextAdList.size() > 0){
+                        if (contextAdsList.size() > 0){
                             mResponseHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mOperationCallback.receivedContextAds(contextAdList);
+                                    mOperationCallback.receivedContextAds(contextAdsList);
                                 }
                             });
                         }
@@ -75,11 +75,11 @@ public class ServerHandlerThread extends HandlerThread {
         });
     }
 
-    private List<Ad> getContextAds(List<MyBeacon> myBeaconList){
+    private List<Ads> getContextAds(List<MyBeacon> myBeaconList){
 
         String urlPath = Config.HOST + "/customers/" + Config.CUSTOMER_ID + "/context-ads/";
         InputStream is = null;
-        List<Ad> adContextList = new ArrayList<>();
+        List<Ads> adsContextList = new ArrayList<>();
 
         JsonParser jsonParser = new JsonParser();
 
@@ -94,14 +94,14 @@ public class ServerHandlerThread extends HandlerThread {
                         for (int i = 0; i < adList.size(); i++) {
                             JsonObject jsonAd = adList.get(i).getAsJsonObject();
                             if (jsonAd.isJsonObject()) {
-                                Ad newAd = new Ad();
+                                Ads newAds = new Ads();
 
-                                newAd.setId(jsonAd.get(Ad.ID).getAsInt());
-                                newAd.setTitle(jsonAd.get(Ad.TITLE).getAsString());
+                                newAds.setAdsId(jsonAd.get(Ads.ID).getAsInt());
+                                newAds.setTitle(jsonAd.get(Ads.TITLE).getAsString());
 
                                 //Todo: Parse date.
 
-                                adContextList.add(newAd);
+                                adsContextList.add(newAds);
                             }
                         }
                     }
@@ -119,7 +119,7 @@ public class ServerHandlerThread extends HandlerThread {
                 }
         }
 
-        return adContextList;
+        return adsContextList;
     }
 
     private String getJSONstring(InputStream is) throws IOException {

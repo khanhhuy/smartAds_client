@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 22
     buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "vn.edu.hcmut.cse.smartads"
         minSdkVersion 18
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
     }
@@ -31,4 +31,6 @@ dependencies {
     compile 'com.android.support:cardview-v7:22.1.1'
     compile 'com.google.code.gson:gson:2.3.1'
     compile(name: 'estimote-sdk-preview', ext: 'aar')
+    compile 'com.github.satyan:sugar:1.3.1'
+    compile 'net.danlew:android.joda:2.8.2'
 }

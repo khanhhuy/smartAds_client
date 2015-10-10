@@ -21,7 +21,7 @@ import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.activity.ViewDetailAdsActivity;
 import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.listener.BeaconFilterer;
-import vn.edu.hcmut.cse.smartads.model.Ad;
+import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.util.BundleDefined;
 import vn.edu.hcmut.cse.smartads.util.Config;
 import vn.edu.hcmut.cse.smartads.util.MessageDefined;
@@ -140,21 +140,21 @@ public class OperationService extends Service implements IOperationCallback {
      */
 
     @Override
-    public void receivedContextAds(List<Ad> contextAdList){
+    public void receivedContextAds(List<Ads> contextAdsList){
         //Todo: Check if these ads should be displayed to user ?
 
         //Debug
         GsonBuilder gsonbuilder = new GsonBuilder();
         Gson gson = gsonbuilder.create();
-        Log.d("Callback contextAdlist", gson.toJson(contextAdList));
+        Log.d("Callback contextAdlist", gson.toJson(contextAdsList));
 
         Bundle bundle = new Bundle();
-        String urlPath = Config.HOST + "/ads/" + String.format("%d", contextAdList.get(0).getId());
+        String urlPath = Config.HOST + "/ads/" + String.format("%d", contextAdsList.get(0).getId());
         bundle.putString(BundleDefined.URL, urlPath);
         NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContentTitle("Received new Ass")
-                .setContentText(contextAdList.get(0).getTitle())
+                .setContentText(contextAdsList.get(0).getTitle())
                 .setDefaults(Notification.DEFAULT_SOUND | Notification.FLAG_AUTO_CANCEL)
                 ;
 

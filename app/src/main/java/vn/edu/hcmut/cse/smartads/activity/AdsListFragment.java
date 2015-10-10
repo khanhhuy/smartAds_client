@@ -12,29 +12,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-/*
-import ibeacon.smartadsv1.R;
-import ibeacon.smartadsv1.adapter.AdListRecycleAdapter;
-import ibeacon.smartadsv1.connector.Connector;
-import ibeacon.smartadsv1.listener.AdsContentListener;
-import ibeacon.smartadsv1.model.Ad;
-import ibeacon.smartadsv1.listener.HidingScrollListener;
-import ibeacon.smartadsv1.util.BundleDefined;
-import ibeacon.smartadsv1.util.Config;
-*/
 
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.adapter.AdListRecycleAdapter;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.listener.AdsContentListener;
 import vn.edu.hcmut.cse.smartads.listener.HidingScrollListener;
-import vn.edu.hcmut.cse.smartads.model.Ad;
+import vn.edu.hcmut.cse.smartads.model.Ads;
+import vn.edu.hcmut.cse.smartads.util.BundleDefined;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
 /**
@@ -52,31 +41,17 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
     private RecyclerView mRecyclerView;
     private Connector mConnector;
 
-    private List<Ad> mlistAd;
+    private List<Ads> mlistAd;
     private Activity mActivity;
 
     public AdsListFragment() {
         // Required empty public constructor
         mlistAd = new ArrayList<>();
-        //createDummyAdsList();
     }
 
     public void setup(Toolbar toolbar) {
         mToolbar = toolbar;
 
-    }
-
-    private void createDummyAdsList() {
-        mlistAd.add(new Ad(1, "Pepsi discount", "15%", new Date(), new Date()));
-        mlistAd.add(new Ad(2, "Unilever discount", "All products for 30%", new Date(), new Date()));
-        mlistAd.add(new Ad(3, "Unilever discount",
-                "All products for 30%, this text will got 2 lines I hope that", new Date(), new Date()));
-        mlistAd.add(new Ad(4, "Unilever discount", "All products for 30%", new Date(), new Date()));
-        mlistAd.add(new Ad(1, "Pepsi discount", "15%", new Date(), new Date()));
-        mlistAd.add(new Ad(2, "Unilever discount", "All products for 30%", new Date(), new Date()));
-        mlistAd.add(new Ad(3, "Unilever discount",
-                "All products for 30%, this text will got 2 lines I hope that", new Date(), new Date()));
-        mlistAd.add(new Ad(4, "Unilever discount", "All products for 30%", new Date(), new Date()));
     }
 
     @Override
@@ -118,7 +93,7 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
                     String urlPath = Config.HOST + "/ads/" + String.format("%d", mlistAd.get(position).getId());
                     bundle.putString(BundleDefined.URL, urlPath);
 
-                    Intent detailAdIntent = new Intent(mActivity, AdNotifyActitivty.class);
+                    Intent detailAdIntent = new Intent(mActivity, ViewDetailAdsActivity.class);
                     detailAdIntent.putExtras(bundle);
                     startActivity(detailAdIntent);
 
@@ -128,7 +103,7 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
 
         mRecyclerView.setAdapter(mRecycleAdapter);
 
-        mConnector.requestAllAds(this);
+        //mConnector.requestAllAds(this);
 
         return  view;
     }
@@ -175,7 +150,7 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
     }
 
     @Override
-    public void adsListChange(List<Ad> newAds) {
+    public void adsListChange(List<Ads> newAds) {
         Log.d(Config.TAG, "AdsList Change");
         mlistAd.clear();
         mRecycleAdapter.notifyItemRangeRemoved(0, mlistAd.size());

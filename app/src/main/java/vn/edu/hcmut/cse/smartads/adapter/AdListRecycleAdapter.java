@@ -13,7 +13,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import vn.edu.hcmut.cse.smartads.R;
-import vn.edu.hcmut.cse.smartads.model.Ad;
+import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
 /**
@@ -23,13 +23,13 @@ public class AdListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     private static final int TYPE_HEADER = 2;
     private static final int TYPE_ITEM = 1;
-    private List<Ad> adList;
+    private List<Ads> adsList;
     private int rowLayout;
     private int rowHeader;
     protected OnItemClickListener mItemClickListener;
 
-    public AdListRecycleAdapter(List<Ad> ads, int rowLayout, int rowHeader) {
-        adList = ads;
+    public AdListRecycleAdapter(List<Ads> ads, int rowLayout, int rowHeader) {
+        adsList = ads;
         this.rowLayout = rowLayout;
         this.rowHeader = rowHeader;
     }
@@ -62,17 +62,17 @@ public class AdListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.View
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (!isPositionHeader(position)) {
             ViewHolder viewHolder = (ViewHolder) holder;
-            String adTitle = adList.get(position - 1).getTitle(); // we are taking header in to account so all of our items are correctly positioned
+            String adTitle = adsList.get(position - 1).getTitle(); // we are taking header in to account so all of our items are correctly positioned
             viewHolder.setAdTitle(adTitle);
-            String adDesc = adList.get(position - 1).getDescription();
-            viewHolder.setAdDesc(adDesc);
-            if (adList.get(position-1).getIcon() != null)
-                viewHolder.setAdThumbnail(adList.get(position-1).getIcon());
+            //String adDesc = adsList.get(position - 1).getDescription();
+            //viewHolder.setAdDesc(adDesc);
+            if (adsList.get(position-1).getIcon() != null)
+                viewHolder.setAdThumbnail(adsList.get(position-1).getIcon());
         }
     }
 
     public int getBasicItemCount() {
-        return adList == null ? 0 : adList.size();
+        return adsList == null ? 0 : adsList.size();
     }
 
     @Override

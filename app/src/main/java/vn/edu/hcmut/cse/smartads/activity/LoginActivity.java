@@ -25,6 +25,9 @@ import vn.edu.hcmut.cse.smartads.util.Utils;
 public class LoginActivity extends Activity implements LoginResponseListener {
 
     public static final String AUTH_PREFS_NAME = "AuthPrefsFile";
+    public static final String CUSTOMER_ID = "customerID";
+    public static final String ACCESS_TOKEN = "accessToken";
+    public static final String LOGGED_ID = "loggedIn";
 
     // UI references.
     private EditText mEmailView;
@@ -188,9 +191,9 @@ public class LoginActivity extends Activity implements LoginResponseListener {
         SharedPreferences authPrefs = getSharedPreferences(AUTH_PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = authPrefs.edit();
 
-        editor.putBoolean("loggedIn", true);
-        editor.putString("customerID", customerID);
-        editor.putString("accessToken", accessToken);
+        editor.putBoolean(LOGGED_ID, true);
+        editor.putString(CUSTOMER_ID, customerID);
+        editor.putString(ACCESS_TOKEN, accessToken);
         editor.apply();
 
         Intent intent = new Intent(this, MainActivity.class);
