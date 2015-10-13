@@ -9,18 +9,12 @@ public class Config {
     public static int JUST_RECEIVED_TIME_HOUR = 2;
     public static int MIN_NOTIFICATION_SOUND_DELAYED_SEC = 10;
 
-    //public static String HOST_API = "http://smartads.esy.es";
-    //public static String HOST_API = "http://smartads.byethost7.com";
     public static int MIN_RECEIVED_TIME_SEC = 15;
-
-//  public static String HOST_API = "http://smartads.esy.es";
-//  public static String HOST_API = "http://192.168.1.104/ttlvserver/public/api/v1";
-//  public static String HOST_API = "http://smartads.byethost7.com";
-    public static int CUSTOMER_ID = 1;
-
-    //public static String HOST_API = "http://192.168.1.104/ttlvserver/public";
-    public static String HOST_API = "http://192.168.1.2:8000/api/v1";
-    public static String HOST_PORTAL = "http://192.168.1.2:8000";
+//  public static String HOST_PORTAL = "http://smartads.esy.es";
+//  public static String HOST_PORTAL = "http://smartads.byethost7.com";
+    public static String HOST_PORTAL = "http://192.168.1.104/ttlvserver/public";
+//    public static String HOST_PORTAL = "http://192.168.1.2:8000";
+    public static String HOST_API = HOST_PORTAL+"/api/v1";
     public static String APP_NAME = "Smart Ads";
 
     public static String TAG = "DHSmartAds";
