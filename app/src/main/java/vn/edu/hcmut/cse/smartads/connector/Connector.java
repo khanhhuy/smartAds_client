@@ -290,7 +290,7 @@ public class Connector {
                 listener.onError(message);
             }
         });
-        request.setRetryPolicy(new DefaultRetryPolicy(10000,
+        request.setRetryPolicy(new DefaultRetryPolicy(15000,
                 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         mRequestQueue.add(request);
         Log.d(Config.TAG, "Register request sent!");
