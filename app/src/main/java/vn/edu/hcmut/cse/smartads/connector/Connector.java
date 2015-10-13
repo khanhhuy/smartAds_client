@@ -10,6 +10,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageRequest;
 
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -40,17 +41,19 @@ import vn.edu.hcmut.cse.smartads.util.Config;
  */
 public class Connector {
     private static Connector sInstance;
-    private static final String CONTEXT_ADS_BASE_URL = Config.HOST + "/customers/";
-    private static final String ADS_BASE_THUMBNAIL = Config.HOST + "/img/thumbnails/";
-    private static final String LOGIN_URL = Config.HOST + "/auth/login";
-    private static final String ACCOUNT_STATUS_URL = Config.HOST + "/account-status?email=%s";
-    private static final String REGISTER_URL = Config.HOST + "/auth/register";
+    public static final String CONTEXT_ADS_BASE_URL = Config.HOST + "/customers/";
+    public static final String ADS_BASE_THUMBNAIL = Config.HOST + "/ads/thumbnail/";
+    public static final String LOGIN_URL = Config.HOST + "/auth/login";
+    public static final String ACCOUNT_STATUS_URL = Config.HOST + "/account-status?email=%s";
+    public static final String REGISTER_URL = Config.HOST + "/auth/register";
     private final Context mContext;
-    private final RequestQueue mRequestQueue;
+    private RequestQueue mRequestQueue;
+    private ImageLoader mImageLoader;
 
     private Connector(Context context) {
-        mRequestQueue = Volley.newRequestQueue(context.getApplicationContext());
         mContext = context;
+        mRequestQueue = getRequestQueue();
+        mImageLoader = new ImageLoader(mRequestQueue, new LruBitmapCache(mContext));
     }
 
     public static synchronized Connector getInstance(Context context) {
@@ -59,6 +62,18 @@ public class Connector {
         }
         return sInstance;
     }
+
+    public RequestQueue getRequestQueue() {
+        if (mRequestQueue == null) {
+            mRequestQueue = Volley.newRequestQueue(mContext.getApplicationContext());
+        }
+        return mRequestQueue;
+    }
+
+    public ImageLoader getImageLoader() {
+        return mImageLoader;
+    }
+
 
     public void requestContextAds(final List<MyBeacon> beacons, final ContextAdsReceivedListener listener) {
 

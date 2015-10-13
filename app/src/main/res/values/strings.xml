@@ -9,7 +9,6 @@
     <string name="drawer_open">Menu opened</string>
     <string name="drawer_close">Menu closed</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="fragment_list_featured_ads">Featured ads</string>
@@ -35,5 +34,18 @@
     <string name="smartads">SmartAds</string>
     <string name="login_have_account">Don\'t have an account?</string>
     <string name="forgot_password">Forgot Password?</string>
+
+
+    <!-- !-->
+    <string name="default_no_start_date">Available until %s</string>
+    <string name="default_no_date">Available Now </string>
+    <string name="from_date">From %s</string>
+    <string name="to_date">to %s</string>
+
+    <string name="just_received_section">Just Received</string>
+    <string name="others_section">Others</string>
+    <string name="expired_section">Expired</string>
+
+    <string name="empty_ads">Your received ads will be displayed here</string>
 
 </resources>

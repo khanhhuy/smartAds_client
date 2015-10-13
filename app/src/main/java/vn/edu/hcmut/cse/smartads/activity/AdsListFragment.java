@@ -1,9 +1,9 @@
 package vn.edu.hcmut.cse.smartads.activity;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
-import android.app.Fragment;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,155 +13,174 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import vn.edu.hcmut.cse.smartads.R;
-import vn.edu.hcmut.cse.smartads.adapter.AdListRecycleAdapter;
-import vn.edu.hcmut.cse.smartads.connector.Connector;
+import vn.edu.hcmut.cse.smartads.adapter.AdsListRecycleAdapter;
+import vn.edu.hcmut.cse.smartads.adapter.SimpleSectionedRecyclerViewAdapter;
 import vn.edu.hcmut.cse.smartads.listener.AdsContentListener;
-import vn.edu.hcmut.cse.smartads.listener.HidingScrollListener;
 import vn.edu.hcmut.cse.smartads.model.Ads;
+import vn.edu.hcmut.cse.smartads.service.ContextAdsService;
+import vn.edu.hcmut.cse.smartads.ui.DividerItemDecoration;
 import vn.edu.hcmut.cse.smartads.util.BundleDefined;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AdsListFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the @link AdsListFragment#newInstance factory method to
- * create an instance of this fragment.
- */
+
 public class AdsListFragment extends BaseFragment implements AdsContentListener {
 
-    private OnFragmentInteractionListener mListener;
-    private AdListRecycleAdapter mRecycleAdapter;
+    private SimpleSectionedRecyclerViewAdapter mRecycleSectionedAdapter;
+    private AdsListRecycleAdapter mAdsListAdapter;
     private RecyclerView mRecyclerView;
-    private Connector mConnector;
-
-    private List<Ads> mlistAd;
     private Activity mActivity;
+
+    private List<Ads> mlistAds;
+    private List<SimpleSectionedRecyclerViewAdapter.Section> sectionList;
 
     public AdsListFragment() {
         // Required empty public constructor
-        mlistAd = new ArrayList<>();
     }
 
     public void setup(Toolbar toolbar) {
         mToolbar = toolbar;
-
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mConnector = Connector.getInstance(mActivity);
+        if (!loadData()) {
+            View view = inflater.inflate(R.layout.fragment_ads_empty, container, false);
+            return view;
+        }
 
         View view = inflater.inflate(R.layout.fragment_ads_list, container, false);
 
+
+
+
         mRecyclerView = (RecyclerView) view.findViewById(R.id.listAds);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerView.addOnScrollListener(new HidingScrollListener() {
-            @Override
-            public void onHide() {
-                hideViews();
-            }
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
 
-            @Override
-            public void onShow() {
-                showViews();
-            }
-        });
+        //mRecyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.abc_list_divider_mtrl_alpha)));
 
-        mRecycleAdapter = new AdListRecycleAdapter(mlistAd, R.layout.card_ads_item, R.layout.header_ads_item);
-        mRecycleAdapter.setOnitemClickListener(new AdListRecycleAdapter.OnItemClickListener() {
+        mAdsListAdapter = new AdsListRecycleAdapter(R.layout.card_ads_item, mActivity, mlistAds);
+
+        SimpleSectionedRecyclerViewAdapter.Section[] sections = new SimpleSectionedRecyclerViewAdapter.Section[sectionList.size()];
+        mRecycleSectionedAdapter = new
+                SimpleSectionedRecyclerViewAdapter(mActivity, R.layout.card_section, R.id.card_section_text, mAdsListAdapter);
+        mRecycleSectionedAdapter.setSections(sectionList.toArray(sections));
+
+        mAdsListAdapter.setOnItemClickListener(new AdsListRecycleAdapter.OnAdsClickListener() {
             @Override
-            public void onItemClick(View view, int position) {
+            public void onAdsClick(View view, int position) {
                 if (position != RecyclerView.NO_POSITION) {
 
                     Bundle bundle = new Bundle();
-                    String urlPath = Config.HOST + "/ads/" + String.format("%d", mlistAd.get(position).getId());
+                    String urlPath = Config.HOST + "/ads/" + String.valueOf(mlistAds.get(position - 1).getAdsId());
                     bundle.putString(BundleDefined.URL, urlPath);
 
-                    Intent detailAdIntent = new Intent(mActivity, ViewDetailAdsActivity.class);
-                    detailAdIntent.putExtras(bundle);
-                    startActivity(detailAdIntent);
+                    Intent detailAdsIntent = new Intent(mActivity, ViewDetailAdsActivity.class);
+                    detailAdsIntent.putExtras(bundle);
+                    startActivity(detailAdsIntent);
 
                 }
             }
         });
 
-        mRecyclerView.setAdapter(mRecycleAdapter);
+        mRecyclerView.setAdapter(mRecycleSectionedAdapter);
 
-        //mConnector.requestAllAds(this);
+//        MyApplication myApplication = (MyApplication) mActivity.getApplication();
+//        NotificationManager notificationManager = myApplication.getNotificationManager();
+//        if (notificationManager != null)
+//            notificationManager.cancelAll();
+
+        NotificationManager notificationManager = ContextAdsService.getNotificationManager();
+        if (notificationManager != null)
+            notificationManager.cancelAll();
 
         return  view;
     }
 
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+    private boolean loadData() {
+        Iterator allAds = Ads.findAll(Ads.class);
+
+        if (!allAds.hasNext())
+            return false;
+
+        List<Ads> others = new ArrayList<>();
+        List<Ads> expired = new ArrayList<>();
+        mlistAds = new ArrayList<>();
+
+        while (allAds.hasNext()) {
+            Ads ads = (Ads)allAds.next();
+            if (ads.getLastReceived() != null )
+                if ((new DateTime()).minusHours(Config.JUST_RECEIVED_TIME_HOUR).compareTo(ads.getLastReceived()) < 0) {
+                    mlistAds.add(ads);
+                    continue;
+                }
+            if (ads.getEndDate() != null)
+                if ((new DateTime()).compareTo(ads.getEndDate()) > 0) {
+                    expired.add(ads);
+                    continue;
+                }
+            others.add(ads);
         }
+
+        mlistAds.addAll(others);
+        mlistAds.addAll(expired);
+        createSectionHeader(mlistAds.size(), others.size());
+
+        return true;
+    }
+
+    private void createSectionHeader(int justReceivedSection, int othersSection) {
+        sectionList = new ArrayList<SimpleSectionedRecyclerViewAdapter.Section>();
+        sectionList.add(new SimpleSectionedRecyclerViewAdapter.Section(0,
+                getResources().getString(R.string.just_received_section)));
+        sectionList.add(new SimpleSectionedRecyclerViewAdapter.Section(justReceivedSection,
+                getResources().getString(R.string.others_section)));
+        sectionList.add(new SimpleSectionedRecyclerViewAdapter.Section(justReceivedSection + othersSection,
+                getResources().getString(R.string.expired_section)));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadData();
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = activity;
-        /*
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-        */
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 
     @Override
     public void adsListChange(List<Ads> newAds) {
         Log.d(Config.TAG, "AdsList Change");
-        mlistAd.clear();
-        mRecycleAdapter.notifyItemRangeRemoved(0, mlistAd.size());
-        mlistAd.addAll(newAds);
-        mRecycleAdapter.notifyItemRangeInserted(0, mlistAd.size() - 1);
-        mConnector.requestImageThumbnail(mlistAd, this);
+        mlistAds.clear();
+        mRecycleSectionedAdapter.notifyItemRangeRemoved(0, mlistAds.size());
+        mlistAds.addAll(newAds);
+        mRecycleSectionedAdapter.notifyItemRangeInserted(0, mlistAds.size() - 1);
     }
 
     @Override
     public void adsListUpdateImg(int position) {
         Log.d(Config.TAG, "Ads update position " + position);
-        mRecycleAdapter.notifyItemChanged(position + 1);
+        mRecycleSectionedAdapter.notifyItemChanged(position + 1);
     }
 }

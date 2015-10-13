@@ -32,6 +32,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import vn.edu.hcmut.cse.smartads.R;
+import vn.edu.hcmut.cse.smartads.activity.MyApplication;
 import vn.edu.hcmut.cse.smartads.activity.ViewDetailAdsActivity;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.connector.ContextAdsReceivedListener;
@@ -56,6 +57,8 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
     private Connector mConnector;
     private SharedPreferences updateTimePref;
     final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    private DateTime mlastNotifySoundTime;
+    private static NotificationManager mNotificationManager;
 
     @Override
     public void onCreate() {
@@ -72,6 +75,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
         if (Config.DEBUG) {
             Ads.deleteAll(Ads.class);
             Minor.deleteAll(Minor.class);
+            //Todo: testing here
         }
 
         beaconManager.setMonitoringListener(new MonitoringListener() {
@@ -184,8 +188,10 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
             for (MyBeacon beacon : receivedBeacons)
                 if (isNotifiedAds(ads, adsMinors, beacon.getMinor()))
                 {
-                    if (!Config.DEBUG)
+                    if (!Config.DEBUG) {
                         ads.setNotified(true);
+                    }
+                    ads.setLastReceived(new DateTime());
                     notifyAds.add(ads);
                     break;
                 }
@@ -204,8 +210,9 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
         if (ads.is_notified() || ads.is_blacklisted())
             return  false;
         DateTime currentDate = new DateTime();
-        if (ads.getStartDate().compareTo(currentDate) > 0 ||
-                ads.getEndDate().compareTo(currentDate) < 0)
+        if ((ads.getStartDate() != null) && (ads.getStartDate().compareTo(currentDate) > 0))
+            return false;
+        if ((ads.getEndDate() != null) && (ads.getEndDate().compareTo(currentDate) < 0))
             return false;
 
         return true;
@@ -219,6 +226,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
 
         Bundle bundle;
 
+
         for (Ads ads : notifyAdsList){
 
             bundle = new Bundle();
@@ -231,19 +239,29 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
             PendingIntent pendingIntent = PendingIntent.getActivity(this, new Random().nextInt(1000),
                     notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            Notification notification = new NotificationCompat.Builder(this)
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.ic_launcher)
                     .setContentTitle(Config.APP_NAME)
                     .setContentText(ads.getTitle())
-                    .setDefaults(Notification.DEFAULT_SOUND | Notification.FLAG_AUTO_CANCEL)
+                    .setDefaults(Notification.FLAG_AUTO_CANCEL)
                     .setContentIntent(pendingIntent)
-                    .setAutoCancel(true)
-                    .build();
+                    .setAutoCancel(true);
 
-            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.notify(Config.TAG, new Random().nextInt(1000) + 1, notification);
+
+            if ((mlastNotifySoundTime == null) ||
+                (mlastNotifySoundTime.compareTo(
+                        (new DateTime()).minusSeconds(Config.MIN_NOTIFICATION_SOUND_DELAYED_SEC)) < 0)) {
+                builder.setDefaults(Notification.DEFAULT_SOUND);
+                mlastNotifySoundTime = new DateTime();
+            }
+
+            Notification notification = builder.build();
+            mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            mNotificationManager.notify(Config.TAG, new Random().nextInt(1000) + 1, notification);
         }
-
     }
 
+    public static NotificationManager getNotificationManager() {
+        return mNotificationManager;
+    }
 }

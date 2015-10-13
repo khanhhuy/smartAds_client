@@ -7,4 +7,5 @@
         android:orientation="vertical"
         tools:context="vn.edu.hcmut.cse.smartads.activity.AdsListFragment"
         >
+
 </android.support.v7.widget.RecyclerView>

@@ -6,6 +6,8 @@ package vn.edu.hcmut.cse.smartads.util;
 public class Config {
     public static int BEACON_MIN_RECEIVED_TIME_SEC = 10;
     public static int SERVER_MIN_UPDATE_TIME_HOUR = 0;
+    public static int JUST_RECEIVED_TIME_HOUR = 2;
+    public static int MIN_NOTIFICATION_SOUND_DELAYED_SEC = 10;
 
     //public static String HOST = "http://smartads.esy.es";
     //public static String HOST = "http://smartads.byethost7.com";
@@ -14,15 +16,15 @@ public class Config {
     public static String HOST = "http://192.168.1.2:8000";
     public static String APP_NAME = "Smart Ads";
 
-    public static int CUSTOMER_ID = 1;
     public static String TAG = "DHSmartAds";
-    public static String DATE_PATTERN="yyyy-MM-dd HH:mm:ss";
+    public static String DATETIME_PATTERN ="yyyy-MM-dd HH:mm:ss";
+    public static String DATE_PATTERN ="yyyy-MM-dd";
 
     /*
     DEBUG = true
     - Notify multiple time
     - Flush Database ( onCreate - ContextAdsService )
-    - Remember to set SERVER_MIN_UPDATE_TIME_HOUR = 0
+    - SERVER_MIN_UPDATE_TIME_HOUR = 0
     DEBUG = false
     - Remember to set SERVER_MIN_UPDATE_TIME_HOUR = 1
      */

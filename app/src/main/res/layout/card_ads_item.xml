@@ -6,8 +6,7 @@
                                     android:layout_margin="5dp"
                                     android:clickable="true"
                                     android:layout_height="wrap_content"
-                                    card_view:cardCornerRadius="4dp"
-    >
+                                    card_view:cardCornerRadius="4dp">
 
     <LinearLayout
         android:background="@drawable/button_rect_list_normal"
@@ -15,10 +14,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
+        <com.android.volley.toolbox.NetworkImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/adThumbnailImg"
+            android:id="@+id/adsThumbnailImg"
             android:src="@drawable/ic_launcher"
             android:layout_margin="8dp"
             />
@@ -27,7 +26,7 @@
                   android:layout_height="wrap_content"
                   android:gravity="center_vertical">
             <TextView
-                android:id="@+id/adTitle"
+                android:id="@+id/adsTitle"
                 android:layout_width="match_parent"
                 android:gravity="center_vertical"
                 android:layout_marginStart="10dp"
@@ -37,10 +36,11 @@
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
                 android:maxLines="2"
-                android:textColor="@color/text"/>
+                android:textColor="@color/text"
+                android:autoText="false"/>
 
             <TextView
-                android:id="@+id/adDesc"
+                android:id="@+id/adsDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -50,6 +50,7 @@
                 android:layout_marginRight="8dp"
                 android:textSize="14sp"
                 android:maxLines="5"
+                android:text="today"
                 android:textColor="@color/secondary">
             </TextView>
 

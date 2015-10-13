@@ -1,7 +1,6 @@
 package vn.edu.hcmut.cse.smartads.model;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
@@ -41,6 +40,7 @@ public class Ads extends SugarRecord<Ads> {
     private String startDate;
     private String endDate;
     private String lastUpdated;
+    private String lastReceived;
     private boolean isNotified;
     private boolean isViewed;
     private boolean isBlacklisted;
@@ -76,17 +76,17 @@ public class Ads extends SugarRecord<Ads> {
             existedAds.get(0).setStartDate(this.getStartDate());
             existedAds.get(0).setEndDate(this.getEndDate());
             existedAds.get(0).setLastUpdated(new DateTime());
+            existedAds.get(0).setLastReceived(this.getLastReceived());
 
             existedAds.get(0).save();
         }
 
+        List<Minor> existedMinors = Minor.find(Minor.class, "ads = ?", String.valueOf(this.getId()));
+        for (Minor existedMinor : existedMinors) {
+            existedMinor.delete();
+        }
+
         if (minors != null && !minors.isEmpty()) {
-
-            List<Minor> existedMinors = Minor.find(Minor.class, "ads = ?", String.valueOf(this.getId()));
-            for (Minor existedMinor : existedMinors) {
-                existedMinor.delete();
-            }
-
             for (Integer newMinorId : minors) {
                 Minor newMinor = new Minor(newMinorId);
                 newMinor.setAds(this);
@@ -94,19 +94,18 @@ public class Ads extends SugarRecord<Ads> {
             }
         }
 
-
     }
 
-    private String parserDateToString(DateTime dateTime) {
+    static public String parserDateToString(DateTime dateTime) {
         if (dateTime == null)
             return "";
-        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATE_PATTERN);
+        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATETIME_PATTERN);
         return formatter.print(dateTime);
     }
-    private DateTime parseStringToDate(String dateTime) {
+    static public DateTime parseStringToDate(String dateTime) {
         if (dateTime == null || dateTime.isEmpty())
             return null;
-        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATE_PATTERN);
+        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATETIME_PATTERN);
         return DateTime.parse(dateTime, formatter);
     }
 
@@ -141,6 +140,12 @@ public class Ads extends SugarRecord<Ads> {
     public void setLastUpdated(DateTime lastUpdated) {
         this.lastUpdated = parserDateToString(lastUpdated);
     }
+    public DateTime getLastReceived() {
+        return parseStringToDate(lastReceived);
+    }
+    public void setLastReceived(DateTime lastReceived) {
+        this.lastReceived = parserDateToString(lastReceived);
+    }
 
     public void setMinors(List<Integer> minors) {
         this.minors = minors;
@@ -153,8 +158,7 @@ public class Ads extends SugarRecord<Ads> {
             minors.add(m.getMinor());
         }
 
-        if (minors.isEmpty())
-            return minors;
+        this.setMinors(minors);
 
         return minors;
     }

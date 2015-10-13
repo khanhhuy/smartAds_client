@@ -24,7 +24,6 @@ import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.model.Minor;
-import vn.edu.hcmut.cse.smartads.old.OperationService;
 import vn.edu.hcmut.cse.smartads.util.BundleDefined;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
@@ -50,14 +49,13 @@ public class MainActivity extends AppCompatActivity
         setTitle("Featured Ads");
 
         checkLoggedIn();
+        initFragment();
 
 //        Set up the drawer.
 //        mNavigationDrawerFragment = (NavigationDrawerFragment)
 //                getFragmentManager().findFragmentById(R.id.fragment_drawer);
 //        mNavigationDrawerFragment.setup(R.id.fragment_drawer,
 //                (DrawerLayout) findViewById(R.id.drawer), mToolbar);
-
-//        initFragment();
 
         //Intent beaconServiceIntent = new Intent(this, ContextAdsService.class);
         //startService(beaconServiceIntent);
@@ -103,8 +101,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onDestroy() {
-        Intent intentOP = new Intent(getApplicationContext(), OperationService.class);
-        stopService(intentOP);
         super.onDestroy();
     }
 
