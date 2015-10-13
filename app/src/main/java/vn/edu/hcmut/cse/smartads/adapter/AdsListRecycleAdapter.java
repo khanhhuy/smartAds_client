@@ -62,16 +62,6 @@ public class AdsListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         final View view = LayoutInflater.from(mContext).inflate(mAdsResourceID, parent, false);
         final ViewHolder rowViewHolder = new ViewHolder(view);
 
-        rowViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(mContext, rowViewHolder.adsTitle.getText(), Toast.LENGTH_SHORT).show();
-                if (mAdsClickListener != null) {
-                    mAdsClickListener.onAdsClick(v, rowViewHolder.getAdapterPosition()); //view header.
-                }
-            }
-        });
-
         return rowViewHolder;
     }
 
@@ -81,11 +71,23 @@ public class AdsListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if (mAdsData.isEmpty() || position > mAdsData.size())
             return;
 
+        final int itemPosition = position;
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mAdsClickListener != null) {
+                    mAdsClickListener.onAdsClick(v, itemPosition);
+                }
+            }
+        });
+
+        Log.d(Config.TAG, "Onbindviewholder position = " + position);
+
         ViewHolder viewHolder = (ViewHolder) holder;
         String adsTitle = mAdsData.get(position).getTitle();
         viewHolder.setAdsTitle(adsTitle);
 
-        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATETIME_PATTERN);
+        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATE_PATTERN);
         DateTime startDate = mAdsData.get(position).getStartDate();
         DateTime endDate = mAdsData.get(position).getEndDate();
         String adsDate;

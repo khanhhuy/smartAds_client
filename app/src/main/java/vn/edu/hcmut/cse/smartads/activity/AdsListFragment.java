@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.joda.time.DateTime;
 
@@ -83,7 +84,7 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
                 if (position != RecyclerView.NO_POSITION) {
 
                     Bundle bundle = new Bundle();
-                    String urlPath = Config.HOST_PORTAL + "/ads/" + String.valueOf(mlistAds.get(position - 1).getAdsId());
+                    String urlPath = Config.HOST_PORTAL + "/ads/" + String.valueOf(mlistAds.get(position).getAdsId());
                     bundle.putString(BundleDefined.URL, urlPath);
 
                     Intent detailAdsIntent = new Intent(mActivity, ViewDetailAdsActivity.class);
