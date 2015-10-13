@@ -99,10 +99,22 @@ public class Ads extends SugarRecord<Ads> {
     static public String parserDateToString(DateTime dateTime) {
         if (dateTime == null)
             return "";
-        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATETIME_PATTERN);
+        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATE_PATTERN);
         return formatter.print(dateTime);
     }
     static public DateTime parseStringToDate(String dateTime) {
+        if (dateTime == null || dateTime.isEmpty())
+            return null;
+        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATE_PATTERN);
+        return DateTime.parse(dateTime, formatter);
+    }
+    static public String parserDateTimeToString(DateTime dateTime) {
+        if (dateTime == null)
+            return "";
+        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATETIME_PATTERN);
+        return formatter.print(dateTime);
+    }
+    static public DateTime parseStringToDateTime(String dateTime) {
         if (dateTime == null || dateTime.isEmpty())
             return null;
         DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATETIME_PATTERN);
@@ -135,16 +147,16 @@ public class Ads extends SugarRecord<Ads> {
         this.endDate = parserDateToString(endDate);
     }
     public DateTime getLastUpdated() {
-        return parseStringToDate(lastUpdated);
+        return parseStringToDateTime(lastUpdated);
     }
     public void setLastUpdated(DateTime lastUpdated) {
-        this.lastUpdated = parserDateToString(lastUpdated);
+        this.lastUpdated = parserDateTimeToString(lastUpdated);
     }
     public DateTime getLastReceived() {
-        return parseStringToDate(lastReceived);
+        return parseStringToDateTime(lastReceived);
     }
     public void setLastReceived(DateTime lastReceived) {
-        this.lastReceived = parserDateToString(lastReceived);
+        this.lastReceived = parserDateTimeToString(lastReceived);
     }
 
     public void setMinors(List<Integer> minors) {

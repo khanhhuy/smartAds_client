@@ -85,7 +85,7 @@ public class AdsListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         String adsTitle = mAdsData.get(position).getTitle();
         viewHolder.setAdsTitle(adsTitle);
 
-        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATE_PATTERN);
+        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATETIME_PATTERN);
         DateTime startDate = mAdsData.get(position).getStartDate();
         DateTime endDate = mAdsData.get(position).getEndDate();
         String adsDate;

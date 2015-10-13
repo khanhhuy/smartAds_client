@@ -2,7 +2,6 @@ package vn.edu.hcmut.cse.smartads.activity;
 
 import android.app.Activity;
 import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,7 +24,6 @@ import vn.edu.hcmut.cse.smartads.adapter.SimpleSectionedRecyclerViewAdapter;
 import vn.edu.hcmut.cse.smartads.listener.AdsContentListener;
 import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.service.ContextAdsService;
-import vn.edu.hcmut.cse.smartads.ui.DividerItemDecoration;
 import vn.edu.hcmut.cse.smartads.util.BundleDefined;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
@@ -85,7 +83,7 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
                 if (position != RecyclerView.NO_POSITION) {
 
                     Bundle bundle = new Bundle();
-                    String urlPath = Config.HOST + "/ads/" + String.valueOf(mlistAds.get(position - 1).getAdsId());
+                    String urlPath = Config.HOST_PORTAL + "/ads/" + String.valueOf(mlistAds.get(position - 1).getAdsId());
                     bundle.putString(BundleDefined.URL, urlPath);
 
                     Intent detailAdsIntent = new Intent(mActivity, ViewDetailAdsActivity.class);
@@ -97,11 +95,6 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
         });
 
         mRecyclerView.setAdapter(mRecycleSectionedAdapter);
-
-//        MyApplication myApplication = (MyApplication) mActivity.getApplication();
-//        NotificationManager notificationManager = myApplication.getNotificationManager();
-//        if (notificationManager != null)
-//            notificationManager.cancelAll();
 
         NotificationManager notificationManager = ContextAdsService.getNotificationManager();
         if (notificationManager != null)
@@ -122,6 +115,7 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
 
         while (allAds.hasNext()) {
             Ads ads = (Ads)allAds.next();
+            Log.d(Config.TAG, "Last received ads " + ads.getAdsId() + " " + ads.getLastReceived());
             if (ads.getLastReceived() != null )
                 if ((new DateTime()).minusHours(Config.JUST_RECEIVED_TIME_HOUR).compareTo(ads.getLastReceived()) < 0) {
                     mlistAds.add(ads);
@@ -135,9 +129,10 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
             others.add(ads);
         }
 
+        createSectionHeader(mlistAds.size(), others.size());
         mlistAds.addAll(others);
         mlistAds.addAll(expired);
-        createSectionHeader(mlistAds.size(), others.size());
+        //Log.d(Config.TAG, "All ads size" + mlistAds.size() + "others size + " + others.size());
 
         return true;
     }

@@ -41,11 +41,11 @@ import vn.edu.hcmut.cse.smartads.util.Config;
  */
 public class Connector {
     private static Connector sInstance;
-    public static final String CONTEXT_ADS_BASE_URL = Config.HOST + "/customers/";
-    public static final String ADS_BASE_THUMBNAIL = Config.HOST + "/ads/thumbnail/";
-    public static final String LOGIN_URL = Config.HOST + "/auth/login";
-    public static final String ACCOUNT_STATUS_URL = Config.HOST + "/account-status?email=%s";
-    public static final String REGISTER_URL = Config.HOST + "/auth/register";
+    public static final String CONTEXT_ADS_BASE_URL = Config.HOST_API + "/customers/";
+    public static final String ADS_BASE_THUMBNAIL = Config.HOST_API + "/ads/thumbnail/";
+    public static final String LOGIN_URL = Config.HOST_API + "/auth/login";
+    public static final String ACCOUNT_STATUS_URL = Config.HOST_API + "/account-status?email=%s";
+    public static final String REGISTER_URL = Config.HOST_API + "/auth/register";
     private final Context mContext;
     private RequestQueue mRequestQueue;
     private ImageLoader mImageLoader;
@@ -135,7 +135,7 @@ public class Connector {
                 }
 
                 //parse date
-                DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+                DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATE_PATTERN);
                 DateTime startDate, endDate;
                 if (ads.isNull(Ads.START_DATE))
                     startDate = null;

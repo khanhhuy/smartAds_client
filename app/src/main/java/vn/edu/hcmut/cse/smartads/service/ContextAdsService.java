@@ -32,7 +32,6 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import vn.edu.hcmut.cse.smartads.R;
-import vn.edu.hcmut.cse.smartads.activity.MyApplication;
 import vn.edu.hcmut.cse.smartads.activity.ViewDetailAdsActivity;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.connector.ContextAdsReceivedListener;
@@ -230,7 +229,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
         for (Ads ads : notifyAdsList){
 
             bundle = new Bundle();
-            String urlPath = Config.HOST + "/ads/" + String.valueOf(ads.getAdsId());
+            String urlPath = Config.HOST_PORTAL + "/ads/" + String.valueOf(ads.getAdsId());
             bundle.putString(BundleDefined.URL, urlPath);
 
             Intent notifyIntent = new Intent(this, ViewDetailAdsActivity.class);
