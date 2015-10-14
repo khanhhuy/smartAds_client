@@ -42,7 +42,7 @@ import vn.edu.hcmut.cse.smartads.util.Config;
 public class Connector {
     private static Connector sInstance;
     public static final String CONTEXT_ADS_BASE_URL = Config.HOST_API + "/customers/";
-    public static final String ADS_BASE_THUMBNAIL = Config.HOST_API + "/ads/thumbnail/";
+    public static final String ADS_BASE_THUMBNAIL = Config.HOST_PORTAL + "/ads/thumbnail/";
     public static final String LOGIN_URL = Config.HOST_API + "/auth/login";
     public static final String ACCOUNT_STATUS_URL = Config.HOST_API + "/account-status?email=%s";
     public static final String REGISTER_URL = Config.HOST_API + "/auth/register";

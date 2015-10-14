@@ -38,12 +38,6 @@ public class ViewDetailAdsActivity extends AppCompatActivity {
         myWebView.loadUrl(url);
     }
 
-    private void openByWebBrowser(String url)
-    {
-        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        startActivity(i);
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
