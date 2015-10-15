@@ -35,6 +35,8 @@ public class ViewDetailAdsActivity extends AppCompatActivity {
     {
         WebView myWebView = (WebView) findViewById(R.id.webview);
         myWebView.setWebViewClient(new MyWebViewClient());
+        myWebView.getSettings().setBuiltInZoomControls(true);
+        myWebView.getSettings().setDisplayZoomControls(false);
         myWebView.loadUrl(url);
     }
 
