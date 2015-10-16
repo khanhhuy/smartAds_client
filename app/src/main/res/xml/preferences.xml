@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="pref_sync"
+        android:summary="asdasd"
+        android:title="asdasd" />
+    <vn.edu.hcmut.cse.smartads.settings.PromotionNotifyConditionPreference
+        android:key="pref_entrance_condition"
+        android:summary="Discount at least 20% or 20 000 VND"
+        android:title="Entrance Promotion-Notify Condition"
+        android:dialogTitle="Entrance Notify Condition"
+        />
+
+</PreferenceScreen>
