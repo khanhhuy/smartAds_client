@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <EditTextPreference
-        android:key="pref_sync"
-        android:summary="asdasd"
-        android:title="asdasd" />
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res/vn.edu.hcmut.cse.smartads">
     <vn.edu.hcmut.cse.smartads.settings.PromotionNotifyConditionPreference
-        android:key="pref_entrance_condition"
-        android:summary="Discount at least 20% or 20 000 VND"
-        android:title="Entrance Promotion-Notify Condition"
         android:dialogTitle="Entrance Notify Condition"
-        />
+        android:key="pref_entrance_condition"
+        custom:defaultRate="20"
+        custom:defaultValue="15000"
+        android:summary="Discount at least 20% or 15 000 VND"
+        android:title="Entrance Promotion-Notify Condition" />
+    <vn.edu.hcmut.cse.smartads.settings.PromotionNotifyConditionPreference
+        android:dialogTitle="Aisle Notify Condition"
+        android:key="pref_aisle_condition"
+        custom:defaultRate="5"
+        custom:defaultValue="4000"
+        android:summary="Discount at least 5% or 4 000 VND"
+        android:title="Aisle Promotion-Notify Condition" />
 
 </PreferenceScreen>
