@@ -4,6 +4,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.text.TextUtils;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.model.Ads;
 
@@ -27,4 +32,11 @@ public class Utils {
         showAlertDialog(context, null, message);
     }
 
+    public static String currencyFormat(BigDecimal value){
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("VI", "VN"));
+        symbols.setDecimalSeparator('.');
+        symbols.setGroupingSeparator(' ');
+        DecimalFormat format = new DecimalFormat("#,###.## VND",symbols);
+        return format.format(value);
+    }
 }
