@@ -1,6 +1,7 @@
 package vn.edu.hcmut.cse.smartads.settings;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.text.InputFilter;
@@ -11,10 +12,6 @@ import android.widget.NumberPicker;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.util.Locale;
 
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.util.Utils;
@@ -24,6 +21,7 @@ import vn.edu.hcmut.cse.smartads.util.Utils;
  */
 public class PromotionNotifyConditionPreference extends DialogPreference {
     public static final String DELIMITER = " ";
+    public static final String CONDITION_VALIDATE_ERROR = "Aisle Notify Condition cannot stricter than Entrance Notify Condition";
     private EditText mEditMinDiscountValue;
     private NumberPicker mPickerMinDiscountRate;
     private int mDiscountRate;
@@ -48,11 +46,11 @@ public class PromotionNotifyConditionPreference extends DialogPreference {
         mEditMinDiscountValue = (EditText) view.findViewById(R.id.setting_edit_discount_value);
         mEditMinDiscountValue.setText(mDiscountValue.toString());
         mPickerMinDiscountRate = (NumberPicker) view.findViewById(R.id.setting_picker_discount_rate);
-        Field f = null;
+        Field f;
         try {
             f = NumberPicker.class.getDeclaredField("mInputText");
             f.setAccessible(true);
-            EditText inputText = null;
+            EditText inputText;
             inputText = (EditText) f.get(mPickerMinDiscountRate);
             inputText.setFilters(new InputFilter[0]);
         } catch (IllegalAccessException e) {
@@ -89,10 +87,18 @@ public class PromotionNotifyConditionPreference extends DialogPreference {
             mDiscountRate = mPickerMinDiscountRate.getValue();
             String discountValue = mEditMinDiscountValue.getText().toString();
             mDiscountValue = new BigDecimal(discountValue);
-            persistString(mDiscountRate
-                    + DELIMITER + discountValue);
-
-            updateSummary();
+            if (SettingsValidator.validateNotifyCondition(this)) {
+                persistString(mDiscountRate
+                        + DELIMITER + discountValue);
+                updateSummary();
+            } else {
+                Utils.showAlertDialog(getContext(), null, CONDITION_VALIDATE_ERROR, new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        onClick();
+                    }
+                });
+            }
         }
     }
 
@@ -110,5 +116,14 @@ public class PromotionNotifyConditionPreference extends DialogPreference {
         RateValueGroup g = Utils.parseStringToRateValueGroup(s);
         mDiscountRate = g.getRate();
         mDiscountValue = g.getValue();
+    }
+
+
+    public int getDiscountRate() {
+        return mDiscountRate;
+    }
+
+    public BigDecimal getDiscountValue() {
+        return mDiscountValue;
     }
 }

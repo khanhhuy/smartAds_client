@@ -2,11 +2,10 @@ package vn.edu.hcmut.cse.smartads.util;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-
-import com.orm.StringUtil;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -16,6 +15,7 @@ import java.util.Locale;
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.activity.LoginActivity;
 import vn.edu.hcmut.cse.smartads.activity.SettingsActivity;
+import vn.edu.hcmut.cse.smartads.activity.SignUpActivity;
 import vn.edu.hcmut.cse.smartads.settings.PromotionNotifyConditionPreference;
 import vn.edu.hcmut.cse.smartads.settings.RateValueGroup;
 
@@ -27,16 +27,21 @@ public class Utils {
         return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
 
-    public static void showAlertDialog(Context context, String title, String message) {
+    public static void showAlertDialog(Context context, String title, String message, DialogInterface.OnDismissListener dismissListener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(title);
         builder.setMessage(message);
         builder.setPositiveButton(context.getString(R.string.btn_ok), null);
+        builder.setOnDismissListener(dismissListener);
         builder.create().show();
     }
 
+    public static void showAlertDialog(Context context, String title, String message) {
+        showAlertDialog(context, title, message, null);
+    }
+
     public static void showAlertDialog(Context context, String message) {
-        showAlertDialog(context, null, message);
+        showAlertDialog(context, null, message, null);
     }
 
     public static String currencyFormat(BigDecimal value) {
