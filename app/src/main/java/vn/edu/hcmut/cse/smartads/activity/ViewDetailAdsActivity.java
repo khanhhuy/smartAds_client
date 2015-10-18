@@ -3,18 +3,29 @@ package vn.edu.hcmut.cse.smartads.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import vn.edu.hcmut.cse.smartads.R;
+import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.util.BundleDefined;
+import vn.edu.hcmut.cse.smartads.util.Config;
 
-public class ViewDetailAdsActivity extends AppCompatActivity {
+public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBackFragment.NoticeDialogListener {
 
-    String url;
+    private String url;
+    private String adsId;
+    private int adsAdapterPostion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,10 +33,16 @@ public class ViewDetailAdsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_detail_ads);
         Bundle bun = getIntent().getExtras();
 
-        String title = null;
-
         if (bun != null) {
             url = bun.getString(BundleDefined.URL);
+            adsId = bun.getString(BundleDefined.ADS_ID);
+            adsAdapterPostion = bun.getInt(BundleDefined.ADS_ADAPTER_POSITION, -1);
+            List<Ads> listAds = new ArrayList<>(Ads.find(Ads.class, "ads_id = ?", adsId));
+            if (!listAds.isEmpty()) {
+                Log.d(Config.TAG, "Is viewed" + listAds.get(0).is_viewed());
+                listAds.get(0).setViewed(true);
+                listAds.get(0).InsertOrUpdate();
+            }
         }
         openByWebView(url);
 
@@ -58,7 +75,10 @@ public class ViewDetailAdsActivity extends AppCompatActivity {
 //        shareIntent.putExtra(Intent.EXTRA_TEXT, url);
 //
 //        mShare.setShareIntent(shareIntent);
-        return true;
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_ads_detail, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -69,12 +89,49 @@ public class ViewDetailAdsActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
-        return super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case R.id.action_feedback:
+                showFeedbackDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
+
+    private void showFeedbackDialog() {
+        DialogFragment feedback = FeedBackFragment.newInstance();
+        feedback.show(getSupportFragmentManager(), Config.TAG);
+    }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        List<Ads> listAds = new ArrayList<>(Ads.find(Ads.class, "ads_id = ?", adsId));
+        if (!listAds.isEmpty()) {
+            listAds.get(0).setBlacklisted(true);
+            listAds.get(0).InsertOrUpdate();
+        }
+        Intent data = new Intent();
+        Bundle bundle = new Bundle();
+        bundle.putString(BundleDefined.ADS_BLACKLIST_ID, adsId);
+        bundle.putInt(BundleDefined.ADS_ADAPTER_POSITION, adsAdapterPostion);
+        data.putExtras(bundle);
+        if (getParent() == null) {
+            setResult(MainActivity.RESULT_OK, data);
+        }
+        else
+            getParent().setResult(MainActivity.RESULT_OK, data);
+
+        //Todo: send feedback to server
+
+        finish();
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+    }
+
+
 
     private class MyWebViewClient extends WebViewClient {
         @Override

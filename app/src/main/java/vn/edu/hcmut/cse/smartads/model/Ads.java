@@ -77,6 +77,9 @@ public class Ads extends SugarRecord<Ads> {
             existedAds.get(0).setEndDate(this.getEndDate());
             existedAds.get(0).setLastUpdated(new DateTime());
             existedAds.get(0).setLastReceived(this.getLastReceived());
+            existedAds.get(0).setViewed(this.isViewed);
+            existedAds.get(0).setNotified(this.isNotified);
+            existedAds.get(0).setBlacklisted(this.isBlacklisted);
 
             existedAds.get(0).save();
         }

@@ -2,7 +2,6 @@ package vn.edu.hcmut.cse.smartads.connector;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -11,9 +10,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.ImageRequest;
 
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.joda.time.DateTime;
@@ -31,9 +30,9 @@ import java.util.Map;
 
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.activity.LoginActivity;
-import vn.edu.hcmut.cse.smartads.listener.AdsContentListener;
 import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.model.Ads;
+import vn.edu.hcmut.cse.smartads.model.image.ImageCacheManager;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
 /**
@@ -41,19 +40,28 @@ import vn.edu.hcmut.cse.smartads.util.Config;
  */
 public class Connector {
     private static Connector sInstance;
-    public static final String CONTEXT_ADS_BASE_URL = Config.HOST_API + "/customers/";
-    public static final String ADS_BASE_THUMBNAIL = Config.HOST_API + "/ads/thumbnail/";
+    public static final String CUSTOMER_URL = Config.HOST_API + "/customers/";
+    public static final String ADS_BASE_THUMBNAIL = Config.HOST_PORTAL + "/ads/thumbnail/";
     public static final String LOGIN_URL = Config.HOST_API + "/auth/login";
     public static final String ACCOUNT_STATUS_URL = Config.HOST_API + "/account-status?email=%s";
     public static final String REGISTER_URL = Config.HOST_API + "/auth/register";
+
+    public static final String PREF_TIME  = "prefTime";
+    public static final String UPDATE_REQUEST_DATE  = "updateRequestDate";
+
     private final Context mContext;
     private RequestQueue mRequestQueue;
-    private ImageLoader mImageLoader;
+    private ImageCacheManager imageManager;
 
     private Connector(Context context) {
         mContext = context;
         mRequestQueue = getRequestQueue();
-        mImageLoader = new ImageLoader(mRequestQueue, new LruBitmapCache(mContext));
+        //mImageLoader = new ImageLoader(mRequestQueue, new LruBitmapCache(mContext));
+        imageManager = ImageCacheManager.getInstance();
+        Log.d(Config.TAG, "Unique name" + mContext.getPackageCodePath());
+        imageManager.init(mContext, mRequestQueue, mContext.getPackageCodePath(),
+                ImageCacheManager.DISK_IMAGECACHE_SIZE, ImageCacheManager.DISK_IMAGECACHE_COMPRESS_FORMAT,
+                ImageCacheManager.DISK_IMAGECACHE_QUALITY, ImageCacheManager.CacheType.DISK);
     }
 
     public static synchronized Connector getInstance(Context context) {
@@ -71,7 +79,7 @@ public class Connector {
     }
 
     public ImageLoader getImageLoader() {
-        return mImageLoader;
+        return imageManager.getImageLoader();
     }
 
 
@@ -87,7 +95,7 @@ public class Connector {
         if (customerID.isEmpty())
             return;
 
-        final String url = CONTEXT_ADS_BASE_URL + customerID + "/context-ads/" + beacon.getMajor() + "/" + beacon.getMinor();
+        final String url = CUSTOMER_URL + customerID + "/context-ads/" + beacon.getMajor() + "/" + beacon.getMinor();
         JsonObjectRequest contextAdsRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonContextAds) {
@@ -96,6 +104,8 @@ public class Connector {
                     Log.d(Config.TAG, "DB Ads size" + Ads.listAll(Ads.class).size());
 
                     listener.onReceivedContextAds(beacons);
+
+                    imageManager.clearCache();
 
                     if (Config.DEBUG)
                         logDB();
@@ -155,37 +165,6 @@ public class Connector {
                 newAds.InsertOrUpdate();
             }
         }
-    }
-
-    public void requestImageThumbnail(final List<Ads> adsList, final AdsContentListener listener) {
-
-
-        for (int i = 0; i < adsList.size(); i++) {
-            final int position = i;
-            Log.d(Config.TAG, "Load image thumbnail position " + position);
-            final Ads ads = adsList.get(i);
-            String url = ADS_BASE_THUMBNAIL + ads.getId() + ".png";
-            Log.d(Config.TAG, "Load image thumbnail ID " + ads.getId());
-
-            ImageRequest thumbnailRequest = new ImageRequest(url,
-                    new Response.Listener<Bitmap>() {
-                        @Override
-                        public void onResponse(Bitmap bitmap) {
-                            ads.setIcon(bitmap);
-                            listener.adsListUpdateImg(position);
-                        }
-                    }, 0, 0, null,
-                    new Response.ErrorListener() {
-                        public void onErrorResponse(VolleyError error) {
-                            //doing nothing. Default icon will be displayed.
-                        }
-                    });
-            thumbnailRequest.setRetryPolicy(new DefaultRetryPolicy(4000,
-                    5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            mRequestQueue.add(thumbnailRequest);
-        }
-
-
     }
 
     public void postLogin(String email, String password, final LoginResponseListener listener) {
@@ -294,6 +273,31 @@ public class Connector {
                 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         mRequestQueue.add(request);
         Log.d(Config.TAG, "Register request sent!");
+    }
+
+    public void updateRequest() {
+
+        SharedPreferences authPrefs = mContext.getSharedPreferences(LoginActivity.AUTH_PREFS_NAME, Context.MODE_PRIVATE);
+        String customerID = authPrefs.getString(LoginActivity.CUSTOMER_ID, "");
+        if (customerID.isEmpty())
+            return;
+        Log.d(Config.TAG, "Update request starts");
+        String url = CUSTOMER_URL + customerID + "/update-request";
+        StringRequest postUpdateRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(Config.TAG, "Update request completed");
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        volleyError.printStackTrace();
+                    }
+                });
+
+        postUpdateRequest.setRetryPolicy(new DefaultRetryPolicy(4000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        mRequestQueue.add(postUpdateRequest);
     }
 
     //Debug and testing function

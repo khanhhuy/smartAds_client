@@ -3,60 +3,58 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
                                     xmlns:card_view="http://schemas.android.com/apk/res-auto"
                                     android:layout_width="match_parent"
-                                    android:layout_margin="5dp"
                                     android:clickable="true"
                                     android:layout_height="wrap_content"
-                                    card_view:cardCornerRadius="4dp">
+                                    card_view:cardPreventCornerOverlap="false"
+                                    card_view:cardUseCompatPadding="true"
+    >
 
-    <LinearLayout
+    <RelativeLayout
         android:background="@drawable/button_rect_list_normal"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <com.android.volley.toolbox.NetworkImageView
             android:layout_width="70dp"
             android:layout_height="70dp"
+            android:layout_margin="6dp"
             android:id="@+id/adsThumbnailImg"
-            android:src="@drawable/ic_launcher"
-            android:layout_margin="8dp"
             android:scaleType="centerInside"
             />
-        <LinearLayout android:orientation="vertical"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:gravity="center_vertical">
-            <TextView
-                android:id="@+id/adsTitle"
-                android:layout_width="match_parent"
-                android:gravity="center_vertical"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
-                android:layout_marginEnd="10dp"
-                android:layout_height="wrap_content"
-                android:textSize="15sp"
-                android:maxLines="2"
-                android:textColor="@color/text"
-                android:autoText="false"/>
 
-            <TextView
-                android:id="@+id/adsDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginRight="8dp"
-                android:textSize="14sp"
-                android:maxLines="5"
-                android:text="today"
-                android:textColor="@color/secondary">
-            </TextView>
+        <TextView
+            android:id="@+id/adsTitle"
+            android:layout_width="match_parent"
+            android:gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginEnd="10dp"
+            android:layout_height="wrap_content"
+            android:text="Bot giac Downy"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:maxLines="2"
+            android:textColor="@color/myTextPrimaryColor"
+            android:autoText="false"
+            android:layout_toEndOf="@id/adsThumbnailImg"/>
 
-        </LinearLayout>
-
-    </LinearLayout>
-
+        <TextView
+            android:id="@+id/adsDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginRight="8dp"
+            android:textSize="14sp"
+            android:maxLines="5"
+            android:text="today"
+            android:textColor="@color/myTextSecondaryColor"
+            android:layout_toEndOf="@id/adsThumbnailImg"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentStart="false"
+            android:layout_alignBottom="@+id/adsThumbnailImg"/>
+    </RelativeLayout>
 </android.support.v7.widget.CardView>

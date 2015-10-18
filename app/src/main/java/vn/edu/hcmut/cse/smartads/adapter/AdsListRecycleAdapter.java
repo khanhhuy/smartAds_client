@@ -40,6 +40,10 @@ public class AdsListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public AdsListRecycleAdapter(int adsResourceID, Context context, List<Ads> adsData) {
         mAdsResourceID = adsResourceID;
         mContext = context;
+        setAdsData(adsData);
+    }
+
+    public void setAdsData(List<Ads> adsData) {
         if (adsData != null)
             mAdsData = new ArrayList<>(adsData);
         else
@@ -54,7 +58,6 @@ public class AdsListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         this.mAdsClickListener = mItemClickListener;
     }
 
-    //Override
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -81,8 +84,6 @@ public class AdsListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             }
         });
 
-        Log.d(Config.TAG, "Onbindviewholder position = " + position);
-
         ViewHolder viewHolder = (ViewHolder) holder;
         String adsTitle = mAdsData.get(position).getTitle();
         viewHolder.setAdsTitle(adsTitle);
@@ -103,6 +104,10 @@ public class AdsListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         viewHolder.setAdsDate(adsDate);
         viewHolder.setAdsThumbnail(Connector.ADS_BASE_THUMBNAIL + String.valueOf(mAdsData.get(position).getAdsId()));
+
+        if (mAdsData.get(position).is_viewed()) {
+            ((ViewHolder) holder).adsTitle.setTextAppearance(mContext, R.style.normalText);
+        }
     }
 
     @Override

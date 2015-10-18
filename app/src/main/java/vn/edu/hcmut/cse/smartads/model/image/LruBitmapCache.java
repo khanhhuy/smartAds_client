@@ -1,4 +1,4 @@
-package vn.edu.hcmut.cse.smartads.connector;
+package vn.edu.hcmut.cse.smartads.model.image;
 
 /**
  * Created by Huy on 10/12/2015.
@@ -10,14 +10,10 @@ import android.util.DisplayMetrics;
 import com.android.volley.toolbox.ImageLoader.ImageCache;
 
 public class LruBitmapCache extends LruCache<String, Bitmap>
-        implements ImageCache {
+        implements ImageClearCache {
 
     public LruBitmapCache(int maxSize) {
         super(maxSize);
-    }
-
-    public LruBitmapCache(Context ctx) {
-        this(getCacheSize(ctx));
     }
 
     @Override
@@ -35,15 +31,7 @@ public class LruBitmapCache extends LruCache<String, Bitmap>
         put(url, bitmap);
     }
 
-    // Returns a cache size equal to approximately three screens worth of images.
-    public static int getCacheSize(Context ctx) {
-        final DisplayMetrics displayMetrics = ctx.getResources().
-                getDisplayMetrics();
-        final int screenWidth = displayMetrics.widthPixels;
-        final int screenHeight = displayMetrics.heightPixels;
-        // 4 bytes per pixel
-        final int screenBytes = screenWidth * screenHeight * 4;
-
-        return screenBytes * 3;
+    @Override
+    public void clearCache() {
     }
 }

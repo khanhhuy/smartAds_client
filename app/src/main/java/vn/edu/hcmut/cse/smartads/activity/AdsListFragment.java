@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import org.joda.time.DateTime;
 
@@ -63,13 +62,8 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
 
         View view = inflater.inflate(R.layout.fragment_ads_list, container, false);
 
-
-
-
         mRecyclerView = (RecyclerView) view.findViewById(R.id.listAds);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
-
-        //mRecyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.abc_list_divider_mtrl_alpha)));
 
         mAdsListAdapter = new AdsListRecycleAdapter(R.layout.card_ads_item, mActivity, mlistAds);
 
@@ -86,11 +80,14 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
                     Bundle bundle = new Bundle();
                     String urlPath = Config.HOST_PORTAL + "/ads/" + String.valueOf(mlistAds.get(position).getAdsId());
                     bundle.putString(BundleDefined.URL, urlPath);
+                    bundle.putString(BundleDefined.ADS_ID, String.valueOf(mlistAds.get(position).getAdsId()));
+                    bundle.putInt(BundleDefined.ADS_ADAPTER_POSITION, position);
 
                     Intent detailAdsIntent = new Intent(mActivity, ViewDetailAdsActivity.class);
                     detailAdsIntent.putExtras(bundle);
-                    startActivity(detailAdsIntent);
-
+                    startActivityForResult(detailAdsIntent, MainActivity.VIEW_DETAILS_ADS, bundle);
+                    //startActivity(detailAdsIntent);
+                    mAdsListAdapter.notifyItemChanged(position);
                 }
             }
         });
@@ -117,23 +114,24 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
         while (allAds.hasNext()) {
             Ads ads = (Ads)allAds.next();
             Log.d(Config.TAG, "Last received ads " + ads.getAdsId() + " " + ads.getLastReceived());
-            if (ads.getLastReceived() != null )
-                if ((new DateTime()).minusHours(Config.JUST_RECEIVED_TIME_HOUR).compareTo(ads.getLastReceived()) < 0) {
-                    mlistAds.add(ads);
-                    continue;
-                }
-            if (ads.getEndDate() != null)
-                if ((new DateTime()).compareTo(ads.getEndDate()) > 0) {
-                    expired.add(ads);
-                    continue;
-                }
-            others.add(ads);
+            if (!ads.is_blacklisted()) {
+                if (ads.getLastReceived() != null)
+                    if ((new DateTime()).minusHours(Config.JUST_RECEIVED_TIME_HOUR).compareTo(ads.getLastReceived()) < 0) {
+                        mlistAds.add(ads);
+                        continue;
+                    }
+                if (ads.getEndDate() != null)
+                    if ((new DateTime()).compareTo(ads.getEndDate()) > 0) {
+                        expired.add(ads);
+                        continue;
+                    }
+                others.add(ads);
+            }
         }
 
         createSectionHeader(mlistAds.size(), others.size());
         mlistAds.addAll(others);
         mlistAds.addAll(expired);
-        //Log.d(Config.TAG, "All ads size" + mlistAds.size() + "others size + " + others.size());
 
         return true;
     }
@@ -148,10 +146,36 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
                 getResources().getString(R.string.expired_section)));
     }
 
+    private void reloadDataset() {
+        loadData();
+        SimpleSectionedRecyclerViewAdapter.Section[] sections = new SimpleSectionedRecyclerViewAdapter.Section[sectionList.size()];
+        mRecycleSectionedAdapter.setSections(sectionList.toArray(sections));
+        mAdsListAdapter.setAdsData(mlistAds);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(Config.TAG, "onActivityResult Fragment call");
+        Log.d(Config.TAG, "Request + result " + requestCode +  resultCode);
+        if (requestCode == MainActivity.VIEW_DETAILS_ADS && resultCode == MainActivity.RESULT_OK) {
+            Bundle bun = data.getExtras();
+            String adsBlacklist = bun.getString(BundleDefined.ADS_BLACKLIST_ID, "");
+            Log.d(Config.TAG, "Ads blacklist " + adsBlacklist);
+            if (!adsBlacklist.isEmpty() && mAdsListAdapter != null) {
+                int position = bun.getInt(BundleDefined.ADS_ADAPTER_POSITION, -1);
+                Log.d(Config.TAG, "Remove position " + position);
+                if (position != -1) {
+                    reloadDataset();
+                    mRecycleSectionedAdapter.notifyDataSetChanged();
+                }
+            }
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        loadData();
     }
 
     @Override

@@ -48,4 +48,12 @@
 
     <string name="empty_ads">Your received ads will be displayed here</string>
 
+    <string name="btn_confirm">Confirm</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_feedback">Feedback</string>
+
+    <string name="dlg_feedback_title">Feedback</string>
+    <string name="dlg_feedback">Stop receiving promotions for this product</string>
+    <string name="toast_remove">Promotions from this product will be removed</string>
+
 </resources>

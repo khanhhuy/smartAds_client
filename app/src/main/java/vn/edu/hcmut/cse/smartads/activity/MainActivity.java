@@ -15,7 +15,12 @@ import com.estimote.sdk.Beacon;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,6 +38,8 @@ public class MainActivity extends AppCompatActivity
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private Toolbar mToolbar;
+    public static final int VIEW_DETAILS_ADS = 5;
+    public static final int RESULT_OK = 1;
 
 
     @Override
@@ -43,12 +50,13 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar_adslist_header);
-        setSupportActionBar(mToolbar);
+//        mToolbar = (Toolbar) findViewById(R.id.toolbar_adslist_header);
+//        setSupportActionBar(mToolbar);
 
         setTitle("Featured Ads");
 
         checkLoggedIn();
+        updateRequest();
         initFragment();
 
 //        Set up the drawer.
@@ -63,12 +71,30 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void checkLoggedIn() {
-        SharedPreferences authPrefs=getSharedPreferences(LoginActivity.AUTH_PREFS_NAME,MODE_PRIVATE);
-        boolean loggedIn=authPrefs.getBoolean("loggedIn",false);
+        SharedPreferences authPrefs = getSharedPreferences(LoginActivity.AUTH_PREFS_NAME, MODE_PRIVATE);
+        boolean loggedIn=authPrefs.getBoolean("loggedIn", false);
         if (!loggedIn){
             Intent intent=new Intent(this,LoginActivity.class);
             startActivity(intent);
             finish();
+        }
+    }
+
+    private void updateRequest() {
+        SharedPreferences timePrefs = getSharedPreferences(Connector.PREF_TIME, MODE_PRIVATE);
+        String timeStr = timePrefs.getString(Connector.UPDATE_REQUEST_DATE, "");
+        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATETIME_PATTERN);
+        if (!timeStr.isEmpty()) {
+            DateTime lastUpdateReq = DateTime.parse(timeStr, formatter);
+            if ((new DateTime()).minusDays(Config.SERVER_UPDATE_REQUEST_MIN_DATE)
+                    .compareTo(lastUpdateReq) > 0) {
+                Connector.getInstance(this).updateRequest();
+            }
+        } else {
+            SharedPreferences.Editor editor = timePrefs.edit();
+            editor.putString(Connector.UPDATE_REQUEST_DATE, formatter.print(new DateTime()));
+            editor.commit();
+            Connector.getInstance(this).updateRequest();
         }
     }
 
@@ -95,8 +121,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(Config.TAG, "MainActivity On Pause");
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        Log.d(Config.TAG, "MainActivity On Resume");
     }
 
     @Override
@@ -108,6 +141,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onNavigationDrawerItemSelected(int position) {
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(Config.TAG, "onActivityResult Main call");
     }
 
     private void initFragment() {

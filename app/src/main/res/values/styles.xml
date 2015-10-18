@@ -7,6 +7,9 @@
         <item name="colorPrimaryDark">@color/myPrimaryDarkColor</item>
         <item name="colorAccent">@color/myAccentColor</item>
         <item name="android:textColorPrimary">@color/myTextPrimaryColor</item>
+        <item name="android:textColorSecondary">@color/myTextSecondaryColor</item>
+        <item name="android:divider">@color/myDividerColor</item>
+
         <!--<item name="android:navigationBarColor">@color/myNavigationColor</item>-->
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="colorButtonNormal">@color/myBtnColor</item>
@@ -23,7 +26,6 @@
     </style>
 
     <style name="ToolBarStyle" parent="">
-        <!--<item name="android:elevation">@dimen/toolbar_elevation</item>-->
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
@@ -35,5 +37,13 @@
     </style>
     <style name="myTextStyle">
     </style>
+
+    <style name="normalText">
+        <item name="android:textStyle">normal</item>
+    </style>
+    <style name="boldText">
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="AppTheme.NoActionBar.Material" parent="AppTheme.NoActionBar" />
 </resources>

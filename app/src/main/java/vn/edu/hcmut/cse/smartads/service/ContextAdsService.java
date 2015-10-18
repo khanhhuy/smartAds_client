@@ -125,7 +125,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
         if (!last_updatedStr.isEmpty()) {
             DateTime last_updated = DateTime.parse(last_updatedStr, formatter);
             if (DateTimeComparator.getInstance().
-                    compare(current_time.minusHours(Config.SERVER_MIN_UPDATE_TIME_HOUR), last_updated) > 0) {
+                    compare(current_time.minusHours(Config.SERVER_GET_ADS_MIN_HOUR), last_updated) > 0) {
                 Log.d(Config.TAG, "Request context ads from SERVER");
                 mConnector.requestContextAds(filteredBeacons, ContextAdsService.this);
             }
@@ -231,6 +231,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
             bundle = new Bundle();
             String urlPath = Config.HOST_PORTAL + "/ads/" + String.valueOf(ads.getAdsId());
             bundle.putString(BundleDefined.URL, urlPath);
+            bundle.putString(BundleDefined.ADS_ID, String.valueOf(ads.getAdsId()));
 
             Intent notifyIntent = new Intent(this, ViewDetailAdsActivity.class);
             notifyIntent.putExtras(bundle);
