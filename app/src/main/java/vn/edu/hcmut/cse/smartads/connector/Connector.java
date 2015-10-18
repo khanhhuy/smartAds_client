@@ -22,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,6 +34,7 @@ import vn.edu.hcmut.cse.smartads.activity.LoginActivity;
 import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.model.image.ImageCacheManager;
+import vn.edu.hcmut.cse.smartads.settings.SettingsResponseListener;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
 /**
@@ -41,6 +43,7 @@ import vn.edu.hcmut.cse.smartads.util.Config;
 public class Connector {
     private static Connector sInstance;
     public static final String CUSTOMER_URL = Config.HOST_API + "/customers/";
+    public static final String CONTEXT_ADS_BASE_URL = Config.HOST_API + "/customers/";
     public static final String ADS_BASE_THUMBNAIL = Config.HOST_PORTAL + "/ads/thumbnail/";
     public static final String LOGIN_URL = Config.HOST_API + "/auth/login";
     public static final String ACCOUNT_STATUS_URL = Config.HOST_API + "/account-status?email=%s";
@@ -48,6 +51,8 @@ public class Connector {
 
     public static final String PREF_TIME  = "prefTime";
     public static final String UPDATE_REQUEST_DATE  = "updateRequestDate";
+
+    public static final String SETTINGS_URL = Config.HOST_API + "/customers/%s/config";
 
     private final Context mContext;
     private RequestQueue mRequestQueue;
@@ -237,7 +242,7 @@ public class Connector {
         Log.d(Config.TAG, "account status request sent!");
     }
 
-    public void register(String email, String password, final RegisterResponseListener listener) {
+    public void register(String email, String password, final SimpleResponseListener listener) {
         Map<String, String> params = new HashMap<>();
         params.put("email", email);
         params.put("password", password);
@@ -318,5 +323,83 @@ public class Connector {
             }
 
         }
+    }
+
+
+    public void requestSettings(String customerID, final SettingsResponseListener listener) {
+        String url = String.format(SETTINGS_URL, customerID);
+        JsonObjectRequest request = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                if (!jsonObject.has("errors")) {
+                    Integer entranceRate;
+                    try {
+                        entranceRate = (int) Math.floor(jsonObject.getDouble("min_entrance_rate"));
+                    } catch (Exception e) {
+                        entranceRate = null;
+                    }
+
+                    BigDecimal entranceValue;
+                    try {
+                        entranceValue = new BigDecimal(jsonObject.getDouble("min_entrance_value"));
+                    } catch (Exception e) {
+                        entranceValue = null;
+                    }
+
+
+                    Integer aisleRate;
+                    try {
+                        aisleRate = (int) Math.floor(jsonObject.getDouble("min_aisle_rate"));
+                    } catch (Exception e) {
+                        aisleRate = null;
+                    }
+
+                    BigDecimal aisleValue;
+                    try {
+                        aisleValue = new BigDecimal(jsonObject.getDouble("min_aisle_value"));
+                    } catch (Exception e) {
+                        aisleValue = null;
+                    }
+
+                    listener.onSuccess(entranceRate, entranceValue, aisleRate, aisleValue);
+                } else {
+                    listener.onError(null);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                listener.onError(null);
+            }
+        });
+        request.setRetryPolicy(new DefaultRetryPolicy(5000, 3, 1.0F));
+        mRequestQueue.add(request);
+        Log.d(Config.TAG, "requestSettings request sent!");
+    }
+
+    public void updateSettings(String customerID, Map<String, String> settings,final SimpleResponseListener listener) {
+        String url = String.format(SETTINGS_URL,customerID);
+        CustomJsonObjectPostRequest request = new CustomJsonObjectPostRequest(url, settings, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                Log.d(Config.TAG, "updateSettings: onResponse" + jsonObject);
+                if (!jsonObject.has("errors")) {
+                    listener.onSuccess();
+                } else {
+                    listener.onError(null);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.e(Config.TAG, "updateSettings: onErrorResponse " + volleyError.getMessage());
+                String message = getNetworkErrorMessage(volleyError);
+                listener.onError(message);
+            }
+        });
+        request.setRetryPolicy(new DefaultRetryPolicy(10000,
+                2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        mRequestQueue.add(request);
+        Log.d(Config.TAG, "updateSettings request sent!");
     }
 }

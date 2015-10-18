@@ -56,4 +56,8 @@
     <string name="dlg_feedback">Stop receiving promotions for this product</string>
     <string name="toast_remove">Promotions from this product will be removed</string>
 
+    <string name="settings_condition_summary">Discount at least %1$d%% or %2$s</string>
+    <string name="settings_pref_entrance_key">pref_entrance_condition</string>
+    <string name="settings_pref_aisle_key">pref_aisle_condition</string>
+    <string name="VND">VND</string>
 </resources>

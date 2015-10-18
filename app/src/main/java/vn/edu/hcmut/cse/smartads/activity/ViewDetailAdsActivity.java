@@ -52,13 +52,9 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
     {
         WebView myWebView = (WebView) findViewById(R.id.webview);
         myWebView.setWebViewClient(new MyWebViewClient());
+        myWebView.getSettings().setBuiltInZoomControls(true);
+        myWebView.getSettings().setDisplayZoomControls(false);
         myWebView.loadUrl(url);
-    }
-
-    private void openByWebBrowser(String url)
-    {
-        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        startActivity(i);
     }
 
     @Override

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="min_discount_value">Min Discount Value</string>
+    <string name="settings_test_discount_value">15000</string>
+    <string name="min_discount_rate">Min Discount Rate</string>
+</resources>
