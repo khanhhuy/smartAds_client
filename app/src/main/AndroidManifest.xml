@@ -79,12 +79,19 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="vn.edu.hcmut.cse.smartads.activity.LoginActivity" />
         </activity>
-        <activity android:name=".activity.SettingsActivity"
-            android:parentActivityName=".activity.MainActivity">
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:parentActivityName=".activity.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="vn.edu.hcmut.cse.smartads.activity.MainActivity" />
         </activity>
+
+        <service
+            android:name=".service.RestoreSettingService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
     </application>
 
 </manifest>

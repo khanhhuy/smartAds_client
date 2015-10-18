@@ -48,4 +48,6 @@
 
     <string name="empty_ads">Your received ads will be displayed here</string>
     <string name="settings_condition_summary">Discount at least %1$d%% or %2$s</string>
+    <string name="settings_pref_entrance_key">pref_entrance_condition</string>
+    <string name="settings_pref_aisle_key">pref_aisle_condition</string>
 </resources>

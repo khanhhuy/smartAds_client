@@ -2,12 +2,12 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <vn.edu.hcmut.cse.smartads.settings.PromotionNotifyConditionPreference
         android:dialogTitle="Entrance Notify Condition"
-        android:key="pref_entrance_condition"
+        android:key="@string/settings_pref_entrance_key"
         android:defaultValue="@string/settings_def_entrance"
         android:title="Entrance Promotion-Notify Condition" />
     <vn.edu.hcmut.cse.smartads.settings.PromotionNotifyConditionPreference
         android:dialogTitle="Aisle Notify Condition"
-        android:key="pref_aisle_condition"
+        android:key="@string/settings_pref_aisle_key"
         android:defaultValue="@string/settings_def_aisle"
         android:title="Aisle Promotion-Notify Condition" />
 </PreferenceScreen>

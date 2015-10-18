@@ -17,6 +17,7 @@ import android.widget.TextView;
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.connector.LoginResponseListener;
+import vn.edu.hcmut.cse.smartads.service.RestoreSettingService;
 import vn.edu.hcmut.cse.smartads.util.Utils;
 
 /**
@@ -195,6 +196,9 @@ public class LoginActivity extends Activity implements LoginResponseListener {
         editor.putString(CUSTOMER_ID, customerID);
         editor.putString(ACCESS_TOKEN, accessToken);
         editor.apply();
+
+        Intent restoreSettingIntent = new Intent(this, RestoreSettingService.class);
+        startService(restoreSettingIntent);
 
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);

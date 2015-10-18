@@ -23,6 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +35,8 @@ import vn.edu.hcmut.cse.smartads.activity.LoginActivity;
 import vn.edu.hcmut.cse.smartads.listener.AdsContentListener;
 import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.model.Ads;
+import vn.edu.hcmut.cse.smartads.service.RestoreSettingService;
+import vn.edu.hcmut.cse.smartads.service.SettingsResponseListener;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
 /**
@@ -46,6 +49,7 @@ public class Connector {
     public static final String LOGIN_URL = Config.HOST_API + "/auth/login";
     public static final String ACCOUNT_STATUS_URL = Config.HOST_API + "/account-status?email=%s";
     public static final String REGISTER_URL = Config.HOST_API + "/auth/register";
+    public static final String SETTINGS_URL = Config.HOST_API + "/customers/%s/config";
     private final Context mContext;
     private RequestQueue mRequestQueue;
     private ImageLoader mImageLoader;
@@ -314,5 +318,54 @@ public class Connector {
             }
 
         }
+    }
+
+
+    public void requestSettings(String customerID, final SettingsResponseListener listener) {
+        String url = String.format(SETTINGS_URL, customerID);
+        JsonObjectRequest request = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                if (!jsonObject.has("errors")) {
+                    try {
+                        Integer entranceRate = null;
+                        Double entranceRateDouble = jsonObject.getDouble("min_entrance_rate");
+                        if (entranceRateDouble != null) {
+                            entranceRate = (int) Math.floor(entranceRateDouble);
+                        }
+
+                        BigDecimal entranceValue = null;
+                        String entranceValueString = jsonObject.getString("min_entrance_value");
+                        if (entranceValueString != null) {
+                            entranceValue = new BigDecimal(entranceValueString);
+                        }
+                        Integer aisleRate = null;
+                        Double aisleRateDouble = jsonObject.getDouble("min_aisle_rate");
+                        if (aisleRateDouble != null) {
+                            aisleRate = (int) Math.floor(aisleRateDouble);
+                        }
+
+                        BigDecimal aisleValue = null;
+                        String aisleValueString = jsonObject.getString("min_aisle_value");
+                        if (aisleValueString != null) {
+                            aisleValue = new BigDecimal(aisleValueString);
+                        }
+
+                        listener.onSuccess(entranceRate, entranceValue, aisleRate, aisleValue);
+                    } catch (JSONException e) {
+                        listener.onError(null);
+                    }
+                } else {
+                    listener.onError(null);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                listener.onError(null);
+            }
+        });
+        mRequestQueue.add(request);
+        Log.d(Config.TAG, "requestSettings request sent!");
     }
 }

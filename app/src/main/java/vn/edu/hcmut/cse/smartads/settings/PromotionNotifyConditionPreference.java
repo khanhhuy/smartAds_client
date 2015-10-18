@@ -36,6 +36,7 @@ public class PromotionNotifyConditionPreference extends DialogPreference {
         setPositiveButtonText(android.R.string.ok);
         setNegativeButtonText(android.R.string.cancel);
         setDialogIcon(null);
+
     }
 
     protected boolean needInputMethod() {
