@@ -92,7 +92,7 @@
             android:id="@+id/text_signup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
             android:text="@string/signup"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textStyle="bold" />

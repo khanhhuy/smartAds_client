@@ -1,4 +1,4 @@
-package vn.edu.hcmut.cse.smartads.service;
+package vn.edu.hcmut.cse.smartads.settings;
 
 import java.math.BigDecimal;
 

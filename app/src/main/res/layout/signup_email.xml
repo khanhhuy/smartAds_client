@@ -14,7 +14,6 @@
         android:layout_marginTop="@dimen/signup_vertical_spacing"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true" />
-    <!--android:text="minhdao.bui123@gmail.com"-->
 
     <Button
         android:id="@+id/btn_next_signup"

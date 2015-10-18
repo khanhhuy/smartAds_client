@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="vn.edu.hcmut.cse.smartads" >
+    package="vn.edu.hcmut.cse.smartads">
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".activity.MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <meta-data
             android:name="DATABASE"
             android:value="smartads.db" />
@@ -30,7 +31,7 @@
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -43,16 +44,16 @@
             android:label="@string/title_view_details_activity"
             android:launchMode="singleTask"
             android:parentActivityName=".activity.MainActivity"
-            android:taskAffinity="" >
+            android:taskAffinity="">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="vn.edu.hcmut.cse.smartads.activity.MainActivity" />
         </activity>
 
         <receiver
-            android:name=".util.BluetoothLEReceiver"
+            android:name=".receiver.BluetoothLEReceiver"
             android:enabled="true"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
             </intent-filter>
@@ -61,37 +62,43 @@
         <service
             android:name=".service.ContextAdsService"
             android:enabled="true"
-            android:exported="false" >
-        </service>
+            android:exported="false" />
 
         <activity
             android:name=".activity.LoginActivity"
             android:label="@string/title_activity_login"
             android:theme="@style/AppTheme.NoActionBar.Material"
-            android:windowSoftInputMode="adjustPan|stateVisible" >
-        </activity>
+            android:windowSoftInputMode="adjustPan|stateVisible" />
         <activity
             android:name=".activity.SignUpActivity"
             android:label="@string/title_activity_sign_up"
             android:parentActivityName=".activity.LoginActivity"
-            android:windowSoftInputMode="adjustPan|stateVisible" >
+            android:windowSoftInputMode="adjustPan|stateVisible">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="vn.edu.hcmut.cse.smartads.activity.LoginActivity" />
         </activity>
         <activity
             android:name=".activity.SettingsActivity"
-            android:parentActivityName=".activity.MainActivity" >
+            android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="vn.edu.hcmut.cse.smartads.activity.MainActivity" />
         </activity>
 
         <service
-            android:name=".service.RestoreSettingService"
+            android:name=".service.RemoteSettingService"
             android:enabled="true"
-            android:exported="false" >
-        </service>
+            android:exported="false" />
+
+        <receiver
+            android:name=".receiver.ConnectivityChangeReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

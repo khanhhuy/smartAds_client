@@ -3,7 +3,6 @@ package vn.edu.hcmut.cse.smartads.activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -17,7 +16,7 @@ import android.widget.ViewAnimator;
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.connector.AccountStatusResponseListener;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
-import vn.edu.hcmut.cse.smartads.connector.RegisterResponseListener;
+import vn.edu.hcmut.cse.smartads.connector.SimpleResponseListener;
 import vn.edu.hcmut.cse.smartads.util.Config;
 import vn.edu.hcmut.cse.smartads.util.Utils;
 
@@ -88,7 +87,7 @@ public class SignUpActivity extends AppCompatActivity {
             hideSoftInput();
             mProgressDialog.setMessage("Signing up...");
             mProgressDialog.show();
-            Connector.getInstance(this).register(mEmail, password, new RegisterResponseListener() {
+            Connector.getInstance(this).register(mEmail, password, new SimpleResponseListener() {
                 @Override
                 public void onSuccess() {
                     mProgressDialog.dismiss();

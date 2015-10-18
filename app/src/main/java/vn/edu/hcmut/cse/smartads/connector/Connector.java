@@ -35,8 +35,7 @@ import vn.edu.hcmut.cse.smartads.activity.LoginActivity;
 import vn.edu.hcmut.cse.smartads.listener.AdsContentListener;
 import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.model.Ads;
-import vn.edu.hcmut.cse.smartads.service.RestoreSettingService;
-import vn.edu.hcmut.cse.smartads.service.SettingsResponseListener;
+import vn.edu.hcmut.cse.smartads.settings.SettingsResponseListener;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
 /**
@@ -262,7 +261,7 @@ public class Connector {
         Log.d(Config.TAG, "account status request sent!");
     }
 
-    public void register(String email, String password, final RegisterResponseListener listener) {
+    public void register(String email, String password, final SimpleResponseListener listener) {
         Map<String, String> params = new HashMap<>();
         params.put("email", email);
         params.put("password", password);
@@ -327,34 +326,36 @@ public class Connector {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 if (!jsonObject.has("errors")) {
+                    Integer entranceRate;
                     try {
-                        Integer entranceRate = null;
-                        Double entranceRateDouble = jsonObject.getDouble("min_entrance_rate");
-                        if (entranceRateDouble != null) {
-                            entranceRate = (int) Math.floor(entranceRateDouble);
-                        }
-
-                        BigDecimal entranceValue = null;
-                        String entranceValueString = jsonObject.getString("min_entrance_value");
-                        if (entranceValueString != null) {
-                            entranceValue = new BigDecimal(entranceValueString);
-                        }
-                        Integer aisleRate = null;
-                        Double aisleRateDouble = jsonObject.getDouble("min_aisle_rate");
-                        if (aisleRateDouble != null) {
-                            aisleRate = (int) Math.floor(aisleRateDouble);
-                        }
-
-                        BigDecimal aisleValue = null;
-                        String aisleValueString = jsonObject.getString("min_aisle_value");
-                        if (aisleValueString != null) {
-                            aisleValue = new BigDecimal(aisleValueString);
-                        }
-
-                        listener.onSuccess(entranceRate, entranceValue, aisleRate, aisleValue);
-                    } catch (JSONException e) {
-                        listener.onError(null);
+                        entranceRate = (int) Math.floor(jsonObject.getDouble("min_entrance_rate"));
+                    } catch (Exception e) {
+                        entranceRate = null;
                     }
+
+                    BigDecimal entranceValue;
+                    try {
+                        entranceValue = new BigDecimal(jsonObject.getDouble("min_entrance_value"));
+                    } catch (Exception e) {
+                        entranceValue = null;
+                    }
+
+
+                    Integer aisleRate;
+                    try {
+                        aisleRate = (int) Math.floor(jsonObject.getDouble("min_aisle_rate"));
+                    } catch (Exception e) {
+                        aisleRate = null;
+                    }
+
+                    BigDecimal aisleValue;
+                    try {
+                        aisleValue = new BigDecimal(jsonObject.getDouble("min_aisle_value"));
+                    } catch (Exception e) {
+                        aisleValue = null;
+                    }
+
+                    listener.onSuccess(entranceRate, entranceValue, aisleRate, aisleValue);
                 } else {
                     listener.onError(null);
                 }
@@ -365,7 +366,34 @@ public class Connector {
                 listener.onError(null);
             }
         });
+        request.setRetryPolicy(new DefaultRetryPolicy(5000, 3, 1.0F));
         mRequestQueue.add(request);
         Log.d(Config.TAG, "requestSettings request sent!");
+    }
+
+    public void updateSettings(String customerID, Map<String, String> settings,final SimpleResponseListener listener) {
+        String url = String.format(SETTINGS_URL,customerID);
+        CustomJsonObjectPostRequest request = new CustomJsonObjectPostRequest(url, settings, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                Log.d(Config.TAG, "updateSettings: onResponse" + jsonObject);
+                if (!jsonObject.has("errors")) {
+                    listener.onSuccess();
+                } else {
+                    listener.onError(null);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.e(Config.TAG, "updateSettings: onErrorResponse " + volleyError.getMessage());
+                String message = getNetworkErrorMessage(volleyError);
+                listener.onError(message);
+            }
+        });
+        request.setRetryPolicy(new DefaultRetryPolicy(10000,
+                2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        mRequestQueue.add(request);
+        Log.d(Config.TAG, "updateSettings request sent!");
     }
 }

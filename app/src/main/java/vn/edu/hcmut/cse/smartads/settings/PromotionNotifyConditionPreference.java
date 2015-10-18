@@ -36,7 +36,6 @@ public class PromotionNotifyConditionPreference extends DialogPreference {
         setPositiveButtonText(android.R.string.ok);
         setNegativeButtonText(android.R.string.cancel);
         setDialogIcon(null);
-
     }
 
     protected boolean needInputMethod() {
@@ -108,8 +107,8 @@ public class PromotionNotifyConditionPreference extends DialogPreference {
     }
 
     private void parseStringToDefault(String s) {
-        String[] defaults = s.split(DELIMITER);
-        mDiscountRate = Integer.parseInt(defaults[0]);
-        mDiscountValue = new BigDecimal(defaults[1]);
+        RateValueGroup g = Utils.parseStringToRateValueGroup(s);
+        mDiscountRate = g.getRate();
+        mDiscountValue = g.getValue();
     }
 }

@@ -1,4 +1,4 @@
-package vn.edu.hcmut.cse.smartads.util;
+package vn.edu.hcmut.cse.smartads.receiver;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import vn.edu.hcmut.cse.smartads.service.ContextAdsService;
+import vn.edu.hcmut.cse.smartads.util.Config;
 
 
 public class BluetoothLEReceiver extends BroadcastReceiver {
