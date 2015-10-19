@@ -204,6 +204,10 @@ public class LoginActivity extends Activity implements LoginResponseListener {
     public void onSuccess(String customerID, String accessToken) {
         showProgress(false);
 
+        String oldCustomerID = Utils.getCustomerID(this);
+        if (!customerID.equals(oldCustomerID)) {
+            //TODO Huy: Check if have ads data and clear
+        }
         login(this, customerID, accessToken);
 
         Intent restoreSettingIntent = new Intent(this, RemoteSettingService.class);
@@ -240,11 +244,9 @@ public class LoginActivity extends Activity implements LoginResponseListener {
         SharedPreferences authPrefs = context.getSharedPreferences(AUTH_PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = authPrefs.edit();
 
-        editor.remove(LOGGED_ID).remove(CUSTOMER_ID).remove(ACCESS_TOKEN);
+        editor.remove(LOGGED_ID).remove(ACCESS_TOKEN);
 
         editor.apply();
-
-        //TODO Huy: Clear Ads Data
     }
 }
 
