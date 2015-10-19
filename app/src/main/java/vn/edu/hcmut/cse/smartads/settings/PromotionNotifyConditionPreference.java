@@ -21,7 +21,7 @@ import vn.edu.hcmut.cse.smartads.util.Utils;
  */
 public class PromotionNotifyConditionPreference extends DialogPreference {
     public static final String DELIMITER = " ";
-    public static final String CONDITION_VALIDATE_ERROR = "Aisle Notify Condition cannot stricter than Entrance Notify Condition";
+    public static final String CONDITION_VALIDATE_ERROR = "Minimum discount at Aisles cannot larger than at Entrances";
     private EditText mEditMinDiscountValue;
     private NumberPicker mPickerMinDiscountRate;
     private int mDiscountRate;
@@ -114,8 +114,10 @@ public class PromotionNotifyConditionPreference extends DialogPreference {
 
     private void parseStringToDefault(String s) {
         RateValueGroup g = Utils.parseStringToRateValueGroup(s);
-        mDiscountRate = g.getRate();
-        mDiscountValue = g.getValue();
+        if (g != null) {
+            mDiscountRate = g.getRate();
+            mDiscountValue = g.getValue();
+        }
     }
 
 
