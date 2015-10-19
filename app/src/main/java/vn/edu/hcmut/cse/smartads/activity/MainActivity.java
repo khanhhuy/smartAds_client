@@ -1,13 +1,16 @@
 package vn.edu.hcmut.cse.smartads.activity;
 
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -20,16 +23,12 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
-import vn.edu.hcmut.cse.smartads.model.Ads;
-import vn.edu.hcmut.cse.smartads.model.Minor;
-import vn.edu.hcmut.cse.smartads.util.BundleDefined;
+import vn.edu.hcmut.cse.smartads.settings.dev.DevConfigActivity;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
 
@@ -40,7 +39,6 @@ public class MainActivity extends AppCompatActivity
     private Toolbar mToolbar;
     public static final int VIEW_DETAILS_ADS = 5;
     public static final int RESULT_OK = 1;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +70,9 @@ public class MainActivity extends AppCompatActivity
 
     private void checkLoggedIn() {
         SharedPreferences authPrefs = getSharedPreferences(LoginActivity.AUTH_PREFS_NAME, MODE_PRIVATE);
-        boolean loggedIn=authPrefs.getBoolean("loggedIn", false);
-        if (!loggedIn){
-            Intent intent=new Intent(this,LoginActivity.class);
+        boolean loggedIn = authPrefs.getBoolean("loggedIn", false);
+        if (!loggedIn) {
+            Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
         }
@@ -114,8 +112,20 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent intent = new Intent(this,SettingsActivity.class);
+            Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
+            return true;
+        } else if (id == R.id.action_logout) {
+            new AlertDialog.Builder(this).setTitle(R.string.log_out_confirm_title).setMessage(R.string.logout_message).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    LoginActivity.logout(MainActivity.this);
+
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }).setNegativeButton(R.string.cancel, null).show();
             return true;
         }
 
@@ -179,4 +189,13 @@ public class MainActivity extends AppCompatActivity
         connector.requestContextAds(beaconList, null);
     }
 
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Intent i = new Intent(this, DevConfigActivity.class);
+            startActivity(i);
+            return true;
+        }
+        return super.onKeyLongPress(keyCode, event);
+    }
 }

@@ -56,8 +56,7 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
                              Bundle savedInstanceState) {
 
         if (!loadData()) {
-            View view = inflater.inflate(R.layout.fragment_ads_empty, container, false);
-            return view;
+            return inflater.inflate(R.layout.fragment_ads_empty, container, false);
         }
 
         View view = inflater.inflate(R.layout.fragment_ads_list, container, false);
@@ -78,7 +77,7 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
                 if (position != RecyclerView.NO_POSITION) {
 
                     Bundle bundle = new Bundle();
-                    String urlPath = Config.HOST_PORTAL + "/ads/" + String.valueOf(mlistAds.get(position).getAdsId());
+                    String urlPath = Config.HOST_BASE + "/ads/" + String.valueOf(mlistAds.get(position).getAdsId());
                     bundle.putString(BundleDefined.URL, urlPath);
                     bundle.putString(BundleDefined.ADS_ID, String.valueOf(mlistAds.get(position).getAdsId()));
                     bundle.putInt(BundleDefined.ADS_ADAPTER_POSITION, position);
@@ -157,7 +156,7 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(Config.TAG, "onActivityResult Fragment call");
-        Log.d(Config.TAG, "Request + result " + requestCode +  resultCode);
+        Log.d(Config.TAG, "Request + result " + requestCode + resultCode);
         if (requestCode == MainActivity.VIEW_DETAILS_ADS && resultCode == MainActivity.RESULT_OK) {
             Bundle bun = data.getExtras();
             String adsBlacklist = bun.getString(BundleDefined.ADS_BLACKLIST_ID, "");

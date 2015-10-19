@@ -34,6 +34,7 @@
             android:layout_gravity="center_horizontal"
             android:ems="10"
             android:hint="@string/prompt_email"
+            android:gravity="center"
             android:inputType="textEmailAddress"
             android:text="john@gmail.com" />
         <!-- android:text="john@gmail.com"-->
@@ -50,6 +51,7 @@
             android:imeOptions="actionUnspecified"
             android:inputType="textPassword"
             android:maxLines="1"
+            android:gravity="center"
             android:singleLine="true"
             android:text="12345" />
         <!--android:text="12345"-->

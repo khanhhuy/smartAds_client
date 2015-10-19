@@ -2,6 +2,7 @@ package vn.edu.hcmut.cse.smartads.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -17,8 +18,9 @@ import android.widget.TextView;
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.connector.LoginResponseListener;
-import vn.edu.hcmut.cse.smartads.settings.SettingServiceRequestType;
 import vn.edu.hcmut.cse.smartads.service.RemoteSettingService;
+import vn.edu.hcmut.cse.smartads.settings.SettingServiceRequestType;
+import vn.edu.hcmut.cse.smartads.settings.dev.DevConfigActivity;
 import vn.edu.hcmut.cse.smartads.util.Utils;
 
 /**
@@ -77,6 +79,17 @@ public class LoginActivity extends Activity implements LoginResponseListener {
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle("Please Wait..");
         mProgressDialog.setMessage("Loading...");
+
+        //dev config secret
+        TextView logo = (TextView) findViewById(R.id.smartads_logo);
+        logo.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Intent i = new Intent(LoginActivity.this, DevConfigActivity.class);
+                startActivity(i);
+                return true;
+            }
+        });
     }
 
     private void openSignUp() {
@@ -190,13 +203,12 @@ public class LoginActivity extends Activity implements LoginResponseListener {
     @Override
     public void onSuccess(String customerID, String accessToken) {
         showProgress(false);
-        SharedPreferences authPrefs = getSharedPreferences(AUTH_PREFS_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = authPrefs.edit();
 
-        editor.putBoolean(LOGGED_ID, true);
-        editor.putString(CUSTOMER_ID, customerID);
-        editor.putString(ACCESS_TOKEN, accessToken);
-        editor.apply();
+        String oldCustomerID = Utils.getCustomerID(this);
+        if (!customerID.equals(oldCustomerID)) {
+            //TODO Huy: Check if have ads data and clear
+        }
+        login(this, customerID, accessToken);
 
         Intent restoreSettingIntent = new Intent(this, RemoteSettingService.class);
         restoreSettingIntent.putExtra(RemoteSettingService.SERVICE_REQUEST_TYPE, SettingServiceRequestType.RESTORE_FROM_SERVER);
@@ -207,6 +219,7 @@ public class LoginActivity extends Activity implements LoginResponseListener {
         finish();
     }
 
+
     @Override
     public void onError(String message) {
         showProgress(false);
@@ -214,7 +227,26 @@ public class LoginActivity extends Activity implements LoginResponseListener {
             message = getString(R.string.error_unkown);
         }
         mPasswordView.requestFocus();
-        Utils.showAlertDialog(this,message);
+        Utils.showAlertDialog(this, message);
+    }
+
+    private static void login(Context context, String customerID, String accessToken) {
+        SharedPreferences authPrefs = context.getSharedPreferences(AUTH_PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = authPrefs.edit();
+
+        editor.putBoolean(LOGGED_ID, true);
+        editor.putString(CUSTOMER_ID, customerID);
+        editor.putString(ACCESS_TOKEN, accessToken);
+        editor.apply();
+    }
+
+    public static void logout(Context context) {
+        SharedPreferences authPrefs = context.getSharedPreferences(AUTH_PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = authPrefs.edit();
+
+        editor.remove(LOGGED_ID).remove(ACCESS_TOKEN);
+
+        editor.apply();
     }
 }
 
