@@ -2,14 +2,14 @@ package vn.edu.hcmut.cse.smartads.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 
 import vn.edu.hcmut.cse.smartads.R;
-import vn.edu.hcmut.cse.smartads.settings.SettingServiceRequestType;
 import vn.edu.hcmut.cse.smartads.service.RemoteSettingService;
+import vn.edu.hcmut.cse.smartads.settings.SettingServiceRequestType;
 
 public class SettingsActivity extends AppCompatActivity {
     public static final String QUEUE_SYNC = "QUEUE_SYNC";

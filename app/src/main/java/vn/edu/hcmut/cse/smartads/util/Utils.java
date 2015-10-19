@@ -15,7 +15,6 @@ import java.util.Locale;
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.activity.LoginActivity;
 import vn.edu.hcmut.cse.smartads.activity.SettingsActivity;
-import vn.edu.hcmut.cse.smartads.activity.SignUpActivity;
 import vn.edu.hcmut.cse.smartads.settings.PromotionNotifyConditionPreference;
 import vn.edu.hcmut.cse.smartads.settings.RateValueGroup;
 
@@ -31,7 +30,7 @@ public class Utils {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(title);
         builder.setMessage(message);
-        builder.setPositiveButton(context.getString(R.string.btn_ok), null);
+        builder.setPositiveButton(context.getString(R.string.ok), null);
         builder.setOnDismissListener(dismissListener);
         builder.create().show();
     }
