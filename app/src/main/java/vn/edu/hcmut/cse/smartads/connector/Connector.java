@@ -10,7 +10,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -42,21 +41,35 @@ import vn.edu.hcmut.cse.smartads.util.Config;
  */
 public class Connector {
     private static Connector sInstance;
-    public static final String CUSTOMER_URL = Config.HOST_API + "/customers/";
-    public static final String CONTEXT_ADS_BASE_URL = Config.HOST_API + "/customers/";
-    public static final String ADS_BASE_THUMBNAIL = Config.HOST_PORTAL + "/ads/thumbnail/";
-    public static final String LOGIN_URL = Config.HOST_API + "/auth/login";
-    public static final String ACCOUNT_STATUS_URL = Config.HOST_API + "/account-status?email=%s";
-    public static final String REGISTER_URL = Config.HOST_API + "/auth/register";
+    public static String PREF_TIME = "prefTime";
+    public static String UPDATE_REQUEST_DATE = "updateRequestDate";
 
-    public static final String PREF_TIME  = "prefTime";
-    public static final String UPDATE_REQUEST_DATE  = "updateRequestDate";
+    public static String CUSTOMER_URL;
+    public static String CONTEXT_ADS_BASE_URL;
+    public static String ADS_BASE_THUMBNAIL;
+    public static String LOGIN_URL;
+    public static String ACCOUNT_STATUS_URL;
+    public static String REGISTER_URL;
+    public static String SETTINGS_URL;
 
-    public static final String SETTINGS_URL = Config.HOST_API + "/customers/%s/config";
+    public static void updateURL() {
+        CUSTOMER_URL = Config.HOST_API + "/customers/";
+        CONTEXT_ADS_BASE_URL = Config.HOST_API + "/customers/";
+        ADS_BASE_THUMBNAIL = Config.HOST_BASE + "/ads/thumbnail/";
+        LOGIN_URL = Config.HOST_API + "/auth/login";
+        ACCOUNT_STATUS_URL = Config.HOST_API + "/account-status?email=%s";
+        REGISTER_URL = Config.HOST_API + "/auth/register";
+        SETTINGS_URL = Config.HOST_API + "/customers/%s/config";
+    }
+
+    static {
+        updateURL();
+    }
 
     private final Context mContext;
     private RequestQueue mRequestQueue;
     private ImageCacheManager imageManager;
+
 
     private Connector(Context context) {
         mContext = context;
@@ -295,11 +308,11 @@ public class Connector {
                         Log.d(Config.TAG, "Update request completed");
                     }
                 }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        volleyError.printStackTrace();
-                    }
-                });
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                volleyError.printStackTrace();
+            }
+        });
 
         postUpdateRequest.setRetryPolicy(new DefaultRetryPolicy(4000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         mRequestQueue.add(postUpdateRequest);
@@ -377,8 +390,8 @@ public class Connector {
         Log.d(Config.TAG, "requestSettings request sent!");
     }
 
-    public void updateSettings(String customerID, Map<String, String> settings,final SimpleResponseListener listener) {
-        String url = String.format(SETTINGS_URL,customerID);
+    public void updateSettings(String customerID, Map<String, String> settings, final SimpleResponseListener listener) {
+        String url = String.format(SETTINGS_URL, customerID);
         CustomJsonObjectPostRequest request = new CustomJsonObjectPostRequest(url, settings, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {

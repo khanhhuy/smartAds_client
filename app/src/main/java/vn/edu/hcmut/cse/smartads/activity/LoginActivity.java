@@ -17,8 +17,9 @@ import android.widget.TextView;
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.connector.LoginResponseListener;
-import vn.edu.hcmut.cse.smartads.settings.SettingServiceRequestType;
 import vn.edu.hcmut.cse.smartads.service.RemoteSettingService;
+import vn.edu.hcmut.cse.smartads.settings.SettingServiceRequestType;
+import vn.edu.hcmut.cse.smartads.settings.dev.DevConfigActivity;
 import vn.edu.hcmut.cse.smartads.util.Utils;
 
 /**
@@ -77,6 +78,17 @@ public class LoginActivity extends Activity implements LoginResponseListener {
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle("Please Wait..");
         mProgressDialog.setMessage("Loading...");
+
+        //dev config secret
+        TextView logo = (TextView) findViewById(R.id.smartads_logo);
+        logo.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Intent i = new Intent(LoginActivity.this, DevConfigActivity.class);
+                startActivity(i);
+                return true;
+            }
+        });
     }
 
     private void openSignUp() {

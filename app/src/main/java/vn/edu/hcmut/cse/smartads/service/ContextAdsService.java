@@ -23,8 +23,6 @@ import org.joda.time.DateTimeComparator;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import static com.estimote.sdk.BeaconManager.MonitoringListener;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +39,8 @@ import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.model.Minor;
 import vn.edu.hcmut.cse.smartads.util.BundleDefined;
 import vn.edu.hcmut.cse.smartads.util.Config;
+
+import static com.estimote.sdk.BeaconManager.MonitoringListener;
 
 
 public class ContextAdsService extends Service implements ContextAdsReceivedListener {
@@ -229,7 +229,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
         for (Ads ads : notifyAdsList){
 
             bundle = new Bundle();
-            String urlPath = Config.HOST_PORTAL + "/ads/" + String.valueOf(ads.getAdsId());
+            String urlPath = Config.HOST_BASE + "/ads/" + String.valueOf(ads.getAdsId());
             bundle.putString(BundleDefined.URL, urlPath);
             bundle.putString(BundleDefined.ADS_ID, String.valueOf(ads.getAdsId()));
 
