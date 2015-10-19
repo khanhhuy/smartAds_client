@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vn.edu.hcmut.cse.smartads.R;
+import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.util.BundleDefined;
 import vn.edu.hcmut.cse.smartads.util.Config;
@@ -118,8 +119,7 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
         else
             getParent().setResult(MainActivity.RESULT_OK, data);
 
-        //Todo: send feedback to server
-
+        Connector.getInstance(this).sendFeedback(adsId);
         finish();
     }
 

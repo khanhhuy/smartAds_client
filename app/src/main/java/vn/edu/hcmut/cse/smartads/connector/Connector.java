@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -286,7 +287,6 @@ public class Connector {
         String customerID = authPrefs.getString(LoginActivity.CUSTOMER_ID, "");
         if (customerID.isEmpty())
             return;
-        Log.d(Config.TAG, "Update request starts");
         String url = CUSTOMER_URL + customerID + "/update-request";
         StringRequest postUpdateRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -303,6 +303,36 @@ public class Connector {
 
         postUpdateRequest.setRetryPolicy(new DefaultRetryPolicy(4000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         mRequestQueue.add(postUpdateRequest);
+    }
+
+    public void sendFeedback(final String adsId) {
+        SharedPreferences authPrefs = mContext.getSharedPreferences(LoginActivity.AUTH_PREFS_NAME, Context.MODE_PRIVATE);
+        String customerID = authPrefs.getString(LoginActivity.CUSTOMER_ID, "");
+        if (customerID.isEmpty())
+            return;
+        String url = CUSTOMER_URL + customerID + "/feedback/";
+        StringRequest postFeedback = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String s) {
+                        Log.d(Config.TAG, "Sent feedback");
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        volleyError.printStackTrace();
+                    }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("adsId", adsId);
+                return params;
+            }
+        };
+
+        postFeedback.setRetryPolicy(new DefaultRetryPolicy(4000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        mRequestQueue.add(postFeedback);
     }
 
     //Debug and testing function
