@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -29,7 +30,7 @@ import vn.edu.hcmut.cse.smartads.util.Utils;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends Activity implements LoginResponseListener {
+public class LoginActivity extends AppCompatActivity implements LoginResponseListener {
 
     public static final String AUTH_PREFS_NAME = "AuthPrefsFile";
     public static final String CUSTOMER_ID = "customerID";
