@@ -4,4 +4,6 @@
     <string name="min_discount_value">Min Discount Value</string>
     <string name="settings_test_discount_value">15000</string>
     <string name="min_discount_rate">Min Discount Rate</string>
+    <string name="setting_entrance_title">Entrance Promotion Notification</string>
+    <string name="setting_aisle_title">Aisle Promotion Notification</string>
 </resources>

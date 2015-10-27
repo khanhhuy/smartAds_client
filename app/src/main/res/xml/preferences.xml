@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <vn.edu.hcmut.cse.smartads.settings.PromotionNotifyConditionPreference
-        android:dialogTitle="Entrance Notify Condition"
+        android:dialogTitle="@string/setting_entrance_title"
         android:key="@string/settings_pref_entrance_key"
         android:defaultValue="@string/settings_def_entrance"
-        android:title="Entrance Promotion-Notify Condition" />
+        android:title="@string/setting_entrance_title" />
     <vn.edu.hcmut.cse.smartads.settings.PromotionNotifyConditionPreference
-        android:dialogTitle="Aisle Notify Condition"
+        android:dialogTitle="@string/setting_aisle_title"
         android:key="@string/settings_pref_aisle_key"
         android:defaultValue="@string/settings_def_aisle"
-        android:title="Aisle Promotion-Notify Condition" />
+        android:title="@string/setting_aisle_title" />
 </PreferenceScreen>
