@@ -16,6 +16,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="30dp"
         android:layout_marginTop="30dp"
+        style="@style/myLoginTextStyle"
         android:text="@string/smartads"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="50sp" />
