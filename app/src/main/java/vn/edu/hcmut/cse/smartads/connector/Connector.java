@@ -42,8 +42,6 @@ import vn.edu.hcmut.cse.smartads.util.Config;
  */
 public class Connector {
     private static Connector sInstance;
-    public static String PREF_TIME = "prefTime";
-    public static String UPDATE_REQUEST_DATE = "updateRequestDate";
 
     public static String CUSTOMER_URL;
     public static String CONTEXT_ADS_BASE_URL;
@@ -323,12 +321,12 @@ public class Connector {
         String customerID = authPrefs.getString(LoginActivity.CUSTOMER_ID, "");
         if (customerID.isEmpty())
             return;
-        String url = CUSTOMER_URL + customerID + "/feedback/";
+        String url = CUSTOMER_URL + customerID + "/feedback";
         StringRequest postFeedback = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
-                        Log.d(Config.TAG, "Sent feedback");
+                        Log.d(Config.TAG, "Sent feedback for Ads = " + s);
                     }
                 }, new Response.ErrorListener() {
                     @Override

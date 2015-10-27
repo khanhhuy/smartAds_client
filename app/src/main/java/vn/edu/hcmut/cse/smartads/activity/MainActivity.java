@@ -48,13 +48,9 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
 
-//        mToolbar = (Toolbar) findViewById(R.id.toolbar_adslist_header);
-//        setSupportActionBar(mToolbar);
-
         setTitle("Featured Ads");
 
         checkLoggedIn();
-        updateRequest();
         initFragment();
 
 //        Set up the drawer.
@@ -75,24 +71,6 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
-        }
-    }
-
-    private void updateRequest() {
-        SharedPreferences timePrefs = getSharedPreferences(Connector.PREF_TIME, MODE_PRIVATE);
-        String timeStr = timePrefs.getString(Connector.UPDATE_REQUEST_DATE, "");
-        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATETIME_PATTERN);
-        if (!timeStr.isEmpty()) {
-            DateTime lastUpdateReq = DateTime.parse(timeStr, formatter);
-            if ((new DateTime()).minusDays(Config.SERVER_UPDATE_REQUEST_MIN_DATE)
-                    .compareTo(lastUpdateReq) > 0) {
-                Connector.getInstance(this).updateRequest();
-            }
-        } else {
-            SharedPreferences.Editor editor = timePrefs.edit();
-            editor.putString(Connector.UPDATE_REQUEST_DATE, formatter.print(new DateTime()));
-            editor.commit();
-            Connector.getInstance(this).updateRequest();
         }
     }
 
@@ -158,7 +136,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(Config.TAG, "onActivityResult Main call");
     }
 
     private void initFragment() {
@@ -172,21 +149,6 @@ public class MainActivity extends AppCompatActivity
         setTitle("Featured Ads");
         fragmentTransaction.commit();
 
-    }
-
-
-    /**
-     * Debug & testing
-     */
-
-    private void testConnector() {
-
-        Connector connector = Connector.getInstance(this);
-        Beacon beacon = new Beacon("12345678123456781234567812345678", "dummy1", "0x24", 1, 2, 1, 1);
-        MyBeacon myBeacon = new MyBeacon(beacon);
-        List<MyBeacon> beaconList = new ArrayList<>();
-        beaconList.add(myBeacon);
-        connector.requestContextAds(beaconList, null);
     }
 
     @Override

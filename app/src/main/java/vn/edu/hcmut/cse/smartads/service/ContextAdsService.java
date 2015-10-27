@@ -125,9 +125,10 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
         if (!last_updatedStr.isEmpty()) {
             DateTime last_updated = DateTime.parse(last_updatedStr, formatter);
             if (DateTimeComparator.getInstance().
-                    compare(current_time.minusHours(Config.SERVER_GET_ADS_MIN_HOUR), last_updated) > 0) {
-                Log.d(Config.TAG, "Request context ads from SERVER");
+                    compare(current_time.minusDays(Config.SERVER_UPDATE_REQUEST_MIN_DATE), last_updated) > 0) {
+                Log.d(Config.TAG, "Request Ads and Update request");
                 mConnector.requestContextAds(filteredBeacons, ContextAdsService.this);
+                Connector.getInstance(this).updateRequest();
             }
         }
         else {

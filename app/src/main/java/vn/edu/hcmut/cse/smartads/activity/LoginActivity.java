@@ -18,6 +18,8 @@ import android.widget.TextView;
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.connector.LoginResponseListener;
+import vn.edu.hcmut.cse.smartads.model.Ads;
+import vn.edu.hcmut.cse.smartads.model.Minor;
 import vn.edu.hcmut.cse.smartads.service.RemoteSettingService;
 import vn.edu.hcmut.cse.smartads.settings.SettingServiceRequestType;
 import vn.edu.hcmut.cse.smartads.settings.dev.DevConfigActivity;
@@ -206,7 +208,8 @@ public class LoginActivity extends Activity implements LoginResponseListener {
 
         String oldCustomerID = Utils.getCustomerID(this);
         if (!customerID.equals(oldCustomerID)) {
-            //TODO Huy: Check if have ads data and clear
+            Ads.deleteAll(Ads.class);
+            Minor.deleteAll(Minor.class);
         }
         login(this, customerID, accessToken);
 

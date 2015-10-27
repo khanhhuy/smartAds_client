@@ -85,8 +85,7 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
                     Intent detailAdsIntent = new Intent(mActivity, ViewDetailAdsActivity.class);
                     detailAdsIntent.putExtras(bundle);
                     startActivityForResult(detailAdsIntent, MainActivity.VIEW_DETAILS_ADS, bundle);
-                    //startActivity(detailAdsIntent);
-                    mAdsListAdapter.notifyItemChanged(position);
+
                 }
             }
         });
@@ -155,8 +154,6 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(Config.TAG, "onActivityResult Fragment call");
-        Log.d(Config.TAG, "Request + result " + requestCode + resultCode);
         if (requestCode == MainActivity.VIEW_DETAILS_ADS && resultCode == MainActivity.RESULT_OK) {
             Bundle bun = data.getExtras();
             String adsBlacklist = bun.getString(BundleDefined.ADS_BLACKLIST_ID, "");
