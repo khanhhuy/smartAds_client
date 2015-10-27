@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -95,7 +96,7 @@ public class LoginActivity extends Activity implements LoginResponseListener {
     }
 
     private void openSignUp() {
-        Intent intent=new Intent(this,SignUpActivity.class);
+        Intent intent = new Intent(this, SignUpActivity.class);
         startActivity(intent);
     }
 
@@ -165,10 +166,9 @@ public class LoginActivity extends Activity implements LoginResponseListener {
     }
 
     public void showProgress(final boolean show) {
-        if (show){
+        if (show) {
             mProgressDialog.show();
-        }
-        else{
+        } else {
             mProgressDialog.dismiss();
         }
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
@@ -210,6 +210,7 @@ public class LoginActivity extends Activity implements LoginResponseListener {
         if (!customerID.equals(oldCustomerID)) {
             Ads.deleteAll(Ads.class);
             Minor.deleteAll(Minor.class);
+            clearDefaultSharedPrefs();
         }
         login(this, customerID, accessToken);
 
@@ -220,6 +221,11 @@ public class LoginActivity extends Activity implements LoginResponseListener {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void clearDefaultSharedPrefs() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.edit().clear().apply();
     }
 
 
