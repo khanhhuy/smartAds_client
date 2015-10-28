@@ -48,9 +48,4 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="AppTheme.NoActionBar.Material" parent="AppTheme.NoActionBar" />
-
-    <style name="LoginScreenTheme" parent="AppTheme.NoActionBar.Material">
-    </style>
-
 </resources>
