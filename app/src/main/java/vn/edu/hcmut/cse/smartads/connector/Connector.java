@@ -68,6 +68,7 @@ public class Connector {
     private final Context mContext;
     private RequestQueue mRequestQueue;
     private ImageCacheManager imageManager;
+    private AuthUtils mAuthUtils;
 
 
     private Connector(Context context) {
@@ -79,6 +80,7 @@ public class Connector {
         imageManager.init(mContext, mRequestQueue, mContext.getPackageCodePath(),
                 ImageCacheManager.DISK_IMAGECACHE_SIZE, ImageCacheManager.DISK_IMAGECACHE_COMPRESS_FORMAT,
                 ImageCacheManager.DISK_IMAGECACHE_QUALITY, ImageCacheManager.CacheType.DISK);
+        mAuthUtils = new AuthUtils(context);
     }
 
     public static synchronized Connector getInstance(Context context) {
@@ -112,7 +114,7 @@ public class Connector {
         if (customerID.isEmpty())
             return;
 
-        final String url = CUSTOMER_URL + customerID + "/context-ads/" + beacon.getMajor() + "/" + beacon.getMinor();
+        final String url = mAuthUtils.addToken(CUSTOMER_URL + customerID + "/context-ads/" + beacon.getMajor() + "/" + beacon.getMinor());
         JsonObjectRequest contextAdsRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonContextAds) {
@@ -188,6 +190,7 @@ public class Connector {
         Map<String, String> params = new HashMap<>();
         params.put("email", email);
         params.put("password", password);
+        mAuthUtils.addToken(params);
 
         CustomJsonObjectPostRequest request = new CustomJsonObjectPostRequest(LOGIN_URL, params, new Response.Listener<JSONObject>() {
             @Override
@@ -258,6 +261,7 @@ public class Connector {
         Map<String, String> params = new HashMap<>();
         params.put("email", email);
         params.put("password", password);
+        mAuthUtils.addToken(params);
 
         CustomJsonObjectPostRequest request = new CustomJsonObjectPostRequest(REGISTER_URL, params, new Response.Listener<JSONObject>() {
             @Override
@@ -293,12 +297,12 @@ public class Connector {
     }
 
     public void updateRequest() {
-
         SharedPreferences authPrefs = mContext.getSharedPreferences(LoginActivity.AUTH_PREFS_NAME, Context.MODE_PRIVATE);
         String customerID = authPrefs.getString(LoginActivity.CUSTOMER_ID, "");
         if (customerID.isEmpty())
             return;
         String url = CUSTOMER_URL + customerID + "/update-request";
+        url = mAuthUtils.addToken(url);
         StringRequest postUpdateRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -322,6 +326,7 @@ public class Connector {
         if (customerID.isEmpty())
             return;
         String url = CUSTOMER_URL + customerID + "/feedback";
+        url = mAuthUtils.addToken(url);
         StringRequest postFeedback = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -329,10 +334,10 @@ public class Connector {
                         Log.d(Config.TAG, "Sent feedback for Ads = " + s);
                     }
                 }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        volleyError.printStackTrace();
-                    }
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                volleyError.printStackTrace();
+            }
         }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
@@ -369,6 +374,7 @@ public class Connector {
 
     public void requestSettings(String customerID, final SettingsResponseListener listener) {
         String url = String.format(SETTINGS_URL, customerID);
+        url = mAuthUtils.addToken(url);
         JsonObjectRequest request = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
@@ -420,6 +426,7 @@ public class Connector {
 
     public void updateSettings(String customerID, Map<String, String> settings, final SimpleResponseListener listener) {
         String url = String.format(SETTINGS_URL, customerID);
+        mAuthUtils.addToken(settings);
         CustomJsonObjectPostRequest request = new CustomJsonObjectPostRequest(url, settings, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
