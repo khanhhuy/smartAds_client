@@ -103,17 +103,5 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/text_forgot"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/linearLayout"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="@dimen/login_vertical_spacing"
-        android:text="@string/forgot_password"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textStyle="bold" />
-
-
 </RelativeLayout>
 
