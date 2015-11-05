@@ -23,39 +23,41 @@
 
     <LinearLayout
         android:id="@+id/email_login_form"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/smartads_logo"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal"
         android:orientation="vertical">
 
         <EditText
             android:id="@+id/email"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:ems="10"
+            android:ems="@integer/form_et_ems"
             android:hint="@string/prompt_email"
             android:gravity="center"
             android:inputType="textEmailAddress"
             android:text="john@gmail.com" />
-        <!-- android:text="john@gmail.com"-->
 
 
         <EditText
             android:id="@+id/password"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/login_vertical_spacing"
             android:hint="@string/prompt_password"
+            android:ems="@integer/form_et_ems"
             android:imeActionId="@+id/login"
             android:imeActionLabel="@string/action_sign_in_short"
             android:imeOptions="actionUnspecified"
             android:inputType="textPassword"
             android:maxLines="1"
+            android:layout_gravity="center_horizontal"
             android:gravity="center"
             android:singleLine="true"
-            android:text="12345" />
-        <!--android:text="12345"-->
+            android:text="123456" />
 
         <Button
             android:id="@+id/email_sign_in_button"

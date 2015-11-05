@@ -1,6 +1,5 @@
 package vn.edu.hcmut.cse.smartads.activity;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -79,10 +78,7 @@ public class LoginActivity extends AppCompatActivity implements LoginResponseLis
                 openSignUp();
             }
         });
-
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setTitle("Please Wait..");
-        mProgressDialog.setMessage("Loading...");
+        mProgressDialog = Utils.createLoadingDialog(this);
 
         //dev config secret
         TextView logo = (TextView) findViewById(R.id.smartads_logo);
@@ -126,7 +122,7 @@ public class LoginActivity extends AppCompatActivity implements LoginResponseLis
         }
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (!TextUtils.isEmpty(password) && !Utils.isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -160,10 +156,6 @@ public class LoginActivity extends AppCompatActivity implements LoginResponseLis
 
     private boolean isEmailValid(String email) {
         return Utils.isValidEmail(email);
-    }
-
-    private boolean isPasswordValid(String password) {
-        return password.length() > 4;
     }
 
     public void showProgress(final boolean show) {
