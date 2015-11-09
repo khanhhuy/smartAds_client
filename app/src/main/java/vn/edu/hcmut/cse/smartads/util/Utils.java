@@ -89,4 +89,9 @@ public class Utils {
         }
         showAlertDialog(context, errorMessage);
     }
+
+    public static boolean isCustomerLoggedIn(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(LoginActivity.AUTH_PREFS_NAME, Context.MODE_PRIVATE);
+        return sharedPreferences.getBoolean(LoginActivity.LOGGED_ID, false);
+    }
 }

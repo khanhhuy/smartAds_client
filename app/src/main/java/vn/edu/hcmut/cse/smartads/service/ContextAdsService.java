@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.estimote.sdk.Beacon;
@@ -39,6 +40,7 @@ import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.model.Minor;
 import vn.edu.hcmut.cse.smartads.util.BundleDefined;
 import vn.edu.hcmut.cse.smartads.util.Config;
+import vn.edu.hcmut.cse.smartads.util.Utils;
 
 import static com.estimote.sdk.BeaconManager.MonitoringListener;
 
@@ -127,6 +129,10 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
             if (DateTimeComparator.getInstance().
                     compare(current_time.minusDays(Config.SERVER_UPDATE_REQUEST_MIN_DATE), last_updated) > 0) {
                 Log.d(Config.TAG, "Request Ads and Update request");
+                String customerID= Utils.getCustomerID(this);
+                if (TextUtils.isEmpty(customerID)){
+                    stopSelf();
+                }
                 mConnector.requestContextAds(filteredBeacons, ContextAdsService.this);
                 Connector.getInstance(this).updateRequest();
             }

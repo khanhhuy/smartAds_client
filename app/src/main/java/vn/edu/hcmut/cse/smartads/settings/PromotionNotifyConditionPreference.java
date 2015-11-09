@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.text.InputFilter;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.EditText;
@@ -86,7 +87,9 @@ public class PromotionNotifyConditionPreference extends DialogPreference {
         if (positiveResult) {
             mDiscountRate = mPickerMinDiscountRate.getValue();
             String discountValue = mEditMinDiscountValue.getText().toString();
-            mDiscountValue = new BigDecimal(discountValue);
+            if (!TextUtils.isEmpty(discountValue)) {
+                mDiscountValue = new BigDecimal(discountValue);
+            }
             if (SettingsValidator.validateNotifyCondition(this)) {
                 persistString(mDiscountRate
                         + DELIMITER + discountValue);
