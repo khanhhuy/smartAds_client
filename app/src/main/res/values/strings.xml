@@ -71,4 +71,8 @@
     <string name="cp_change">Change</string>
     <string name="error_incorrect_current_pass">Incorrect current password</string>
     <string name="success_change_pass">Password Successfully Changed</string>
+    <string name="ask_for_internet_title">SmartAds asked for Internet</string>
+    <string name="ask_for_internet_text">Please enable Internet Connection.</string>
+    <string name="no_internet">No Internet Connection</string>
+    <string name="enable_internet_to_view_ads">Please turn on Internet Connection to view this ads. Thank you!</string>
 </resources>

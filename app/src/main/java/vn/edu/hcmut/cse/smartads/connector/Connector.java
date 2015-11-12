@@ -105,17 +105,12 @@ public class Connector {
     }
 
 
-    public void requestContextAds(final List<MyBeacon> beacons, final ContextAdsReceivedListener listener) {
+    public void requestContextAds(String customerID, final List<MyBeacon> beacons, final ContextAdsResponseListener listener) {
 
         if (beacons.isEmpty())
             return;
 
         MyBeacon beacon = beacons.get(0);
-
-        SharedPreferences authPrefs = mContext.getSharedPreferences(LoginActivity.AUTH_PREFS_NAME, Context.MODE_PRIVATE);
-        String customerID = authPrefs.getString(LoginActivity.CUSTOMER_ID, "");
-        if (customerID.isEmpty())
-            return;
 
         final String url = mAuthUtils.addToken(CUSTOMER_URL + customerID + "/context-ads/" + beacon.getMajor() + "/" + beacon.getMinor());
         JsonObjectRequest contextAdsRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -141,6 +136,7 @@ public class Connector {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 Log.e(Config.TAG, "Connect to Server Error!" + url);
+                listener.onConnectError();
             }
         });
 

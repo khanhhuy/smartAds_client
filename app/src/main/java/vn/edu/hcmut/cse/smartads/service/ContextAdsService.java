@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.activity.ViewDetailAdsActivity;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
-import vn.edu.hcmut.cse.smartads.connector.ContextAdsReceivedListener;
+import vn.edu.hcmut.cse.smartads.connector.ContextAdsResponseListener;
 import vn.edu.hcmut.cse.smartads.listener.BeaconFilterer;
 import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.model.Ads;
@@ -45,10 +45,11 @@ import vn.edu.hcmut.cse.smartads.util.Utils;
 import static com.estimote.sdk.BeaconManager.MonitoringListener;
 
 
-public class ContextAdsService extends Service implements ContextAdsReceivedListener {
+public class ContextAdsService extends Service implements ContextAdsResponseListener {
 
     private static final String ESTIMOTE_PROXIMITY_UUID = "B9407F30-F5F8-466E-AFF9-25556B57FE6D";
     public static final String UPDATE_PREFS_TIME = "updatePrefsTime";
+    public static final String LAST_ASK_FOR_INTERNET = "LAST_ASK_FOR_INTERNET";
     public static final String LAST_UPDATED = "lastUpdated";
 
     private BeaconManager beaconManager;
@@ -56,7 +57,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
     private boolean mIsStarted = false;
     private BeaconFilterer mFilterer;
     private Connector mConnector;
-    private SharedPreferences updateTimePref;
+    private SharedPreferences mUpdateTimePref;
     final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private DateTime mlastNotifySoundTime;
     private static NotificationManager mNotificationManager;
@@ -71,7 +72,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
         region = new Region("All_Region", null, null, null);
         mFilterer = BeaconFilterer.getInstance();
         mConnector = Connector.getInstance(this);
-        updateTimePref = getSharedPreferences(UPDATE_PREFS_TIME, MODE_PRIVATE);
+        mUpdateTimePref = getSharedPreferences(UPDATE_PREFS_TIME, MODE_PRIVATE);
 
         if (Config.DEBUG) {
             Ads.deleteAll(Ads.class);
@@ -84,7 +85,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
             public void onEnteredRegion(Region region, List<Beacon> beacons) {
                 Log.d(Config.TAG, "onEnteredRegion");
                 try {
-                    SharedPreferences.Editor editor = updateTimePref.edit();
+                    SharedPreferences.Editor editor = mUpdateTimePref.edit();
                     editor.putString(LAST_UPDATED, formatter.print(new DateTime()));
                     editor.apply();
                     beaconManager.startRanging(region);
@@ -120,7 +121,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
             return;
 
         DateTime current_time = new DateTime();
-        String last_updatedStr = updateTimePref.getString(LAST_UPDATED, "");
+        String last_updatedStr = mUpdateTimePref.getString(LAST_UPDATED, "");
 
         Log.d(Config.TAG, "Last updated from server: " + last_updatedStr);
 
@@ -129,15 +130,15 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
             if (DateTimeComparator.getInstance().
                     compare(current_time.minusDays(Config.SERVER_UPDATE_REQUEST_MIN_DATE), last_updated) > 0) {
                 Log.d(Config.TAG, "Request Ads and Update request");
-                String customerID= Utils.getCustomerID(this);
-                if (TextUtils.isEmpty(customerID)){
+                String customerID = Utils.getCustomerID(this);
+                if (TextUtils.isEmpty(customerID)) {
                     stopSelf();
+                } else {
+                    mConnector.requestContextAds(customerID, filteredBeacons, ContextAdsService.this);
+                    mConnector.updateRequest();
                 }
-                mConnector.requestContextAds(filteredBeacons, ContextAdsService.this);
-                Connector.getInstance(this).updateRequest();
             }
-        }
-        else {
+        } else {
             onReceivedContextAds(filteredBeacons);
         }
     }
@@ -192,8 +193,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
             Ads ads = allAds.next();
             List<Integer> adsMinors = ads.getMinors();
             for (MyBeacon beacon : receivedBeacons)
-                if (isNotifiedAds(ads, adsMinors, beacon.getMinor()))
-                {
+                if (isNotifiedAds(ads, adsMinors, beacon.getMinor())) {
                     if (!Config.DEBUG) {
                         ads.setNotified(true);
                     }
@@ -214,7 +214,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
         if (!ads.getType().equals(Ads.ENTRANCE_ADS) && !adsMinor.contains(minor))
             return false;
         if (ads.is_notified() || ads.is_blacklisted())
-            return  false;
+            return false;
         DateTime currentDate = new DateTime();
         if ((ads.getStartDate() != null) && (ads.getStartDate().compareTo(currentDate) > 0))
             return false;
@@ -233,7 +233,7 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
         Bundle bundle;
 
 
-        for (Ads ads : notifyAdsList){
+        for (Ads ads : notifyAdsList) {
 
             bundle = new Bundle();
             String urlPath = Config.HOST_BASE + "/ads/" + String.valueOf(ads.getAdsId());
@@ -256,8 +256,8 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
 
 
             if ((mlastNotifySoundTime == null) ||
-                (mlastNotifySoundTime.compareTo(
-                        (new DateTime()).minusSeconds(Config.MIN_NOTIFICATION_SOUND_DELAYED_SEC)) < 0)) {
+                    (mlastNotifySoundTime.compareTo(
+                            (new DateTime()).minusSeconds(Config.MIN_NOTIFICATION_SOUND_DELAYED_SEC)) < 0)) {
                 builder.setDefaults(Notification.DEFAULT_SOUND);
                 mlastNotifySoundTime = new DateTime();
             }
@@ -270,5 +270,32 @@ public class ContextAdsService extends Service implements ContextAdsReceivedList
 
     public static NotificationManager getNotificationManager() {
         return mNotificationManager;
+    }
+
+    @Override
+    public void onConnectError() {
+        if (!Utils.isNetworkConnected(this)) {
+            String lastAskedString = mUpdateTimePref.getString(LAST_ASK_FOR_INTERNET, "");
+            boolean ask = false;
+            if (TextUtils.isEmpty(lastAskedString)) {
+                ask = true;
+            } else {
+                DateTime lastAsked = DateTime.parse(lastAskedString);
+                if (lastAsked.plusHours(12).isBeforeNow() || (Config.DEBUG && lastAsked.plusMinutes(1).isBeforeNow())) {
+                    ask = true;
+                }
+            }
+
+            if (ask) {
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                builder.setSmallIcon(R.drawable.ic_launcher).setContentTitle(getString(R.string.ask_for_internet_title)).setContentText(getString(R.string.ask_for_internet_text)).setAutoCancel(true).
+                        setDefaults(Notification.DEFAULT_ALL);
+//                Intent i = new Intent(Settings.ACTION_SETTINGS);
+//                PendingIntent settings = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+//                builder.setContentIntent(settings);
+                ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(-1, builder.build());
+                mUpdateTimePref.edit().putString(LAST_ASK_FOR_INTERNET, DateTime.now().toString()).apply();
+            }
+        }
     }
 }
