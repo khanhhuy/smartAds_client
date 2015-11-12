@@ -47,13 +47,13 @@ import static com.estimote.sdk.BeaconManager.MonitoringListener;
 
 public class ContextAdsService extends Service implements ContextAdsResponseListener {
 
-    private static final String ESTIMOTE_PROXIMITY_UUID = "B9407F30-F5F8-466E-AFF9-25556B57FE6D";
+    private static final String SMART_AS_UUID = "3FED567D-89B1-5B37-1B15-7A1E9208B457";
     public static final String UPDATE_PREFS_TIME = "updatePrefsTime";
     public static final String LAST_ASK_FOR_INTERNET = "LAST_ASK_FOR_INTERNET";
     public static final String LAST_UPDATED = "lastUpdated";
 
     private BeaconManager beaconManager;
-    private Region region;
+    private Region SMART_ADS_REGION = new Region("All_Region", SMART_AS_UUID, null, null);
     private boolean mIsStarted = false;
     private BeaconFilterer mFilterer;
     private Connector mConnector;
@@ -69,7 +69,6 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         beaconManager = new BeaconManager(this);
         beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(5), TimeUnit.SECONDS.toMillis(10));
         beaconManager.setForegroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(0));
-        region = new Region("All_Region", null, null, null);
         mFilterer = BeaconFilterer.getInstance();
         mConnector = Connector.getInstance(this);
         mUpdateTimePref = getSharedPreferences(UPDATE_PREFS_TIME, MODE_PRIVATE);
@@ -157,7 +156,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
                 @Override
                 public void onServiceReady() {
                     try {
-                        beaconManager.startMonitoring(region);
+                        beaconManager.startMonitoring(SMART_ADS_REGION);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -173,7 +172,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         Log.d("Beacon manager", "Disconnect");
 
         try {
-            beaconManager.stopMonitoring(region);
+            beaconManager.stopMonitoring(SMART_ADS_REGION);
         } catch (RemoteException e) {
             Log.e(Config.TAG, "Cannot stop but it does not matter now", e);
         }
