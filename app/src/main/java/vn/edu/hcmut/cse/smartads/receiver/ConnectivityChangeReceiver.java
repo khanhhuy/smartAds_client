@@ -5,11 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
 
 import vn.edu.hcmut.cse.smartads.service.RemoteSettingService;
 import vn.edu.hcmut.cse.smartads.settings.SettingServiceRequestType;
-import vn.edu.hcmut.cse.smartads.util.Config;
 import vn.edu.hcmut.cse.smartads.util.Utils;
 
 /**

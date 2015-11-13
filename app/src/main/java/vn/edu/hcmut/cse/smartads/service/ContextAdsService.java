@@ -164,7 +164,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
             });
         }
 
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override
@@ -289,9 +289,6 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
                 builder.setSmallIcon(R.drawable.ic_launcher).setContentTitle(getString(R.string.ask_for_internet_title)).setContentText(getString(R.string.ask_for_internet_text)).setAutoCancel(true).
                         setDefaults(Notification.DEFAULT_ALL);
-//                Intent i = new Intent(Settings.ACTION_SETTINGS);
-//                PendingIntent settings = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
-//                builder.setContentIntent(settings);
                 ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(-1, builder.build());
                 mUpdateTimePref.edit().putString(LAST_ASK_FOR_INTERNET, DateTime.now().toString()).apply();
             }

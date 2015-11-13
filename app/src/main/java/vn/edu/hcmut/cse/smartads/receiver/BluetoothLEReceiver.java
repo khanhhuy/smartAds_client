@@ -17,13 +17,13 @@ public class BluetoothLEReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.d(Config.TAG, "Bluetooth trigger");
         if (!Utils.isCustomerLoggedIn(context)) {
             return;
         }
         final String action = intent.getAction();
 
         beaconServiceIntent = new Intent(context, ContextAdsService.class);
-        Log.d(Config.TAG, "Bluetooth trigger");
 
         if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
             final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
