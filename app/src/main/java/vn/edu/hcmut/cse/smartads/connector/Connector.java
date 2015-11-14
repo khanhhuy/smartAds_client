@@ -34,6 +34,7 @@ import vn.edu.hcmut.cse.smartads.activity.LoginActivity;
 import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.model.image.ImageCacheManager;
+import vn.edu.hcmut.cse.smartads.model.image.LruBitmapCache;
 import vn.edu.hcmut.cse.smartads.settings.SettingsResponseListener;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
@@ -73,7 +74,7 @@ public class Connector {
     private Connector(Context context) {
         mContext = context;
         mRequestQueue = getRequestQueue();
-        //mImageLoader = new ImageLoader(mRequestQueue, new LruBitmapCache(mContext));
+        //mImageLoader = new ImageLoader(mRequestQueue, new LruBitmapCache(ImageCacheManager.DISK_IMAGECACHE_SIZE));
         imageManager = ImageCacheManager.getInstance();
         Log.d(Config.TAG, "Unique name" + mContext.getPackageCodePath());
         imageManager.init(mContext, mRequestQueue, mContext.getPackageCodePath(),
@@ -97,6 +98,7 @@ public class Connector {
 
     public ImageLoader getImageLoader() {
         return imageManager.getImageLoader();
+        //return mImageLoader;
     }
 
 

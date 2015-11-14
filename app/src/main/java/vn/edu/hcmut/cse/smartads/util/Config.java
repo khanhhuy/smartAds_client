@@ -16,7 +16,8 @@ public class Config {
 //  public static String HOST_BASE = "http://smartads.byethost7.com";
 //  public static String HOST_BASE = "http://192.168.43.159/ttlvserver/public";
 //  public static String HOST_BASE = "http://192.168.1.104/ttlvserver/public";
-    public static String HOST_BASE = "http://192.168.1.2:8000";
+//  public static String HOST_BASE = "http://192.168.1.2:8000";
+    public static String HOST_BASE = "http://192.168.43.39:8000";
     public static String HOST_API = HOST_BASE + "/api/v1";
     public static String APP_NAME = "Smart Ads";
 
