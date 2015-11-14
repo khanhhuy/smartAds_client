@@ -25,6 +25,7 @@ public class Config {
     public static String TAG = "DHSmartAds";
     public static String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     public static String DATE_PATTERN = "yyyy-MM-dd";
+    public static String DATE_DISPLAY_PATTERN = "dd-MM-yy";
 
     public static void updateHost() {
         HOST_API = HOST_BASE + "/api/v1";

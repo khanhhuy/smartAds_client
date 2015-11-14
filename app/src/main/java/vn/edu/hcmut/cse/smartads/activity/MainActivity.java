@@ -38,7 +38,8 @@ public class MainActivity extends AppCompatActivity
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private Toolbar mToolbar;
     public static final int VIEW_DETAILS_ADS = 5;
-    public static final int RESULT_OK = 1;
+    public static final int RESULT_DELETED = 1;
+    public static final int RESULT_VIEWED = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

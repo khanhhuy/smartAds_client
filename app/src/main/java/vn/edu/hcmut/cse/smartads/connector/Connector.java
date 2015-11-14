@@ -154,6 +154,9 @@ public class Connector {
             for (int i = 0; i < adsGroup.length(); i++) {
                 JSONObject ads = adsGroup.getJSONObject(i);
 
+                //check existed ad
+
+
                 //parse minors
                 List<Integer> minors = null;
                 if (!ads.isNull(Ads.MINORS)) {

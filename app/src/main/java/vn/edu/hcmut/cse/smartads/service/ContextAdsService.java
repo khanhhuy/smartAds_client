@@ -53,7 +53,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     public static final String LAST_UPDATED = "lastUpdated";
 
     private BeaconManager beaconManager;
-    private Region SMART_ADS_REGION = new Region("All_Region", SMART_AS_UUID, null, null);
+    private Region SMART_ADS_REGION = new Region("All_Region", null, null, null);
     private boolean mIsStarted = false;
     private BeaconFilterer mFilterer;
     private Connector mConnector;
@@ -116,8 +116,10 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
 
         List<MyBeacon> filteredBeacons = mFilterer.filterBeacons(beacons);
 
-        if (filteredBeacons.isEmpty())
+        if (filteredBeacons.isEmpty()) {
+            Log.d(Config.TAG, "Empty beacon");
             return;
+        }
 
         DateTime current_time = new DateTime();
         String last_updatedStr = mUpdateTimePref.getString(LAST_UPDATED, "");
@@ -196,7 +198,6 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
                     if (!Config.DEBUG) {
                         ads.setNotified(true);
                     }
-                    ads.setLastReceived(new DateTime());
                     notifyAds.add(ads);
                     break;
                 }

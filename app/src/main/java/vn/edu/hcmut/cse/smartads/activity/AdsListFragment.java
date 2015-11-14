@@ -153,24 +153,38 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(Config.TAG, "onActivityResult resultCode + requestCode " + resultCode + "," + requestCode);
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == MainActivity.VIEW_DETAILS_ADS && resultCode == MainActivity.RESULT_OK) {
-            Bundle bun = data.getExtras();
-            String adsBlacklist = bun.getString(BundleDefined.ADS_BLACKLIST_ID, "");
-            Log.d(Config.TAG, "Ads blacklist " + adsBlacklist);
-            if (!adsBlacklist.isEmpty() && mAdsListAdapter != null) {
+        if (requestCode == MainActivity.VIEW_DETAILS_ADS) {
+            if (resultCode == MainActivity.RESULT_VIEWED) {
+                Bundle bun = data.getExtras();
                 int position = bun.getInt(BundleDefined.ADS_ADAPTER_POSITION, -1);
-                Log.d(Config.TAG, "Remove position " + position);
-                if (position != -1) {
-                    reloadDataset();
-                    mRecycleSectionedAdapter.notifyDataSetChanged();
+                if (position != -1 && mAdsListAdapter != null) {
+                    mAdsListAdapter.getmAdsData().get(position).setViewed(true);
+                    mAdsListAdapter.notifyItemChanged(mRecycleSectionedAdapter.positionToSectionedPosition(position));
+                    Log.d(Config.TAG, "adapter position change " + position);
+                }
+            }
+            if (resultCode == MainActivity.RESULT_DELETED) {
+                Bundle bun = data.getExtras();
+                int position = bun.getInt(BundleDefined.ADS_ADAPTER_POSITION, -1);
+                String adsBlacklist = bun.getString(BundleDefined.ADS_BLACKLIST_ID, "");
+                Log.d(Config.TAG, "Ads blacklist " + adsBlacklist);
+                if (!adsBlacklist.isEmpty() && mRecycleSectionedAdapter != null) {
+                    Log.d(Config.TAG, "Remove position " + position);
+                    if (position != -1 && mRecycleSectionedAdapter != null) {
+                        reloadDataset();
+                        mRecycleSectionedAdapter.notifyDataSetChanged();
+                    }
                 }
             }
         }
+
     }
 
     @Override
     public void onResume() {
+        Log.d(Config.TAG, "MainActivity resume");
         super.onResume();
     }
 
