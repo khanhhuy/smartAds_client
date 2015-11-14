@@ -17,8 +17,4 @@
         android:key="dev_server_update_request"
         android:title="SERVER_UPDATE_REQUEST_MIN_DATE"
         custom:fieldName="SERVER_UPDATE_REQUEST_MIN_DATE" />
-    <vn.edu.hcmut.cse.smartads.settings.dev.DevConfigEditTextPreference
-        android:key="dev_server_get_ads_min"
-        android:title="SERVER_GET_ADS_MIN_HOUR"
-        custom:fieldName="SERVER_GET_ADS_MIN_HOUR" />
 </PreferenceScreen>

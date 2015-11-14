@@ -1,9 +1,11 @@
 package vn.edu.hcmut.cse.smartads.util;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
@@ -24,6 +26,10 @@ import vn.edu.hcmut.cse.smartads.settings.RateValueGroup;
 public class Utils {
     public static boolean isValidEmail(CharSequence target) {
         return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+    }
+
+    public static boolean isPasswordValid(String password) {
+        return password.length() > 5;
     }
 
     public static void showAlertDialog(Context context, String title, String message, DialogInterface.OnDismissListener dismissListener) {
@@ -67,5 +73,32 @@ public class Utils {
     public static boolean needToSyncSettings(Context context) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         return sharedPreferences.getBoolean(SettingsActivity.QUEUE_SYNC, false);
+    }
+
+    public static ProgressDialog createLoadingDialog(Context context) {
+        ProgressDialog progressDialog = new ProgressDialog(context);
+        progressDialog.setTitle("Please Wait..");
+        progressDialog.setMessage("Loading...");
+        return progressDialog;
+    }
+
+    public static void hideProgressAndShowError(ProgressDialog progressDialog, String errorMessage) {
+        Context context = progressDialog.getContext();
+        progressDialog.dismiss();
+        if (errorMessage == null) {
+            errorMessage = context.getString(R.string.error_unkown);
+        }
+        showAlertDialog(context, errorMessage);
+    }
+
+    public static boolean isCustomerLoggedIn(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(LoginActivity.AUTH_PREFS_NAME, Context.MODE_PRIVATE);
+        return sharedPreferences.getBoolean(LoginActivity.LOGGED_ID, false);
+    }
+
+    public static boolean isNetworkConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null;
     }
 }

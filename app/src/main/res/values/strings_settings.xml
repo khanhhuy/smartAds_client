@@ -6,4 +6,6 @@
     <string name="min_discount_rate">Min Discount Rate</string>
     <string name="setting_entrance_title">Entrance Promotion Notification</string>
     <string name="setting_aisle_title">Aisle Promotion Notification</string>
+    <string name="setting_promotion_group">Promotion</string>
+    <string name="setting_account_group">Account</string>
 </resources>

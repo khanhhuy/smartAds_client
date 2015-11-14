@@ -73,7 +73,7 @@ public class RemoteSettingService extends Service implements SettingsResponseLis
         }
 
 
-        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
     /**

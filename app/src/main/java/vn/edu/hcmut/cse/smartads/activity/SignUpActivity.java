@@ -32,7 +32,6 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mViewAnimator = (ViewAnimator) findViewById(R.id.signup_view_switcher);
         mEmailEdit = (EditText) findViewById(R.id.signup_edit_email);
@@ -71,7 +70,7 @@ public class SignUpActivity extends AppCompatActivity {
                 }
             }
         }
-        if (!cancel && password.length() < 5) {
+        if (!cancel && !Utils.isPasswordValid(password)) {
             cancel = true;
             mPasswordEdit.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordEdit;
@@ -96,7 +95,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(String message) {
-                    hideProgressAndShowError(message);
+                    Utils.hideProgressAndShowError(mProgressDialog, message);
                 }
             });
         }
@@ -161,7 +160,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(String message) {
-                    hideProgressAndShowError(message);
+                    Utils.hideProgressAndShowError(mProgressDialog, message);
                 }
             });
         }
@@ -169,7 +168,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private boolean handleBackPressed() {
         int displayedChild = mViewAnimator.getDisplayedChild();
-        if (displayedChild==1) {
+        if (displayedChild == 1) {
             mViewAnimator.showPrevious();
             return true;
         } else {
@@ -194,13 +193,5 @@ public class SignUpActivity extends AppCompatActivity {
                 }
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void hideProgressAndShowError(String message) {
-        mProgressDialog.dismiss();
-        if (message == null) {
-            message = getString(R.string.error_unkown);
-        }
-        Utils.showAlertDialog(this, message);
     }
 }

@@ -48,9 +48,11 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="AppTheme.NoActionBar.Material" parent="AppTheme.NoActionBar" />
-
-    <style name="LoginScreenTheme" parent="AppTheme.NoActionBar.Material">
+    <style name="ChangePassInput">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:ems">@integer/form_et_ems</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginTop">@dimen/form_vertical_spacing</item>
     </style>
-
 </resources>

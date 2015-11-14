@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <vn.edu.hcmut.cse.smartads.settings.PromotionNotifyConditionPreference
-        android:dialogTitle="@string/setting_entrance_title"
-        android:key="@string/settings_pref_entrance_key"
-        android:defaultValue="@string/settings_def_entrance"
-        android:title="@string/setting_entrance_title" />
-    <vn.edu.hcmut.cse.smartads.settings.PromotionNotifyConditionPreference
-        android:dialogTitle="@string/setting_aisle_title"
-        android:key="@string/settings_pref_aisle_key"
-        android:defaultValue="@string/settings_def_aisle"
-        android:title="@string/setting_aisle_title" />
+    <PreferenceCategory
+        android:key="pref_promotion_group"
+        android:title="@string/setting_promotion_group">
+        <vn.edu.hcmut.cse.smartads.settings.PromotionNotifyConditionPreference
+            android:defaultValue="@string/settings_def_entrance"
+            android:dialogTitle="@string/setting_entrance_title"
+            android:key="@string/settings_pref_entrance_key"
+            android:title="@string/setting_entrance_title" />
+        <vn.edu.hcmut.cse.smartads.settings.PromotionNotifyConditionPreference
+            android:defaultValue="@string/settings_def_aisle"
+            android:dialogTitle="@string/setting_aisle_title"
+            android:key="@string/settings_pref_aisle_key"
+            android:title="@string/setting_aisle_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="pref_account_group"
+        android:title="@string/setting_account_group">
+        <Preference android:title="@string/change_password">
+            <intent
+                android:targetClass="vn.edu.hcmut.cse.smartads.activity.ChangePassActivity"
+                android:targetPackage="vn.edu.hcmut.cse.smartads" />
+        </Preference>
+    </PreferenceCategory>
 </PreferenceScreen>

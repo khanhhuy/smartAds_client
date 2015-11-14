@@ -12,7 +12,8 @@
     <color name="myPrimaryColor">#03A9F4</color>
     <color name="myPrimaryDarkColor">#0288D1</color>
     <color name="myPrimaryLightColor">#B3E5FC</color>
-    <color name="myAccentColor">#607D8B</color>
+    <!--<color name="myAccentColor">#607D8B</color>-->
+    <color name="myAccentColor">#089386</color>
     <color name="myTextPrimaryColor">#212121</color>
     <color name="myTextSecondaryColor">#727272</color>
     <color name="myDividerColor">#B6B6B6</color>

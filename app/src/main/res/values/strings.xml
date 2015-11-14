@@ -64,4 +64,15 @@
     <string name="title_activity_dev_config">Dev Config</string>
     <string name="logout_message">You might not receive smart promotions/ads after you log out.</string>
     <string name="log_out_confirm_title">Log Out?</string>
+    <string name="change_password">Change Password</string>
+    <string name="cp_current_pass">Current Password</string>
+    <string name="cp_new_pass">New Password</string>
+    <string name="cp_confirm_new_pass">Confrm New Password</string>
+    <string name="cp_change">Change</string>
+    <string name="error_incorrect_current_pass">Incorrect current password</string>
+    <string name="success_change_pass">Password Successfully Changed</string>
+    <string name="ask_for_internet_title">SmartAds asked for Internet</string>
+    <string name="ask_for_internet_text">Please enable Internet Connection.</string>
+    <string name="no_internet">No Internet Connection</string>
+    <string name="enable_internet_to_view_ads">Please turn on Internet Connection to view this ads. Thank you!</string>
 </resources>

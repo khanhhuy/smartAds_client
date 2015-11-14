@@ -1,7 +1,6 @@
 package vn.edu.hcmut.cse.smartads.activity;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -9,7 +8,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -21,6 +19,7 @@ import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.util.BundleDefined;
 import vn.edu.hcmut.cse.smartads.util.Config;
+import vn.edu.hcmut.cse.smartads.util.Utils;
 
 public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBackFragment.NoticeDialogListener {
 
@@ -45,6 +44,10 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
                 listAds.get(0).InsertOrUpdate();
             }
         }
+        if (!Utils.isNetworkConnected(this)) {
+            Utils.showAlertDialog(this, getString(R.string.no_internet), getString(R.string.enable_internet_to_view_ads));
+        }
+
         openByWebView(url);
 
     }
@@ -55,24 +58,12 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
         myWebView.setWebViewClient(new MyWebViewClient());
         myWebView.getSettings().setBuiltInZoomControls(true);
         myWebView.getSettings().setDisplayZoomControls(false);
+//        myWebView.getSettings().setJavaScriptEnabled(true);
         myWebView.loadUrl(url);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_ad_notify, menu);
-
-//        MenuItem shareItem = menu.findItem(R.id.action_share);
-//        ShareActionProvider mShare = (ShareActionProvider) shareItem.getActionProvider();
-//
-//        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-//        shareIntent.setAction(Intent.ACTION_SEND);
-//        shareIntent.setType("text/plain");
-//        shareIntent.putExtra(Intent.EXTRA_TEXT, url);
-//
-//        mShare.setShareIntent(shareIntent);
-
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_ads_detail, menu);
         return super.onCreateOptionsMenu(menu);

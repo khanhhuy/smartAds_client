@@ -2,4 +2,5 @@
 <resources>
     <string name="settings_def_entrance">20 15000</string>
     <string name="settings_def_aisle">5 4000</string>
+    <integer name="form_et_ems">20</integer>
 </resources>

@@ -6,6 +6,7 @@
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -102,6 +103,16 @@
         <activity
             android:name=".settings.dev.DevConfigActivity"
             android:label="@string/title_activity_dev_config" />
+
+        <activity
+            android:name=".activity.ChangePassActivity"
+            android:label="@string/change_password"
+            android:parentActivityName=".activity.SettingsActivity"
+            android:windowSoftInputMode="adjustPan|stateVisible">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="vn.edu.hcmut.cse.smartads.activity.SettingsActivity" />
+        </activity>
     </application>
 
 </manifest>

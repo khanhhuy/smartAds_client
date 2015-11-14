@@ -42,6 +42,7 @@ import vn.edu.hcmut.cse.smartads.util.Config;
  * Created by Minh Dao Bui on 6/3/2015.
  */
 public class Connector {
+
     private static Connector sInstance;
 
     public static String CUSTOMER_URL;
@@ -51,6 +52,7 @@ public class Connector {
     public static String ACCOUNT_STATUS_URL;
     public static String REGISTER_URL;
     public static String SETTINGS_URL;
+    public static String CHANGE_PASS_URL;
 
     public static void updateURL() {
         CUSTOMER_URL = Config.HOST_API + "/customers/";
@@ -60,6 +62,7 @@ public class Connector {
         ACCOUNT_STATUS_URL = Config.HOST_API + "/account-status?email=%s";
         REGISTER_URL = Config.HOST_API + "/auth/register";
         SETTINGS_URL = Config.HOST_API + "/customers/%s/config";
+        CHANGE_PASS_URL = Config.HOST_API + "/customers/%s/password";
     }
 
     static {
@@ -69,10 +72,11 @@ public class Connector {
     private final Context mContext;
     private RequestQueue mRequestQueue;
     private ImageCacheManager imageManager;
+    private AuthUtils mAuthUtils;
 
 
     private Connector(Context context) {
-        mContext = context;
+        mContext = context.getApplicationContext();
         mRequestQueue = getRequestQueue();
         //mImageLoader = new ImageLoader(mRequestQueue, new LruBitmapCache(ImageCacheManager.DISK_IMAGECACHE_SIZE));
         imageManager = ImageCacheManager.getInstance();
@@ -80,6 +84,7 @@ public class Connector {
         imageManager.init(mContext, mRequestQueue, mContext.getPackageCodePath(),
                 ImageCacheManager.DISK_IMAGECACHE_SIZE, ImageCacheManager.DISK_IMAGECACHE_COMPRESS_FORMAT,
                 ImageCacheManager.DISK_IMAGECACHE_QUALITY, ImageCacheManager.CacheType.DISK);
+        mAuthUtils = new AuthUtils(context);
     }
 
     public static synchronized Connector getInstance(Context context) {
@@ -91,7 +96,7 @@ public class Connector {
 
     public RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {
-            mRequestQueue = Volley.newRequestQueue(mContext.getApplicationContext());
+            mRequestQueue = Volley.newRequestQueue(mContext);
         }
         return mRequestQueue;
     }
@@ -102,19 +107,14 @@ public class Connector {
     }
 
 
-    public void requestContextAds(final List<MyBeacon> beacons, final ContextAdsReceivedListener listener) {
+    public void requestContextAds(String customerID, final List<MyBeacon> beacons, final ContextAdsResponseListener listener) {
 
         if (beacons.isEmpty())
             return;
 
         MyBeacon beacon = beacons.get(0);
 
-        SharedPreferences authPrefs = mContext.getSharedPreferences(LoginActivity.AUTH_PREFS_NAME, Context.MODE_PRIVATE);
-        String customerID = authPrefs.getString(LoginActivity.CUSTOMER_ID, "");
-        if (customerID.isEmpty())
-            return;
-
-        final String url = CUSTOMER_URL + customerID + "/context-ads/" + beacon.getMajor() + "/" + beacon.getMinor();
+        final String url = mAuthUtils.addToken(CUSTOMER_URL + customerID + "/context-ads/" + beacon.getMajor() + "/" + beacon.getMinor());
         JsonObjectRequest contextAdsRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonContextAds) {
@@ -138,6 +138,7 @@ public class Connector {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 Log.e(Config.TAG, "Connect to Server Error!" + url);
+                listener.onConnectError();
             }
         });
 
@@ -190,8 +191,9 @@ public class Connector {
         Map<String, String> params = new HashMap<>();
         params.put("email", email);
         params.put("password", password);
+        mAuthUtils.addToken(params);
 
-        CustomJsonObjectPostRequest request = new CustomJsonObjectPostRequest(LOGIN_URL, params, new Response.Listener<JSONObject>() {
+        CustomJsonObjectPostLikeRequest request = new CustomJsonObjectPostLikeRequest(LOGIN_URL, params, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 Log.d(Config.TAG, "Login: onResponse" + jsonObject);
@@ -260,8 +262,9 @@ public class Connector {
         Map<String, String> params = new HashMap<>();
         params.put("email", email);
         params.put("password", password);
+        mAuthUtils.addToken(params);
 
-        CustomJsonObjectPostRequest request = new CustomJsonObjectPostRequest(REGISTER_URL, params, new Response.Listener<JSONObject>() {
+        CustomJsonObjectPostLikeRequest request = new CustomJsonObjectPostLikeRequest(REGISTER_URL, params, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 Log.d(Config.TAG, "Login: onResponse" + jsonObject);
@@ -295,12 +298,12 @@ public class Connector {
     }
 
     public void updateRequest() {
-
         SharedPreferences authPrefs = mContext.getSharedPreferences(LoginActivity.AUTH_PREFS_NAME, Context.MODE_PRIVATE);
         String customerID = authPrefs.getString(LoginActivity.CUSTOMER_ID, "");
         if (customerID.isEmpty())
             return;
         String url = CUSTOMER_URL + customerID + "/update-request";
+        url = mAuthUtils.addToken(url);
         StringRequest postUpdateRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -324,6 +327,7 @@ public class Connector {
         if (customerID.isEmpty())
             return;
         String url = CUSTOMER_URL + customerID + "/feedback";
+        url = mAuthUtils.addToken(url);
         StringRequest postFeedback = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -331,10 +335,10 @@ public class Connector {
                         Log.d(Config.TAG, "Sent feedback for Ads = " + s);
                     }
                 }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        volleyError.printStackTrace();
-                    }
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                volleyError.printStackTrace();
+            }
         }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
@@ -371,6 +375,7 @@ public class Connector {
 
     public void requestSettings(String customerID, final SettingsResponseListener listener) {
         String url = String.format(SETTINGS_URL, customerID);
+        url = mAuthUtils.addToken(url);
         JsonObjectRequest request = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
@@ -422,7 +427,8 @@ public class Connector {
 
     public void updateSettings(String customerID, Map<String, String> settings, final SimpleResponseListener listener) {
         String url = String.format(SETTINGS_URL, customerID);
-        CustomJsonObjectPostRequest request = new CustomJsonObjectPostRequest(url, settings, new Response.Listener<JSONObject>() {
+        mAuthUtils.addToken(settings);
+        CustomJsonObjectPostLikeRequest request = new CustomJsonObjectPostLikeRequest(url, settings, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 Log.d(Config.TAG, "updateSettings: onResponse" + jsonObject);
@@ -444,5 +450,51 @@ public class Connector {
                 2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         mRequestQueue.add(request);
         Log.d(Config.TAG, "updateSettings request sent!");
+    }
+
+    public void postChangePass(String customerID, String currentPass, String newPass, final ChangePassResponseListener listener) {
+        Map<String, String> params = new HashMap<>();
+        params.put("current_pass", currentPass);
+        params.put("new_pass", newPass);
+        mAuthUtils.addToken(params);
+        String url = String.format(CHANGE_PASS_URL, customerID);
+
+        CustomJsonObjectPostLikeRequest request = new CustomJsonObjectPostLikeRequest(Request.Method.PUT, url, params, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                Log.d(Config.TAG, "postChangePass: onResponse" + jsonObject);
+                try {
+                    if (!jsonObject.has("errors")) {
+                        if (jsonObject.has("result") && jsonObject.getBoolean("result")) {
+                            listener.onSuccess();
+                        } else {
+                            listener.onError(null);
+                        }
+                    } else {
+
+                        JSONObject firstError = jsonObject.getJSONArray("errors").getJSONObject(0);
+                        if (firstError.getInt("code") == 4001) {
+                            listener.onWrongCurrentPasswordError();
+                        } else {
+                            listener.onError(firstError.getString("message"));
+                        }
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    listener.onError(null);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.e(Config.TAG, "Login: onErrorResponse " + volleyError.getMessage());
+                String message = getNetworkErrorMessage(volleyError);
+                listener.onError(message);
+            }
+        });
+        request.setRetryPolicy(new DefaultRetryPolicy(5000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        mRequestQueue.add(request);
+        Log.d(Config.TAG, "postChangePass sent!");
     }
 }

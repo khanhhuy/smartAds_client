@@ -19,24 +19,25 @@ import java.util.Map;
  * Created by minhdaobui on 10/1/2015.
  */
 
-public class CustomJsonObjectPostRequest extends Request<JSONObject> {
+public class CustomJsonObjectPostLikeRequest extends Request<JSONObject> {
 
     private Listener<JSONObject> listener;
     private Map<String, String> params;
 
-    public CustomJsonObjectPostRequest(String url, Map<String, String> params,
-                         Listener<JSONObject> reponseListener, ErrorListener errorListener) {
+    public CustomJsonObjectPostLikeRequest(String url, Map<String, String> params,
+                                           Listener<JSONObject> reponseListener, ErrorListener errorListener) {
         super(Method.POST, url, errorListener);
         this.listener = reponseListener;
         this.params = params;
+        this.setRetryPolicy(new DefaultRetryPolicy(5000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
     }
 
-    public CustomJsonObjectPostRequest(int method, String url, Map<String, String> params,
-                         Listener<JSONObject> reponseListener, ErrorListener errorListener) {
+    public CustomJsonObjectPostLikeRequest(int method, String url, Map<String, String> params,
+                                           Listener<JSONObject> reponseListener, ErrorListener errorListener) {
         super(method, url, errorListener);
         this.listener = reponseListener;
         this.params = params;
-        this.setRetryPolicy(new DefaultRetryPolicy(5000,1,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        this.setRetryPolicy(new DefaultRetryPolicy(5000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
     }
 
     protected Map<String, String> getParams()

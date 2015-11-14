@@ -1,7 +1,7 @@
 package vn.edu.hcmut.cse.smartads.activity;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,6 +22,7 @@ import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.connector.LoginResponseListener;
 import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.model.Minor;
+import vn.edu.hcmut.cse.smartads.service.ContextAdsService;
 import vn.edu.hcmut.cse.smartads.service.RemoteSettingService;
 import vn.edu.hcmut.cse.smartads.settings.SettingServiceRequestType;
 import vn.edu.hcmut.cse.smartads.settings.dev.DevConfigActivity;
@@ -79,10 +80,7 @@ public class LoginActivity extends AppCompatActivity implements LoginResponseLis
                 openSignUp();
             }
         });
-
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setTitle("Please Wait..");
-        mProgressDialog.setMessage("Loading...");
+        mProgressDialog = Utils.createLoadingDialog(this);
 
         //dev config secret
         TextView logo = (TextView) findViewById(R.id.smartads_logo);
@@ -126,7 +124,7 @@ public class LoginActivity extends AppCompatActivity implements LoginResponseLis
         }
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (!TextUtils.isEmpty(password) && !Utils.isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -160,10 +158,6 @@ public class LoginActivity extends AppCompatActivity implements LoginResponseLis
 
     private boolean isEmailValid(String email) {
         return Utils.isValidEmail(email);
-    }
-
-    private boolean isPasswordValid(String password) {
-        return password.length() > 4;
     }
 
     public void showProgress(final boolean show) {
@@ -215,12 +209,18 @@ public class LoginActivity extends AppCompatActivity implements LoginResponseLis
         }
         login(this, customerID, accessToken);
 
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+
         Intent restoreSettingIntent = new Intent(this, RemoteSettingService.class);
         restoreSettingIntent.putExtra(RemoteSettingService.SERVICE_REQUEST_TYPE, SettingServiceRequestType.RESTORE_FROM_SERVER);
         startService(restoreSettingIntent);
 
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+            startService(new Intent(this, ContextAdsService.class));
+        }
+
         finish();
     }
 
@@ -254,9 +254,10 @@ public class LoginActivity extends AppCompatActivity implements LoginResponseLis
         SharedPreferences authPrefs = context.getSharedPreferences(AUTH_PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = authPrefs.edit();
 
-        editor.remove(LOGGED_ID).remove(ACCESS_TOKEN);
-
+        editor.remove(LOGGED_ID);
         editor.apply();
+
+        context.stopService(new Intent(context, ContextAdsService.class));
     }
 }
 
