@@ -82,14 +82,38 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
             case R.id.action_feedback:
                 showFeedbackDialog();
                 return true;
+            case android.R.id.home:
+                Log.d(Config.TAG, "ViewDetail Up nav pressed");
+                Bundle bundle = new Bundle();
+                bundle.putInt(BundleDefined.ADS_ADAPTER_POSITION, adsAdapterPostion);
+                finishWithResult(bundle, MainActivity.RESULT_VIEWED);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        Log.d(Config.TAG, "ViewDetail Back pressed");
+        super.onBackPressed();
+    }
+
+    private void finishWithResult(Bundle bundle, int result) {
+        Intent data = new Intent();
+        data.putExtras(bundle);
+        if (getParent() == null) {
+            setResult(result, data);
+        }
+        else
+            getParent().setResult(result, data);
+        finish();
+    }
+
     private void showFeedbackDialog() {
         DialogFragment feedback = FeedBackFragment.newInstance();
         feedback.show(getSupportFragmentManager(), Config.TAG);
+
     }
 
     @Override
@@ -99,26 +123,22 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
             listAds.get(0).setBlacklisted(true);
             listAds.get(0).InsertOrUpdate();
         }
-        Intent data = new Intent();
         Bundle bundle = new Bundle();
         bundle.putString(BundleDefined.ADS_BLACKLIST_ID, adsId);
         bundle.putInt(BundleDefined.ADS_ADAPTER_POSITION, adsAdapterPostion);
-        data.putExtras(bundle);
-        if (getParent() == null) {
-            setResult(MainActivity.RESULT_OK, data);
-        }
-        else
-            getParent().setResult(MainActivity.RESULT_OK, data);
-
         Connector.getInstance(this).sendFeedback(adsId);
-        finish();
+        finishWithResult(bundle, MainActivity.RESULT_DELETED);
     }
 
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
     }
 
-
+    @Override
+    protected void onDestroy() {
+        Log.d(Config.TAG, "ViewDetailAdsActivity Destroyed");
+        super.onDestroy();
+    }
 
     private class MyWebViewClient extends WebViewClient {
         @Override

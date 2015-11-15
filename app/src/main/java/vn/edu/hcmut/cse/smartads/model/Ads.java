@@ -69,9 +69,9 @@ public class Ads extends SugarRecord<Ads> {
 
         if (existedAds.size() == 0) {
             this.setLastUpdated(new DateTime());
+            this.setLastReceived(new DateTime());
             this.save();
-        }
-        else {
+        } else {
             existedAds.get(0).setTitle(this.getTitle());
             existedAds.get(0).setStartDate(this.getStartDate());
             existedAds.get(0).setEndDate(this.getEndDate());

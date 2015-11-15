@@ -212,6 +212,8 @@ public class LoginActivity extends AppCompatActivity implements LoginResponseLis
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
 
+        mConnector.updateRequest();
+
         Intent restoreSettingIntent = new Intent(this, RemoteSettingService.class);
         restoreSettingIntent.putExtra(RemoteSettingService.SERVICE_REQUEST_TYPE, SettingServiceRequestType.RESTORE_FROM_SERVER);
         startService(restoreSettingIntent);

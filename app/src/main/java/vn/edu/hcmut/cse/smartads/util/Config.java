@@ -15,14 +15,17 @@ public class Config {
 //  public static String HOST_BASE = "http://smartads.esy.es";
 //  public static String HOST_BASE = "http://smartads.byethost7.com";
 //  public static String HOST_BASE = "http://192.168.43.159/ttlvserver/public";
-public static String HOST_BASE = "http://192.168.1.102/ttlvserver/public";
-    //  public static String HOST_BASE = "http://192.168.1.2:8000";
+//  public static String HOST_BASE = "http://192.168.1.104/ttlvserver/public";
+    public static String HOST_BASE = "http://192.168.1.2:8000";
+//public static String HOST_BASE = "http://192.168.1.102/ttlvserver/public";
+    
     public static String HOST_API = HOST_BASE + "/api/v1";
     public static String APP_NAME = "Smart Ads";
 
     public static String TAG = "DHSmartAds";
     public static String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     public static String DATE_PATTERN = "yyyy-MM-dd";
+    public static String DATE_DISPLAY_PATTERN = "dd-MM-yy";
 
     public static void updateHost() {
         HOST_API = HOST_BASE + "/api/v1";

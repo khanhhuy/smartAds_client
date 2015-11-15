@@ -50,6 +50,10 @@ public class AdsListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             mAdsData = new ArrayList<>();
     }
 
+    public List<Ads> getmAdsData() {
+        return mAdsData;
+    }
+
     public interface OnAdsClickListener {
         public void onAdsClick(View view, int position);
     }
@@ -57,6 +61,7 @@ public class AdsListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public void setOnItemClickListener(final OnAdsClickListener mItemClickListener) {
         this.mAdsClickListener = mItemClickListener;
     }
+
 
 
     @Override
@@ -88,7 +93,7 @@ public class AdsListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         String adsTitle = mAdsData.get(position).getTitle();
         viewHolder.setAdsTitle(adsTitle);
 
-        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATE_PATTERN);
+        DateTimeFormatter formatter = DateTimeFormat.forPattern(Config.DATE_DISPLAY_PATTERN);
         DateTime startDate = mAdsData.get(position).getStartDate();
         DateTime endDate = mAdsData.get(position).getEndDate();
         String adsDate;
