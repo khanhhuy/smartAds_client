@@ -1,5 +1,9 @@
 package vn.edu.hcmut.cse.smartads.util;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.HashMap;
+
 import vn.edu.hcmut.cse.smartads.connector.Connector;
 
 /**
@@ -31,6 +35,12 @@ public class Config {
         HOST_API = HOST_BASE + "/api/v1";
         Connector.updateURL();
     }
+
+    public static final HashMap<String, LatLng> AREA_LANDMARKS = new HashMap<String, LatLng>();
+    static {
+        AREA_LANDMARKS.put("HUY_HOUSE", new LatLng(10.850651, 106.750741));
+    }
+    public static final float GEOFENCE_RADIUS_IN_METERS = 200;
 
     /*
     DEBUG = true
