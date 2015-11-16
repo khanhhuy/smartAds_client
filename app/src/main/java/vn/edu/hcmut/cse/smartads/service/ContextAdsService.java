@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -51,6 +52,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     public static final String UPDATE_PREFS_TIME = "updatePrefsTime";
     public static final String LAST_ASK_FOR_INTERNET = "LAST_ASK_FOR_INTERNET";
     public static final String LAST_UPDATED = "lastUpdated";
+    public static final String RECEIVE_CONTEXT_ADS = "RECEIVE_CONTEXT_ADS";
 
     private BeaconManager beaconManager;
     private Region SMART_ADS_REGION = new Region("All_Region", null, null, null);
@@ -117,7 +119,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         List<MyBeacon> filteredBeacons = mFilterer.filterBeacons(beacons);
 
         if (filteredBeacons.isEmpty()) {
-            Log.d(Config.TAG, "Empty beacon");
+//            Log.d(Config.TAG, "Empty beacon");
             return;
         }
 
@@ -208,6 +210,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
             ads.InsertOrUpdate();
         }
 
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(RECEIVE_CONTEXT_ADS));
     }
 
     private boolean isNotifiedAds(Ads ads, List<Integer> adsMinor, int minor) {
@@ -242,7 +245,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
 
             Intent notifyIntent = new Intent(this, ViewDetailAdsActivity.class);
             notifyIntent.putExtras(bundle);
-            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, new Random().nextInt(1000),
                     notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 

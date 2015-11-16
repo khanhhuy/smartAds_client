@@ -14,20 +14,9 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.estimote.sdk.Beacon;
-
 import net.danlew.android.joda.JodaTimeAndroid;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import vn.edu.hcmut.cse.smartads.R;
-import vn.edu.hcmut.cse.smartads.connector.Connector;
-import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.settings.dev.DevConfigActivity;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
@@ -40,6 +29,7 @@ public class MainActivity extends AppCompatActivity
     public static final int VIEW_DETAILS_ADS = 5;
     public static final int RESULT_DELETED = 1;
     public static final int RESULT_VIEWED = 2;
+    private AdsListFragment mAdsListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,10 +132,10 @@ public class MainActivity extends AppCompatActivity
     private void initFragment() {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        AdsListFragment adsListFragment = new AdsListFragment();
-        adsListFragment.setup(mToolbar);
+        mAdsListFragment = new AdsListFragment();
+        mAdsListFragment.setup(mToolbar);
 
-        fragmentTransaction.add(R.id.inner_container, adsListFragment);
+        fragmentTransaction.add(R.id.inner_container, mAdsListFragment);
 
         setTitle("Featured Ads");
         fragmentTransaction.commit();
@@ -160,5 +150,11 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
         return super.onKeyLongPress(keyCode, event);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        mAdsListFragment.onRestart();
     }
 }
