@@ -25,7 +25,6 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
 
     private String url;
     private String adsId;
-    private int adsAdapterPostion;
     private WebView mWebView;
 
     @Override
@@ -50,7 +49,6 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
             }
             url = bun.getString(BundleDefined.URL);
             adsId = bun.getString(BundleDefined.ADS_ID);
-            adsAdapterPostion = bun.getInt(BundleDefined.ADS_ADAPTER_POSITION, -1);
             List<Ads> listAds = new ArrayList<>(Ads.find(Ads.class, "ads_id = ?", adsId));
             if (!listAds.isEmpty()) {
                 Log.d(Config.TAG, "Is viewed" + listAds.get(0).is_viewed());
