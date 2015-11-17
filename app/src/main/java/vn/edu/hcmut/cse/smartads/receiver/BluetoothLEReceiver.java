@@ -31,7 +31,6 @@ public class BluetoothLEReceiver extends BroadcastReceiver {
                 case BluetoothAdapter.STATE_TURNING_OFF:
                     Log.d("Bluetooth state", "STATE OFF");
                     context.stopService(beaconServiceIntent);
-
                     break;
                 case BluetoothAdapter.STATE_ON:
                     Log.d("BluetoothLE", "Starting service");
