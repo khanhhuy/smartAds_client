@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import vn.edu.hcmut.cse.smartads.R;
+import vn.edu.hcmut.cse.smartads.service.ContextAdsService;
 import vn.edu.hcmut.cse.smartads.settings.dev.DevConfigActivity;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
@@ -24,11 +25,7 @@ import vn.edu.hcmut.cse.smartads.util.Config;
 public class MainActivity extends AppCompatActivity
         implements NavigationDrawerCallback {
 
-    private NavigationDrawerFragment mNavigationDrawerFragment;
     private Toolbar mToolbar;
-    public static final int VIEW_DETAILS_ADS = 5;
-    public static final int RESULT_DELETED = 1;
-    public static final int RESULT_VIEWED = 2;
     private AdsListFragment mAdsListFragment;
 
     @Override
@@ -50,9 +47,8 @@ public class MainActivity extends AppCompatActivity
 //        mNavigationDrawerFragment.setup(R.id.fragment_drawer,
 //                (DrawerLayout) findViewById(R.id.drawer), mToolbar);
 
-        //Intent beaconServiceIntent = new Intent(this, ContextAdsService.class);
-        //startService(beaconServiceIntent);
 
+        ContextAdsService.checkBluetoothAndStart(this);
     }
 
     private void checkLoggedIn() {
@@ -157,4 +153,5 @@ public class MainActivity extends AppCompatActivity
         super.onRestart();
         mAdsListFragment.onRestart();
     }
+
 }

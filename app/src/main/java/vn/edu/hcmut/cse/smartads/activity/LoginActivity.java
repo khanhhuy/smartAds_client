@@ -1,7 +1,6 @@
 package vn.edu.hcmut.cse.smartads.activity;
 
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -218,10 +217,7 @@ public class LoginActivity extends AppCompatActivity implements LoginResponseLis
         restoreSettingIntent.putExtra(RemoteSettingService.SERVICE_REQUEST_TYPE, SettingServiceRequestType.RESTORE_FROM_SERVER);
         startService(restoreSettingIntent);
 
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
-            startService(new Intent(this, ContextAdsService.class));
-        }
+        ContextAdsService.checkBluetoothAndStart(this);
 
         finish();
     }

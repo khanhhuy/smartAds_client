@@ -4,6 +4,8 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -296,6 +298,13 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
                 ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(-1, builder.build());
                 mUpdateTimePref.edit().putString(LAST_ASK_FOR_INTERNET, DateTime.now().toString()).apply();
             }
+        }
+    }
+
+    public static void checkBluetoothAndStart(Context context) {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+            context.startService(new Intent(context, ContextAdsService.class));
         }
     }
 }
