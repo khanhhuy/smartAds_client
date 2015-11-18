@@ -120,6 +120,10 @@ public class RemoteSettingService extends Service implements SettingsResponseLis
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(SettingsActivity.QUEUE_SYNC, false).apply();
+        boolean everUpdated = sharedPreferences.getBoolean(SettingsActivity.EVER_UPDATED, false);
+        if (!everUpdated) {
+            editor.putBoolean(SettingsActivity.EVER_UPDATED, true);
+        }
 
         stopSelf();
     }

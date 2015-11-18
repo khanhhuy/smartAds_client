@@ -1,11 +1,22 @@
-<android.support.v7.widget.RecyclerView
-        android:id="@+id/listAds"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        tools:context="vn.edu.hcmut.cse.smartads.activity.AdsListFragment"
-        >
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="vn.edu.hcmut.cse.smartads.activity.AdsListFragment">
 
-</android.support.v7.widget.RecyclerView>
+    <vn.edu.hcmut.cse.smartads.ui.RecyclerViewEmptySupport
+        android:id="@+id/listAds"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" />
+
+    <TextView
+        android:id="@+id/list_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="211dp"
+        android:text="@string/empty_ads"
+        android:visibility="gone" />
+</RelativeLayout>

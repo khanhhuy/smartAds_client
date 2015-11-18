@@ -41,9 +41,8 @@
         </activity>
         <activity
             android:name=".activity.ViewDetailAdsActivity"
-            android:excludeFromRecents="true"
             android:label="@string/title_view_details_activity"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:parentActivityName=".activity.MainActivity"
             android:taskAffinity="" >
             <meta-data
@@ -116,8 +115,9 @@
 
         <service
             android:name=".service.GeofenceTransitionsIntentService"
-            android:exported="true" >
+            android:exported="false" >
         </service>
+
     </application>
 
 </manifest>

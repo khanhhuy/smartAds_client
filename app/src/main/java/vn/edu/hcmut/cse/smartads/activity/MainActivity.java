@@ -3,7 +3,6 @@ package vn.edu.hcmut.cse.smartads.activity;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,50 +13,25 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
-
-import com.estimote.sdk.Beacon;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.LatLng;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import vn.edu.hcmut.cse.smartads.R;
-import vn.edu.hcmut.cse.smartads.connector.Connector;
-import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
-import vn.edu.hcmut.cse.smartads.service.ContextAdsService;
-import vn.edu.hcmut.cse.smartads.service.GeofenceTransitionsIntentService;
+
 import vn.edu.hcmut.cse.smartads.settings.dev.DevConfigActivity;
 import vn.edu.hcmut.cse.smartads.util.Config;
+import vn.edu.hcmut.cse.smartads.util.GeofenceManager;
 
 
-public class MainActivity extends AppCompatActivity
-        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
+public class MainActivity extends AppCompatActivity {
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private Toolbar mToolbar;
     public static final int VIEW_DETAILS_ADS = 5;
     public static final int RESULT_DELETED = 1;
     public static final int RESULT_VIEWED = 2;
-
-    protected GoogleApiClient mGoogleApiClient;
-    protected ArrayList<Geofence> mGeofenceList;
-    private PendingIntent mGeofencePendingIntent;
-
+    private AdsListFragment mAdsListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,15 +41,10 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
 
-        setTitle("Featured Ads");
+        setTitle(getString(R.string.header_ads_list));
+
 
         checkLoggedIn();
-        initFragment();
-
-        mGeofencePendingIntent = null;
-
-        buildGoogleApiClient();
-        populateGeoFenceList();
 
 
     }
@@ -87,6 +56,9 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
+        }
+        else {
+            initFragment();
         }
     }
 
@@ -117,9 +89,14 @@ public class MainActivity extends AppCompatActivity
 
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     startActivity(intent);
+
                     finish();
                 }
             }).setNegativeButton(R.string.cancel, null).show();
+
+            GeofenceManager.getInstance(this).stopGeofencing();
+            Log.d(Config.TAG, "Stop Geofence at Logout");
+
             return true;
         }
 
@@ -151,10 +128,10 @@ public class MainActivity extends AppCompatActivity
     private void initFragment() {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        AdsListFragment adsListFragment = new AdsListFragment();
-        adsListFragment.setup(mToolbar);
+        mAdsListFragment = new AdsListFragment();
+        mAdsListFragment.setup(mToolbar);
 
-        fragmentTransaction.add(R.id.inner_container, adsListFragment);
+        fragmentTransaction.add(R.id.inner_container, mAdsListFragment);
 
         setTitle("Featured Ads");
         fragmentTransaction.commit();
@@ -171,104 +148,10 @@ public class MainActivity extends AppCompatActivity
         return super.onKeyLongPress(keyCode, event);
     }
 
-    //
-    //Google API location
-    //
-
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-    }
-
     @Override
-    protected void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
+    protected void onRestart() {
+        super.onRestart();
+        mAdsListFragment.onRestart();
     }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        removeGeofencesHandler();
-        mGoogleApiClient.disconnect();
-    }
-
-    @Override
-    public void onConnected(Bundle connectionHint) {
-        Log.d(Config.TAG, "Connected to GoogleApiClient");
-        addGeofencesHandler();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        Log.d(Config.TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
-    }
-
-    @Override
-    public void onConnectionSuspended(int cause) {
-        Log.d(Config.TAG, "Connection suspended");
-    }
-
-    public void onResult(Status status) {
-        if (status.isSuccess()) {
-            Toast.makeText(this,"Status succeeded",Toast.LENGTH_SHORT).show();
-        } else {
-            Log.d(Config.TAG, "Status failed");
-        }
-    }
-
-    private GeofencingRequest getGeofencingRequest() {
-        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-        builder.addGeofences(mGeofenceList);
-        return builder.build();
-    }
-
-    public void populateGeoFenceList() {
-        mGeofenceList = new ArrayList<>();
-        for (Map.Entry<String, LatLng> entry : Config.AREA_LANDMARKS.entrySet()) {
-
-            mGeofenceList.add(new Geofence.Builder()
-                    .setRequestId(entry.getKey())
-                    .setCircularRegion(
-                            entry.getValue().latitude,
-                            entry.getValue().longitude,
-                            Config.GEOFENCE_RADIUS_IN_METERS
-                    )
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
-                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                    .build());
-        }
-    }
-
-
-
-    public void addGeofencesHandler() {
-        LocationServices.GeofencingApi.addGeofences(
-                mGoogleApiClient,
-                getGeofencingRequest(),
-                getGeofencePendingIntent()
-        ).setResultCallback(this); // Result processed in onResult().
-    }
-
-    public void removeGeofencesHandler() {
-        LocationServices.GeofencingApi.removeGeofences(
-                mGoogleApiClient,
-                getGeofencePendingIntent()
-        ).setResultCallback(this);
-    }
-
-    private PendingIntent getGeofencePendingIntent() {
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
-        }
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-
 
 }

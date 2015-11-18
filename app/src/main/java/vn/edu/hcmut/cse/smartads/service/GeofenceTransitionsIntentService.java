@@ -1,8 +1,11 @@
 package vn.edu.hcmut.cse.smartads.service;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
@@ -37,8 +40,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
 
-        if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
-                geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+        if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL) {
 
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
             String geofenceTransitionDetails = getGeofenceTransitionDetails(
@@ -69,23 +71,36 @@ public class GeofenceTransitionsIntentService extends IntentService {
     }
 
     private void sendNotification(String notificationDetails) {
-        Intent notificationIntent = new Intent();
+
+
+        final BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+
+        BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
+        Intent enableBtIntent;
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+            enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        }
+        else {
+            return;
+        }
 
         PendingIntent notificationPendingIntent =
-                PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.getActivity(this, 5, enableBtIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 
         builder.setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle(notificationDetails)
-                .setContentText("Enter geofence area")
+                .setContentTitle(Config.APP_NAME)
+                .setContentText("Turn on Bluetooth for receiving promotions")
+                .setDefaults(Notification.DEFAULT_SOUND)
                 .setContentIntent(notificationPendingIntent);
         builder.setAutoCancel(true);
 
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        mNotificationManager.notify(0, builder.build());
+        mNotificationManager.notify(5, builder.build());
     }
 
 }

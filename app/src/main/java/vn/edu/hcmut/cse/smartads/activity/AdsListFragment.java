@@ -2,8 +2,12 @@ package vn.edu.hcmut.cse.smartads.activity;
 
 import android.app.Activity;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -24,6 +28,7 @@ import vn.edu.hcmut.cse.smartads.adapter.SimpleSectionedRecyclerViewAdapter;
 import vn.edu.hcmut.cse.smartads.listener.AdsContentListener;
 import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.service.ContextAdsService;
+import vn.edu.hcmut.cse.smartads.ui.RecyclerViewEmptySupport;
 import vn.edu.hcmut.cse.smartads.util.BundleDefined;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
@@ -32,10 +37,10 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
 
     private SimpleSectionedRecyclerViewAdapter mRecycleSectionedAdapter;
     private AdsListRecycleAdapter mAdsListAdapter;
-    private RecyclerView mRecyclerView;
+    private RecyclerViewEmptySupport mRecyclerView;
     private Activity mActivity;
 
-    private List<Ads> mlistAds;
+    private List<Ads> mlistAds = new ArrayList<>();
     private List<SimpleSectionedRecyclerViewAdapter.Section> sectionList;
 
     public AdsListFragment() {
@@ -54,14 +59,12 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        if (!loadData()) {
-            return inflater.inflate(R.layout.fragment_ads_empty, container, false);
-        }
-
+        boolean empty = loadData();
+//            inflater.inflate(R.layout.fragment_ads_empty, container, false);
         View view = inflater.inflate(R.layout.fragment_ads_list, container, false);
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.listAds);
+        mRecyclerView = (RecyclerViewEmptySupport) view.findViewById(R.id.listAds);
+        mRecyclerView.setEmptyView(view.findViewById(R.id.list_empty));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
 
         mAdsListAdapter = new AdsListRecycleAdapter(R.layout.card_ads_item, mActivity, mlistAds);
@@ -84,7 +87,7 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
 
                     Intent detailAdsIntent = new Intent(mActivity, ViewDetailAdsActivity.class);
                     detailAdsIntent.putExtras(bundle);
-                    startActivityForResult(detailAdsIntent, MainActivity.VIEW_DETAILS_ADS, bundle);
+                    startActivity(detailAdsIntent);
 
                 }
             }
@@ -92,25 +95,27 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
 
         mRecyclerView.setAdapter(mRecycleSectionedAdapter);
 
-        NotificationManager notificationManager = ContextAdsService.getNotificationManager();
-        if (notificationManager != null)
-            notificationManager.cancelAll();
-
-        return  view;
+        return view;
     }
+
 
     private boolean loadData() {
         Iterator allAds = Ads.findAll(Ads.class);
 
-        if (!allAds.hasNext())
+        if (!allAds.hasNext()) {
+            createSectionHeader(0, 0);
             return false;
-
+        }
         List<Ads> others = new ArrayList<>();
         List<Ads> expired = new ArrayList<>();
-        mlistAds = new ArrayList<>();
+        if (mlistAds == null) {
+            mlistAds = new ArrayList<>();
+        } else {
+            mlistAds.clear();
+        }
 
         while (allAds.hasNext()) {
-            Ads ads = (Ads)allAds.next();
+            Ads ads = (Ads) allAds.next();
             Log.d(Config.TAG, "Last received ads " + ads.getAdsId() + " " + ads.getLastReceived());
             if (!ads.is_blacklisted()) {
                 if (ads.getLastReceived() != null)
@@ -135,7 +140,7 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
     }
 
     private void createSectionHeader(int justReceivedSection, int othersSection) {
-        sectionList = new ArrayList<SimpleSectionedRecyclerViewAdapter.Section>();
+        sectionList = new ArrayList<>();
         sectionList.add(new SimpleSectionedRecyclerViewAdapter.Section(0,
                 getResources().getString(R.string.just_received_section)));
         sectionList.add(new SimpleSectionedRecyclerViewAdapter.Section(justReceivedSection,
@@ -152,51 +157,9 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(Config.TAG, "onActivityResult resultCode + requestCode " + resultCode + "," + requestCode);
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == MainActivity.VIEW_DETAILS_ADS) {
-            if (resultCode == MainActivity.RESULT_VIEWED) {
-                Bundle bun = data.getExtras();
-                int position = bun.getInt(BundleDefined.ADS_ADAPTER_POSITION, -1);
-                if (position != -1 && mAdsListAdapter != null) {
-                    mAdsListAdapter.getmAdsData().get(position).setViewed(true);
-                    mAdsListAdapter.notifyItemChanged(mRecycleSectionedAdapter.positionToSectionedPosition(position));
-                    Log.d(Config.TAG, "adapter position change " + position);
-                }
-            }
-            if (resultCode == MainActivity.RESULT_DELETED) {
-                Bundle bun = data.getExtras();
-                int position = bun.getInt(BundleDefined.ADS_ADAPTER_POSITION, -1);
-                String adsBlacklist = bun.getString(BundleDefined.ADS_BLACKLIST_ID, "");
-                Log.d(Config.TAG, "Ads blacklist " + adsBlacklist);
-                if (!adsBlacklist.isEmpty() && mRecycleSectionedAdapter != null) {
-                    Log.d(Config.TAG, "Remove position " + position);
-                    if (position != -1 && mRecycleSectionedAdapter != null) {
-                        reloadDataset();
-                        mRecycleSectionedAdapter.notifyDataSetChanged();
-                    }
-                }
-            }
-        }
-
-    }
-
-    @Override
-    public void onResume() {
-        Log.d(Config.TAG, "MainActivity resume");
-        super.onResume();
-    }
-
-    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = activity;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
     @Override
@@ -212,5 +175,48 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
     public void adsListUpdateImg(int position) {
         Log.d(Config.TAG, "Ads update position " + position);
         mRecycleSectionedAdapter.notifyItemChanged(position + 1);
+    }
+
+    public void onRestart() {
+        Log.d(Config.TAG, "AdsListFragment onRestart");
+
+        refresh();
+    }
+
+    private void refresh() {
+        if (mRecycleSectionedAdapter != null) {
+            reloadDataset();
+            mRecycleSectionedAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.cancelAll();
+        }
+    }
+
+    private BroadcastReceiver mReceiveContextAdsBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(Config.TAG, "RECEIVE_CONTEXT_ADS onReceive");
+            refresh();
+        }
+    };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mReceiveContextAdsBroadcastReceiver,
+                new IntentFilter(ContextAdsService.RECEIVE_CONTEXT_ADS));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiveContextAdsBroadcastReceiver);
     }
 }

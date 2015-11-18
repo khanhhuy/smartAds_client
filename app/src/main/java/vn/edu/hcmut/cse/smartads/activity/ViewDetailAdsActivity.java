@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
     private String url;
     private String adsId;
     private int adsAdapterPostion;
+    private WebView mWebView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +35,20 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
         setContentView(R.layout.activity_view_detail_ads);
         Bundle bun = getIntent().getExtras();
 
+        mWebView = (WebView) findViewById(R.id.webview);
+        mWebView.setWebViewClient(new MyWebViewClient());
+        mWebView.getSettings().setBuiltInZoomControls(true);
+        mWebView.getSettings().setDisplayZoomControls(false);
+        //mWebView.getSettings().setJavaScriptEnabled(true);
+
+        loadAds(bun);
+    }
+
+    private void loadAds(Bundle bun) {
         if (bun != null) {
+            if (!Utils.isNetworkConnected(this)) {
+                Utils.showAlertDialog(this, getString(R.string.no_internet), getString(R.string.enable_internet_to_view_ads));
+            }
             url = bun.getString(BundleDefined.URL);
             adsId = bun.getString(BundleDefined.ADS_ID);
             adsAdapterPostion = bun.getInt(BundleDefined.ADS_ADAPTER_POSITION, -1);
@@ -43,29 +58,26 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
                 listAds.get(0).setViewed(true);
                 listAds.get(0).InsertOrUpdate();
             }
+            mWebView.loadUrl(url);
         }
-        if (!Utils.isNetworkConnected(this)) {
-            Utils.showAlertDialog(this, getString(R.string.no_internet), getString(R.string.enable_internet_to_view_ads));
-        }
-
-        openByWebView(url);
 
     }
 
-    private void openByWebView(String url)
-    {
-        WebView myWebView = (WebView) findViewById(R.id.webview);
-        myWebView.setWebViewClient(new MyWebViewClient());
-        myWebView.getSettings().setBuiltInZoomControls(true);
-        myWebView.getSettings().setDisplayZoomControls(false);
-//        myWebView.getSettings().setJavaScriptEnabled(true);
-        myWebView.loadUrl(url);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_ads_detail, menu);
+        Ads ads = Ads.findAds(adsId);
+        if (ads != null) {
+            if (!ads.getType().equals(Ads.TARGETED_ADS))
+                inflater.inflate(R.menu.menu_ads_detail, menu);
+            else
+                inflater.inflate(R.menu.menu_ads_details_nofeedback, menu);
+        }
+        else
+            inflater.inflate(R.menu.menu_ads_details_nofeedback, menu);
+
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -82,12 +94,6 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
             case R.id.action_feedback:
                 showFeedbackDialog();
                 return true;
-            case android.R.id.home:
-                Log.d(Config.TAG, "ViewDetail Up nav pressed");
-                Bundle bundle = new Bundle();
-                bundle.putInt(BundleDefined.ADS_ADAPTER_POSITION, adsAdapterPostion);
-                finishWithResult(bundle, MainActivity.RESULT_VIEWED);
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -99,18 +105,13 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
         super.onBackPressed();
     }
 
-    private void finishWithResult(Bundle bundle, int result) {
-        Intent data = new Intent();
-        data.putExtras(bundle);
-        if (getParent() == null) {
-            setResult(result, data);
-        }
-        else
-            getParent().setResult(result, data);
-        finish();
-    }
-
     private void showFeedbackDialog() {
+
+        if (!Utils.isNetworkConnected(this)) {
+            Toast.makeText(this, getString(R.string.no_internet_feedback), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         DialogFragment feedback = FeedBackFragment.newInstance();
         feedback.show(getSupportFragmentManager(), Config.TAG);
 
@@ -123,11 +124,8 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
             listAds.get(0).setBlacklisted(true);
             listAds.get(0).InsertOrUpdate();
         }
-        Bundle bundle = new Bundle();
-        bundle.putString(BundleDefined.ADS_BLACKLIST_ID, adsId);
-        bundle.putInt(BundleDefined.ADS_ADAPTER_POSITION, adsAdapterPostion);
         Connector.getInstance(this).sendFeedback(adsId);
-        finishWithResult(bundle, MainActivity.RESULT_DELETED);
+        finish();
     }
 
     @Override
@@ -146,5 +144,11 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
             view.loadUrl(url);
             return true;
         }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        loadAds(intent.getExtras());
     }
 }

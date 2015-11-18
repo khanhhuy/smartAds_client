@@ -13,6 +13,7 @@ import vn.edu.hcmut.cse.smartads.settings.SettingServiceRequestType;
 
 public class SettingsActivity extends AppCompatActivity {
     public static final String QUEUE_SYNC = "QUEUE_SYNC";
+    public static final String EVER_UPDATED = "EVER_UPDATED";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +43,17 @@ public class SettingsActivity extends AppCompatActivity {
         public void onPause() {
             super.onPause();
             getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            boolean updateToServer = false;
             if (mChange) {
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                updateToServer = true;
+            } else {
+                boolean everUpdated = sharedPreferences.getBoolean(EVER_UPDATED, false);
+                if (!everUpdated) {
+                    updateToServer = true;
+                }
+            }
+            if (updateToServer) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean(QUEUE_SYNC, true).apply();
 

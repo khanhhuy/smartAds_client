@@ -10,8 +10,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
@@ -27,6 +29,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -51,6 +54,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     public static final String UPDATE_PREFS_TIME = "updatePrefsTime";
     public static final String LAST_ASK_FOR_INTERNET = "LAST_ASK_FOR_INTERNET";
     public static final String LAST_UPDATED = "lastUpdated";
+    public static final String RECEIVE_CONTEXT_ADS = "RECEIVE_CONTEXT_ADS";
 
     private BeaconManager beaconManager;
     private Region SMART_ADS_REGION = new Region("All_Region", null, null, null);
@@ -61,6 +65,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private DateTime mlastNotifySoundTime;
     private static NotificationManager mNotificationManager;
+
 
     @Override
     public void onCreate() {
@@ -117,7 +122,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         List<MyBeacon> filteredBeacons = mFilterer.filterBeacons(beacons);
 
         if (filteredBeacons.isEmpty()) {
-            Log.d(Config.TAG, "Empty beacon");
+//            Log.d(Config.TAG, "Empty beacon");
             return;
         }
 
@@ -198,6 +203,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
                     if (!Config.DEBUG) {
                         ads.setNotified(true);
                     }
+                    ads.setLastReceived(new DateTime());
                     notifyAds.add(ads);
                     break;
                 }
@@ -208,10 +214,11 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
             ads.InsertOrUpdate();
         }
 
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(RECEIVE_CONTEXT_ADS));
     }
 
     private boolean isNotifiedAds(Ads ads, List<Integer> adsMinor, int minor) {
-        if (!ads.getType().equals(Ads.ENTRANCE_ADS) && !adsMinor.contains(minor))
+        if (!ads.getType().equals(Ads.ENTRANCE_ADS) && !ads.getType().equals(Ads.TARGETED_ADS) && !adsMinor.contains(minor))
             return false;
         if (ads.is_notified() || ads.is_blacklisted())
             return false;
@@ -242,7 +249,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
 
             Intent notifyIntent = new Intent(this, ViewDetailAdsActivity.class);
             notifyIntent.putExtras(bundle);
-            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, new Random().nextInt(1000),
                     notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -264,7 +271,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
 
             Notification notification = builder.build();
             mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            mNotificationManager.notify(Config.TAG, new Random().nextInt(1000) + 1, notification);
+            mNotificationManager.notify(Config.TAG, ads.getAdsId(), notification);
         }
     }
 
@@ -295,4 +302,6 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
             }
         }
     }
+
+
 }
