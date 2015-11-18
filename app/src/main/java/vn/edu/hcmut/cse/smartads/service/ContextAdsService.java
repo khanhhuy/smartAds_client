@@ -4,11 +4,12 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
@@ -73,7 +74,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         JodaTimeAndroid.init(this);
         beaconManager = new BeaconManager(this);
         beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(5), TimeUnit.SECONDS.toMillis(10));
-        beaconManager.setForegroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(0));
+        beaconManager.setForegroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));
         mFilterer = BeaconFilterer.getInstance();
         mConnector = Connector.getInstance(this);
         mUpdateTimePref = getSharedPreferences(UPDATE_PREFS_TIME, MODE_PRIVATE);
@@ -88,24 +89,16 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
             @Override
             public void onEnteredRegion(Region region, List<Beacon> beacons) {
                 Log.d(Config.TAG, "onEnteredRegion");
-                try {
-                    SharedPreferences.Editor editor = mUpdateTimePref.edit();
-                    editor.putString(LAST_UPDATED, formatter.print(new DateTime()));
-                    editor.apply();
-                    beaconManager.startRanging(region);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
+                SharedPreferences.Editor editor = mUpdateTimePref.edit();
+                editor.putString(LAST_UPDATED, formatter.print(new DateTime()));
+                editor.apply();
+                beaconManager.startRanging(region);
             }
 
             @Override
             public void onExitedRegion(Region region) {
                 Log.d("DHSmartAds", "onExitedRegion");
-                try {
-                    beaconManager.stopRanging(region);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
+                beaconManager.stopRanging(region);
             }
         });
 
@@ -178,12 +171,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     public void onDestroy() {
         Log.d("Beacon manager", "Disconnect");
 
-        try {
-            beaconManager.stopMonitoring(SMART_ADS_REGION);
-        } catch (RemoteException e) {
-            Log.e(Config.TAG, "Cannot stop but it does not matter now", e);
-        }
-
+        beaconManager.stopMonitoring(SMART_ADS_REGION);
         beaconManager.disconnect();
 
         super.onDestroy();
@@ -303,5 +291,10 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         }
     }
 
-
+    public static void checkBluetoothAndStart(Context context) {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+            context.startService(new Intent(context, ContextAdsService.class));
+        }
+    }
 }

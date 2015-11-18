@@ -231,13 +231,12 @@ public class LoginActivity extends AppCompatActivity implements LoginResponseLis
         startService(restoreSettingIntent);
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
-            startService(new Intent(this, ContextAdsService.class));
-        }
-        else {
+        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
             GeofenceManager.getInstance(this).startGeofencing();
             Log.d(Config.TAG, "Start Geofence at Login");
         }
+
+        ContextAdsService.checkBluetoothAndStart(this);
 
         finish();
     }

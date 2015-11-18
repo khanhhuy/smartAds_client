@@ -14,15 +14,8 @@ public class MyBeacon extends Beacon {
     private Long lastReceived;
 
     public MyBeacon(Beacon beacon) {
-        super(beacon.getProximityUUID(), beacon.getName(), beacon.getMacAddress(), beacon.getMajor(), beacon.getMinor(),
+        super(beacon.getProximityUUID(), beacon.getMacAddress(), beacon.getMajor(), beacon.getMinor(),
                 beacon.getMeasuredPower(), beacon.getRssi());
-
-    }
-
-    public MyBeacon(String proximityUUID, String name, String macAddress, int major, int minor, int measuredPower, int rssi) {
-
-        super(proximityUUID, name, macAddress, major, minor, measuredPower, rssi);
-
     }
 
     public Long getLastReceived() {

@@ -59,7 +59,7 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        boolean empty = loadData();
+        loadData();
 //            inflater.inflate(R.layout.fragment_ads_empty, container, false);
         View view = inflater.inflate(R.layout.fragment_ads_list, container, false);
 
@@ -83,7 +83,6 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
                     String urlPath = Config.HOST_BASE + "/ads/" + String.valueOf(mlistAds.get(position).getAdsId());
                     bundle.putString(BundleDefined.URL, urlPath);
                     bundle.putString(BundleDefined.ADS_ID, String.valueOf(mlistAds.get(position).getAdsId()));
-                    bundle.putInt(BundleDefined.ADS_ADAPTER_POSITION, position);
 
                     Intent detailAdsIntent = new Intent(mActivity, ViewDetailAdsActivity.class);
                     detailAdsIntent.putExtras(bundle);
@@ -202,7 +201,6 @@ public class AdsListFragment extends BaseFragment implements AdsContentListener 
     private BroadcastReceiver mReceiveContextAdsBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(Config.TAG, "RECEIVE_CONTEXT_ADS onReceive");
             refresh();
         }
     };

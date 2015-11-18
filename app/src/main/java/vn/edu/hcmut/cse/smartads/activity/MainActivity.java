@@ -18,7 +18,7 @@ import net.danlew.android.joda.JodaTimeAndroid;
 
 
 import vn.edu.hcmut.cse.smartads.R;
-
+import vn.edu.hcmut.cse.smartads.service.ContextAdsService;
 import vn.edu.hcmut.cse.smartads.settings.dev.DevConfigActivity;
 import vn.edu.hcmut.cse.smartads.util.Config;
 import vn.edu.hcmut.cse.smartads.util.GeofenceManager;
@@ -26,11 +26,7 @@ import vn.edu.hcmut.cse.smartads.util.GeofenceManager;
 
 public class MainActivity extends AppCompatActivity {
 
-    private NavigationDrawerFragment mNavigationDrawerFragment;
     private Toolbar mToolbar;
-    public static final int VIEW_DETAILS_ADS = 5;
-    public static final int RESULT_DELETED = 1;
-    public static final int RESULT_VIEWED = 2;
     private AdsListFragment mAdsListFragment;
 
     @Override
@@ -47,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         checkLoggedIn();
 
 
+        ContextAdsService.checkBluetoothAndStart(this);
     }
 
     private void checkLoggedIn() {
