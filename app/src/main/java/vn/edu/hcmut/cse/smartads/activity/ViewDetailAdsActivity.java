@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +65,17 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_ads_detail, menu);
+        Ads ads = Ads.findAds(adsId);
+        if (ads != null) {
+            if (!ads.getType().equals(Ads.TARGETED_ADS))
+                inflater.inflate(R.menu.menu_ads_detail, menu);
+            else
+                inflater.inflate(R.menu.menu_ads_details_nofeedback, menu);
+        }
+        else
+            inflater.inflate(R.menu.menu_ads_details_nofeedback, menu);
+
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -92,6 +103,12 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
     }
 
     private void showFeedbackDialog() {
+
+        if (!Utils.isNetworkConnected(this)) {
+            Toast.makeText(this, getString(R.string.no_internet_feedback), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         DialogFragment feedback = FeedBackFragment.newInstance();
         feedback.show(getSupportFragmentManager(), Config.TAG);
 

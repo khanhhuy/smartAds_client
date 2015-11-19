@@ -33,6 +33,8 @@ public class Ads extends SugarRecord<Ads> {
     public static final String END_DATE = "end_date";
     @Ignore
     public static final String MINORS = "minors";
+    @Ignore
+    public static final String TARGETED_ADS = "targetedAds";
 
     //Persistence
     private int adsId;
@@ -63,13 +65,22 @@ public class Ads extends SugarRecord<Ads> {
         this.minors = minors;
     }
 
+    static public Ads findAds(String adsId) {
+        List<Ads> existedAds = new ArrayList<>(Ads.find(Ads.class, "ads_id = ?", adsId));
+        if (existedAds.size() == 0)
+            return null;
+        else
+            return existedAds.get(0);
+
+    }
+
     public void InsertOrUpdate() {
         List<Ads> existedAds = new ArrayList<>(Ads.find(Ads.class, "ads_id = ?", String.valueOf(this.getAdsId())));
 
 
         if (existedAds.size() == 0) {
             this.setLastUpdated(new DateTime());
-            this.setLastReceived(new DateTime());
+            //this.setLastReceived(new DateTime());
             this.save();
         } else {
             existedAds.get(0).setTitle(this.getTitle());
@@ -97,6 +108,11 @@ public class Ads extends SugarRecord<Ads> {
             }
         }
 
+    }
+
+    static public boolean isExistedAds(String adsId) {
+        List<Ads> existedAds = new ArrayList<>(Ads.find(Ads.class, "ads_id = ?", adsId));
+        return existedAds.size() != 0;
     }
 
     static public String parserDateToString(DateTime dateTime) {

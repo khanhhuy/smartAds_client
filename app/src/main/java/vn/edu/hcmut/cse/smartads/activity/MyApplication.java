@@ -16,4 +16,5 @@ public class MyApplication extends com.orm.SugarApp {
     public void setNotificationManager(NotificationManager manager) {
         mNotificationManager = manager;
     }
+
 }

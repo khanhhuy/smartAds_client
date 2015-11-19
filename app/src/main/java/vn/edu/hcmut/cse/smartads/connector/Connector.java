@@ -11,6 +11,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -31,8 +32,10 @@ import java.util.Map;
 
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.activity.LoginActivity;
+import vn.edu.hcmut.cse.smartads.listener.LocationUpdateListener;
 import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.model.Ads;
+import vn.edu.hcmut.cse.smartads.model.Store;
 import vn.edu.hcmut.cse.smartads.model.image.ImageCacheManager;
 import vn.edu.hcmut.cse.smartads.model.image.LruBitmapCache;
 import vn.edu.hcmut.cse.smartads.settings.SettingsResponseListener;
@@ -53,6 +56,7 @@ public class Connector {
     public static String REGISTER_URL;
     public static String SETTINGS_URL;
     public static String CHANGE_PASS_URL;
+    public static String GET_ACTIVE_STORES_URL;
 
     public static void updateURL() {
         CUSTOMER_URL = Config.HOST_API + "/customers/";
@@ -63,6 +67,7 @@ public class Connector {
         REGISTER_URL = Config.HOST_API + "/auth/register";
         SETTINGS_URL = Config.HOST_API + "/customers/%s/config";
         CHANGE_PASS_URL = Config.HOST_API + "/customers/%s/password";
+        GET_ACTIVE_STORES_URL = Config.HOST_API + "/stores/active";
     }
 
     static {
@@ -147,7 +152,7 @@ public class Connector {
     }
 
     private void parseAds(JSONObject jsonMixedAds) throws JSONException {
-        String[] adsType = new String[]{Ads.ENTRANCE_ADS, Ads.AISLE_ADS};
+        String[] adsType = new String[]{Ads.ENTRANCE_ADS, Ads.AISLE_ADS, Ads.TARGETED_ADS};
         for (String type : adsType) {
             JSONArray adsGroup = jsonMixedAds.getJSONArray(type);
 
@@ -155,7 +160,8 @@ public class Connector {
                 JSONObject ads = adsGroup.getJSONObject(i);
 
                 //check existed ad
-
+                if (Ads.isExistedAds(ads.getString(Ads.ID)))
+                    continue;
 
                 //parse minors
                 List<Integer> minors = null;
@@ -500,4 +506,37 @@ public class Connector {
         mRequestQueue.add(request);
         Log.d(Config.TAG, "postChangePass sent!");
     }
+
+    public void getStoreLocation(final LocationUpdateListener listener) {
+        String url = String.format(GET_ACTIVE_STORES_URL);
+        JsonArrayRequest request = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray jsonArray) {
+                Store.deleteAll(Store.class);
+                try {
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject storeJSON = jsonArray.getJSONObject(i);
+                        String storeId = storeJSON.getString(Store.STORE_ID);
+                        double latitude = storeJSON.getDouble(Store.STORE_LAT);
+                        double longitude = storeJSON.getDouble(Store.STORE_LON);
+                        Store newStore = new Store(storeId, latitude, longitude);
+                        newStore.save();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                listener.onUpdateSuccess();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.e(Config.TAG, "Update stores: onErrorResponse " + volleyError.getMessage());
+            }
+        });
+        request.setRetryPolicy(new DefaultRetryPolicy(10000,
+                2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        mRequestQueue.add(request);
+        Log.d(Config.TAG, "Update stores request sent!");
+    }
+
 }

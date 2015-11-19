@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="vn.edu.hcmut.cse.smartads">
+    package="vn.edu.hcmut.cse.smartads" >
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
@@ -9,13 +9,14 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:name=".activity.MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
         <meta-data
             android:name="DATABASE"
             android:value="smartads.db" />
@@ -31,7 +32,7 @@
 
         <activity
             android:name=".activity.MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -51,7 +52,7 @@
         <receiver
             android:name=".receiver.BluetoothLEReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
             </intent-filter>
@@ -70,7 +71,7 @@
             android:name=".activity.SignUpActivity"
             android:label="@string/title_activity_sign_up"
             android:parentActivityName=".activity.LoginActivity"
-            android:windowSoftInputMode="adjustPan|stateVisible">
+            android:windowSoftInputMode="adjustPan|stateVisible" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="vn.edu.hcmut.cse.smartads.activity.LoginActivity" />
@@ -78,7 +79,7 @@
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".activity.MainActivity">
+            android:parentActivityName=".activity.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="vn.edu.hcmut.cse.smartads.activity.MainActivity" />
@@ -92,7 +93,7 @@
         <receiver
             android:name=".receiver.ConnectivityChangeReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
@@ -101,16 +102,21 @@
         <activity
             android:name=".settings.dev.DevConfigActivity"
             android:label="@string/title_activity_dev_config" />
-
         <activity
             android:name=".activity.ChangePassActivity"
             android:label="@string/change_password"
             android:parentActivityName=".activity.SettingsActivity"
-            android:windowSoftInputMode="adjustPan|stateVisible">
+            android:windowSoftInputMode="adjustPan|stateVisible" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="vn.edu.hcmut.cse.smartads.activity.SettingsActivity" />
         </activity>
+
+        <service
+            android:name=".service.GeofenceTransitionsIntentService"
+            android:exported="false" >
+        </service>
+
     </application>
 
 </manifest>

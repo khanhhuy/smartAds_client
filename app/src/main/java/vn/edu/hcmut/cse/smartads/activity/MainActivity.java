@@ -16,14 +16,15 @@ import android.view.MenuItem;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.service.ContextAdsService;
 import vn.edu.hcmut.cse.smartads.settings.dev.DevConfigActivity;
 import vn.edu.hcmut.cse.smartads.util.Config;
+import vn.edu.hcmut.cse.smartads.util.GeofenceManager;
 
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationDrawerCallback {
+public class MainActivity extends AppCompatActivity {
 
     private Toolbar mToolbar;
     private AdsListFragment mAdsListFragment;
@@ -36,16 +37,10 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
 
-        setTitle("Featured Ads");
+        setTitle(getString(R.string.header_ads_list));
+
 
         checkLoggedIn();
-        initFragment();
-
-//        Set up the drawer.
-//        mNavigationDrawerFragment = (NavigationDrawerFragment)
-//                getFragmentManager().findFragmentById(R.id.fragment_drawer);
-//        mNavigationDrawerFragment.setup(R.id.fragment_drawer,
-//                (DrawerLayout) findViewById(R.id.drawer), mToolbar);
 
 
         ContextAdsService.checkBluetoothAndStart(this);
@@ -58,6 +53,9 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
+        }
+        else {
+            initFragment();
         }
     }
 
@@ -88,9 +86,14 @@ public class MainActivity extends AppCompatActivity
 
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     startActivity(intent);
+
                     finish();
                 }
             }).setNegativeButton(R.string.cancel, null).show();
+
+            GeofenceManager.getInstance(this).stopGeofencing();
+            Log.d(Config.TAG, "Stop Geofence at Logout");
+
             return true;
         }
 
@@ -112,12 +115,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onDestroy() {
         super.onDestroy();
-    }
-
-
-    @Override
-    public void onNavigationDrawerItemSelected(int position) {
-
     }
 
     @Override

@@ -1,5 +1,9 @@
 package vn.edu.hcmut.cse.smartads.util;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.HashMap;
+
 import vn.edu.hcmut.cse.smartads.connector.Connector;
 
 /**
@@ -32,6 +36,13 @@ public class Config {
         Connector.updateURL();
     }
 
+    public static final HashMap<String, LatLng> AREA_LANDMARKS = new HashMap<String, LatLng>();
+    static {
+        AREA_LANDMARKS.put("HUY_HOUSE", new LatLng(10.850651, 106.750741));
+    }
+    public static final float GEOFENCE_RADIUS_IN_METERS = 200;
+    public static final int GEOFENCE_LOITERING_IN_MINUTES = 1 * 60 * 1000;
+
     /*
     DEBUG = true
     - Notify multiple time
@@ -40,5 +51,5 @@ public class Config {
     DEBUG = false
     - Remember to set SERVER_GET_ADS_MIN_HOUR = 1
      */
-    public static boolean DEBUG = true;
+    public static boolean DEBUG = false;
 }

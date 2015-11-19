@@ -14,6 +14,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
@@ -29,6 +30,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -64,6 +66,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private DateTime mlastNotifySoundTime;
     private static NotificationManager mNotificationManager;
+
 
     @Override
     public void onCreate() {
@@ -188,6 +191,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
                     if (!Config.DEBUG) {
                         ads.setNotified(true);
                     }
+                    ads.setLastReceived(new DateTime());
                     notifyAds.add(ads);
                     break;
                 }
@@ -202,7 +206,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     }
 
     private boolean isNotifiedAds(Ads ads, List<Integer> adsMinor, int minor) {
-        if (!ads.getType().equals(Ads.ENTRANCE_ADS) && !adsMinor.contains(minor))
+        if (!ads.getType().equals(Ads.ENTRANCE_ADS) && !ads.getType().equals(Ads.TARGETED_ADS) && !adsMinor.contains(minor))
             return false;
         if (ads.is_notified() || ads.is_blacklisted())
             return false;
@@ -255,7 +259,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
 
             Notification notification = builder.build();
             mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            mNotificationManager.notify(Config.TAG, new Random().nextInt(1000) + 1, notification);
+            mNotificationManager.notify(Config.TAG, ads.getAdsId(), notification);
         }
     }
 
