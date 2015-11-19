@@ -14,7 +14,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
@@ -30,7 +29,6 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -73,7 +71,8 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         Log.d("DHSmartAds", "ContextAdsService onCreate");
         JodaTimeAndroid.init(this);
         beaconManager = new BeaconManager(this);
-        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(5), TimeUnit.SECONDS.toMillis(10));
+//        beaconManager.setBackgroundScanPeriod(TimeUnit.MINUTES.toMillis(2), TimeUnit.MINUTES.toMillis(2));
+        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));
         beaconManager.setForegroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));
         mFilterer = BeaconFilterer.getInstance();
         mConnector = Connector.getInstance(this);
@@ -206,7 +205,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     }
 
     private boolean isNotifiedAds(Ads ads, List<Integer> adsMinor, int minor) {
-        if (!ads.getType().equals(Ads.ENTRANCE_ADS) && !ads.getType().equals(Ads.TARGETED_ADS) && !adsMinor.contains(minor))
+        if (!ads.getType().equals(Ads.ENTRANCE_PROMOTIONS) && !ads.getType().equals(Ads.TARGETED_ADS) && !adsMinor.contains(minor))
             return false;
         if (ads.is_notified() || ads.is_blacklisted())
             return false;

@@ -37,7 +37,6 @@ import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.model.Store;
 import vn.edu.hcmut.cse.smartads.model.image.ImageCacheManager;
-import vn.edu.hcmut.cse.smartads.model.image.LruBitmapCache;
 import vn.edu.hcmut.cse.smartads.settings.SettingsResponseListener;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
@@ -152,7 +151,7 @@ public class Connector {
     }
 
     private void parseAds(JSONObject jsonMixedAds) throws JSONException {
-        String[] adsType = new String[]{Ads.ENTRANCE_ADS, Ads.AISLE_ADS, Ads.TARGETED_ADS};
+        String[] adsType = new String[]{Ads.ENTRANCE_PROMOTIONS, Ads.AISLE_PROMOTIONS, Ads.TARGETED_ADS};
         for (String type : adsType) {
             JSONArray adsGroup = jsonMixedAds.getJSONArray(type);
 

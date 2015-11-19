@@ -147,5 +147,6 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         loadAds(intent.getExtras());
+        invalidateOptionsMenu();
     }
 }

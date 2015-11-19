@@ -20,9 +20,9 @@ import vn.edu.hcmut.cse.smartads.util.Config;
 public class Ads extends SugarRecord<Ads> {
 
     @Ignore
-    public static final String ENTRANCE_ADS  = "entranceAds";
+    public static final String ENTRANCE_PROMOTIONS = "entrancePromotions";
     @Ignore
-    public static final String AISLE_ADS  = "aisleAds";
+    public static final String AISLE_PROMOTIONS = "aislePromotions";
     @Ignore
     public static final String ID = "id";
     @Ignore
