@@ -37,7 +37,6 @@ import vn.edu.hcmut.cse.smartads.activity.ViewDetailAdsActivity;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.connector.ContextAdsResponseListener;
 import vn.edu.hcmut.cse.smartads.listener.BeaconFilterer;
-import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.model.Minor;
 import vn.edu.hcmut.cse.smartads.util.BundleDefined;
@@ -71,8 +70,8 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         Log.d("DHSmartAds", "ContextAdsService onCreate");
         JodaTimeAndroid.init(this);
         beaconManager = new BeaconManager(this);
-//        beaconManager.setBackgroundScanPeriod(TimeUnit.MINUTES.toMillis(2), TimeUnit.MINUTES.toMillis(2));
-        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));
+        beaconManager.setBackgroundScanPeriod(TimeUnit.MINUTES.toMillis(2), TimeUnit.MINUTES.toMillis(2));
+//        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));
         beaconManager.setForegroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));
         mFilterer = BeaconFilterer.getInstance();
         mConnector = Connector.getInstance(this);
@@ -88,9 +87,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
             @Override
             public void onEnteredRegion(Region region, List<Beacon> beacons) {
                 Log.d(Config.TAG, "onEnteredRegion");
-                SharedPreferences.Editor editor = mUpdateTimePref.edit();
-                editor.putString(LAST_UPDATED, formatter.print(new DateTime()));
-                editor.apply();
+                processBeacons(beacons);
                 beaconManager.startRanging(region);
             }
 
@@ -109,12 +106,11 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         });
     }
 
-    private void processBeacons(List<Beacon> beacons) {
-
-        List<MyBeacon> filteredBeacons = mFilterer.filterBeacons(beacons);
-
-        if (filteredBeacons.isEmpty()) {
-//            Log.d(Config.TAG, "Empty beacon");
+    private synchronized void processBeacons(List<Beacon> beacons) {
+        if (Config.DEBUG) {
+            beacons = mFilterer.filterBeacons(beacons);
+        }
+        if (beacons.isEmpty()) {
             return;
         }
 
@@ -122,22 +118,28 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         String last_updatedStr = mUpdateTimePref.getString(LAST_UPDATED, "");
 
         Log.d(Config.TAG, "Last updated from server: " + last_updatedStr);
+        String customerID = Utils.getCustomerID(this);
 
         if (!last_updatedStr.isEmpty()) {
             DateTime last_updated = DateTime.parse(last_updatedStr, formatter);
             if (DateTimeComparator.getInstance().
                     compare(current_time.minusDays(Config.SERVER_UPDATE_REQUEST_MIN_DATE), last_updated) > 0) {
-                Log.d(Config.TAG, "Request Ads and Update request");
-                String customerID = Utils.getCustomerID(this);
-                if (TextUtils.isEmpty(customerID)) {
-                    stopSelf();
-                } else {
-                    mConnector.requestContextAds(customerID, filteredBeacons, ContextAdsService.this);
-                    mConnector.updateRequest();
-                }
+                requestContextAds(customerID, beacons);
+            } else {
+                checkNotifyAds(beacons);
             }
         } else {
-            onReceivedContextAds(filteredBeacons);
+            requestContextAds(customerID, beacons);
+        }
+    }
+
+    private void requestContextAds(String customerID, List<Beacon> beacons) {
+        if (TextUtils.isEmpty(customerID)) {
+            stopSelf();
+        } else {
+            Log.d(Config.TAG, "Request Ads and Update request");
+            mConnector.requestContextAds(customerID, beacons, ContextAdsService.this);
+            mConnector.updateRequest();
         }
     }
 
@@ -177,8 +179,15 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     }
 
     @Override
-    public void onReceivedContextAds(List<MyBeacon> receivedBeacons) {
+    public void onReceivedContextAds(List<Beacon> receivedBeacons) {
+        checkNotifyAds(receivedBeacons);
 
+        SharedPreferences.Editor editor = mUpdateTimePref.edit();
+        editor.putString(LAST_UPDATED, formatter.print(new DateTime()));
+        editor.apply();
+    }
+
+    private void checkNotifyAds(List<Beacon> receivedBeacons) {
         Iterator<Ads> allAds = Ads.findAll(Ads.class);
         List<Ads> notifyAds = new ArrayList<>();
         boolean haveNewReceiveAds = false;
@@ -194,7 +203,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
             }
 
             List<Integer> adsMinors = ads.getMinors();
-            for (MyBeacon beacon : receivedBeacons) {
+            for (Beacon beacon : receivedBeacons) {
                 if (isNotifiedAds(ads, adsMinors, beacon.getMinor())) {
                     if (!Config.DEBUG) {
                         ads.setNotified(true);

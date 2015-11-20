@@ -9,7 +9,7 @@ import vn.edu.hcmut.cse.smartads.util.Config;
 /**
  * Created by Huy on 5/1/2015.
  */
-public class MyBeacon extends Beacon {
+class MyBeacon extends Beacon {
 
     private Long lastReceived;
 

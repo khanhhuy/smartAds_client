@@ -15,6 +15,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.estimote.sdk.Beacon;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -33,7 +34,6 @@ import java.util.Map;
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.activity.LoginActivity;
 import vn.edu.hcmut.cse.smartads.listener.LocationUpdateListener;
-import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.model.Store;
 import vn.edu.hcmut.cse.smartads.model.image.ImageCacheManager;
@@ -111,12 +111,12 @@ public class Connector {
     }
 
 
-    public void requestContextAds(String customerID, final List<MyBeacon> beacons, final ContextAdsResponseListener listener) {
+    public void requestContextAds(String customerID, final List<Beacon> beacons, final ContextAdsResponseListener listener) {
 
         if (beacons.isEmpty())
             return;
 
-        MyBeacon beacon = beacons.get(0);
+        Beacon beacon = beacons.get(0);
 
         final String url = mAuthUtils.addToken(CUSTOMER_URL + customerID + "/context-ads/" + beacon.getMajor() + "/" + beacon.getMinor());
         JsonObjectRequest contextAdsRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
