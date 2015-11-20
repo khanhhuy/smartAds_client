@@ -130,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentTransaction.add(R.id.inner_container, mAdsListFragment);
 
-        setTitle("Featured Ads");
         fragmentTransaction.commit();
 
     }
