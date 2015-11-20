@@ -74,26 +74,8 @@ public class Ads extends SugarRecord<Ads> {
 
     }
 
-    public void InsertOrUpdate() {
-        List<Ads> existedAds = new ArrayList<>(Ads.find(Ads.class, "ads_id = ?", String.valueOf(this.getAdsId())));
-
-
-        if (existedAds.size() == 0) {
-            this.setLastUpdated(new DateTime());
-            //this.setLastReceived(new DateTime());
-            this.save();
-        } else {
-            existedAds.get(0).setTitle(this.getTitle());
-            existedAds.get(0).setStartDate(this.getStartDate());
-            existedAds.get(0).setEndDate(this.getEndDate());
-            existedAds.get(0).setLastUpdated(new DateTime());
-            existedAds.get(0).setLastReceived(this.getLastReceived());
-            existedAds.get(0).setViewed(this.isViewed);
-            existedAds.get(0).setNotified(this.isNotified);
-            existedAds.get(0).setBlacklisted(this.isBlacklisted);
-
-            existedAds.get(0).save();
-        }
+    public void insertOrUpdate() {
+        this.save();
 
         List<Minor> existedMinors = Minor.find(Minor.class, "ads = ?", String.valueOf(this.getId()));
         for (Minor existedMinor : existedMinors) {
@@ -224,5 +206,14 @@ public class Ads extends SugarRecord<Ads> {
     }
     public void setIcon(Bitmap icon) {
         this.icon = icon;
+    }
+
+
+    public boolean isNewReceivedAds() {
+        return getLastUpdated() == null;
+    }
+
+    public void markReceived() {
+        setLastUpdated(new DateTime());
     }
 }

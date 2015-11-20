@@ -4,7 +4,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.text.TextUtils;
 import android.util.Log;
 
 import vn.edu.hcmut.cse.smartads.service.ContextAdsService;
@@ -32,18 +31,14 @@ public class BluetoothLEReceiver extends BroadcastReceiver {
             switch (state) {
                 case BluetoothAdapter.STATE_TURNING_OFF:
                     Log.d("Bluetooth state", "STATE OFF");
-                    if (Utils.isCustomerLoggedIn(context)) {
-                        GeofenceManager.getInstance(context).startGeofencing();
-                        Log.d(Config.TAG, "Start Geofence when Bluetooth off");
-                    }
+                    GeofenceManager.getInstance(context).startGeofencing();
+                    Log.d(Config.TAG, "Start Geofence when Bluetooth off");
                     context.stopService(beaconServiceIntent);
                     break;
                 case BluetoothAdapter.STATE_ON:
                     Log.d("BluetoothLE", "Starting service");
-                    if (Utils.isCustomerLoggedIn(context)) {
-                        GeofenceManager.getInstance(context).stopGeofencing();
-                        Log.d(Config.TAG, "Stop Geofence when Bluetooth on");
-                    }
+                    GeofenceManager.getInstance(context).stopGeofencing();
+                    Log.d(Config.TAG, "Stop Geofence when Bluetooth on");
                     context.startService(beaconServiceIntent);
                     break;
                 default:

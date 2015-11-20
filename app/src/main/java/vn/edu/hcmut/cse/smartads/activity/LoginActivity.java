@@ -19,9 +19,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.Map;
-
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.connector.Connector;
 import vn.edu.hcmut.cse.smartads.connector.LoginResponseListener;
@@ -276,8 +273,5 @@ public class LoginActivity extends AppCompatActivity implements LoginResponseLis
 
         context.stopService(new Intent(context, ContextAdsService.class));
     }
-
-
-
 }
 

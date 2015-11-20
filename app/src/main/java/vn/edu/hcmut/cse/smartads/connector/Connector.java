@@ -159,8 +159,9 @@ public class Connector {
                 JSONObject ads = adsGroup.getJSONObject(i);
 
                 //check existed ad
-                if (Ads.isExistedAds(ads.getString(Ads.ID)))
+                if (Ads.isExistedAds(ads.getString(Ads.ID))) {
                     continue;
+                }
 
                 //parse minors
                 List<Integer> minors = null;
@@ -190,7 +191,7 @@ public class Connector {
                         Integer.parseInt(ads.getString(Ads.ID)), ads.getString(Ads.TITLE),
                         startDate, endDate, minors, type);
 
-                newAds.InsertOrUpdate();
+                newAds.insertOrUpdate();
             }
         }
     }

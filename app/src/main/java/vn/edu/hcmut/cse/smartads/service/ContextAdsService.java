@@ -181,11 +181,20 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
 
         Iterator<Ads> allAds = Ads.findAll(Ads.class);
         List<Ads> notifyAds = new ArrayList<>();
+        boolean haveNewReceiveAds = false;
 
         while (allAds.hasNext()) {
             Ads ads = allAds.next();
+            if (ads.isNewReceivedAds()) {
+                if (!haveNewReceiveAds) {
+                    haveNewReceiveAds = true;
+                }
+                ads.markReceived();
+                ads.save();
+            }
+
             List<Integer> adsMinors = ads.getMinors();
-            for (MyBeacon beacon : receivedBeacons)
+            for (MyBeacon beacon : receivedBeacons) {
                 if (isNotifiedAds(ads, adsMinors, beacon.getMinor())) {
                     if (!Config.DEBUG) {
                         ads.setNotified(true);
@@ -194,14 +203,17 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
                     notifyAds.add(ads);
                     break;
                 }
+            }
         }
 
         notifyAds(notifyAds);
         for (Ads ads : notifyAds) {
-            ads.InsertOrUpdate();
+            ads.insertOrUpdate();
         }
 
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(RECEIVE_CONTEXT_ADS));
+        if (haveNewReceiveAds) {
+            LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(RECEIVE_CONTEXT_ADS));
+        }
     }
 
     private boolean isNotifiedAds(Ads ads, List<Integer> adsMinor, int minor) {
