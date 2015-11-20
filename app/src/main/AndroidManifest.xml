@@ -43,8 +43,7 @@
             android:name=".activity.ViewDetailAdsActivity"
             android:label="@string/title_view_details_activity"
             android:launchMode="singleTask"
-            android:parentActivityName=".activity.MainActivity"
-            android:taskAffinity="" >
+            android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="vn.edu.hcmut.cse.smartads.activity.MainActivity" />

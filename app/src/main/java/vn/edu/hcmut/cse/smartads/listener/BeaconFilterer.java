@@ -1,11 +1,11 @@
 package vn.edu.hcmut.cse.smartads.listener;
 
+import com.estimote.sdk.Beacon;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.estimote.sdk.Beacon;
 
 /**
  * Created by Huy on 5/1/2015.
@@ -14,7 +14,7 @@ public class BeaconFilterer {
 
     private static BeaconFilterer sInstance;
 
-    private Map<Integer, MyBeacon> mReceivedBeacons = new HashMap<Integer, MyBeacon>();
+    private Map<String, MyBeacon> mReceivedBeacons = new HashMap<>();
 
     public static synchronized BeaconFilterer getInstance() {
         if (sInstance == null) {
@@ -23,10 +23,10 @@ public class BeaconFilterer {
         return sInstance;
     }
 
-    public List<MyBeacon> filterBeacons(List<Beacon> contextBeaconList) {
-        List<MyBeacon> filteredBeacons = new ArrayList<>();
+    public List<Beacon> filterBeacons(List<Beacon> contextBeaconList) {
+        List<Beacon> filteredBeacons = new ArrayList<>();
         for (Beacon beacon : contextBeaconList) {
-            MyBeacon myBeacon = mReceivedBeacons.get(beacon.getMinor());
+            MyBeacon myBeacon = mReceivedBeacons.get(getKey(beacon));
             if (myBeacon != null){
                 if (!myBeacon.isRefresh()){
                     continue;
@@ -34,13 +34,17 @@ public class BeaconFilterer {
             }
             else {
                 myBeacon = new MyBeacon(beacon);
-                mReceivedBeacons.put(beacon.getMinor(), myBeacon);
+                mReceivedBeacons.put(getKey(beacon), myBeacon);
             }
             myBeacon.refreshLastReceived();
             filteredBeacons.add(myBeacon);
         }
 
         return filteredBeacons;
+    }
+
+    private String getKey(Beacon beacon) {
+        return beacon.getMajor() + "|" + beacon.getMinor();
     }
 
 }

@@ -15,6 +15,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.estimote.sdk.Beacon;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -33,11 +34,9 @@ import java.util.Map;
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.activity.LoginActivity;
 import vn.edu.hcmut.cse.smartads.listener.LocationUpdateListener;
-import vn.edu.hcmut.cse.smartads.listener.MyBeacon;
 import vn.edu.hcmut.cse.smartads.model.Ads;
 import vn.edu.hcmut.cse.smartads.model.Store;
 import vn.edu.hcmut.cse.smartads.model.image.ImageCacheManager;
-import vn.edu.hcmut.cse.smartads.model.image.LruBitmapCache;
 import vn.edu.hcmut.cse.smartads.settings.SettingsResponseListener;
 import vn.edu.hcmut.cse.smartads.util.Config;
 
@@ -112,12 +111,12 @@ public class Connector {
     }
 
 
-    public void requestContextAds(String customerID, final List<MyBeacon> beacons, final ContextAdsResponseListener listener) {
+    public void requestContextAds(String customerID, final List<Beacon> beacons, final ContextAdsResponseListener listener) {
 
         if (beacons.isEmpty())
             return;
 
-        MyBeacon beacon = beacons.get(0);
+        Beacon beacon = beacons.get(0);
 
         final String url = mAuthUtils.addToken(CUSTOMER_URL + customerID + "/context-ads/" + beacon.getMajor() + "/" + beacon.getMinor());
         JsonObjectRequest contextAdsRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -152,7 +151,7 @@ public class Connector {
     }
 
     private void parseAds(JSONObject jsonMixedAds) throws JSONException {
-        String[] adsType = new String[]{Ads.ENTRANCE_ADS, Ads.AISLE_ADS, Ads.TARGETED_ADS};
+        String[] adsType = new String[]{Ads.ENTRANCE_PROMOTIONS, Ads.AISLE_PROMOTIONS, Ads.TARGETED_ADS};
         for (String type : adsType) {
             JSONArray adsGroup = jsonMixedAds.getJSONArray(type);
 
@@ -160,8 +159,9 @@ public class Connector {
                 JSONObject ads = adsGroup.getJSONObject(i);
 
                 //check existed ad
-                if (Ads.isExistedAds(ads.getString(Ads.ID)))
+                if (Ads.isExistedAds(ads.getString(Ads.ID))) {
                     continue;
+                }
 
                 //parse minors
                 List<Integer> minors = null;
@@ -191,7 +191,7 @@ public class Connector {
                         Integer.parseInt(ads.getString(Ads.ID)), ads.getString(Ads.TITLE),
                         startDate, endDate, minors, type);
 
-                newAds.InsertOrUpdate();
+                newAds.insertOrUpdate();
             }
         }
     }

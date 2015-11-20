@@ -54,7 +54,7 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
             if (!listAds.isEmpty()) {
                 Log.d(Config.TAG, "Is viewed" + listAds.get(0).is_viewed());
                 listAds.get(0).setViewed(true);
-                listAds.get(0).InsertOrUpdate();
+                listAds.get(0).insertOrUpdate();
             }
             mWebView.loadUrl(url);
         }
@@ -119,7 +119,7 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
         List<Ads> listAds = new ArrayList<>(Ads.find(Ads.class, "ads_id = ?", adsId));
         if (!listAds.isEmpty()) {
             listAds.get(0).setBlacklisted(true);
-            listAds.get(0).InsertOrUpdate();
+            listAds.get(0).insertOrUpdate();
         }
         Connector.getInstance(this).sendFeedback(adsId);
         finish();
@@ -147,5 +147,6 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         loadAds(intent.getExtras());
+        invalidateOptionsMenu();
     }
 }
