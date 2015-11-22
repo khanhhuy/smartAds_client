@@ -21,7 +21,6 @@ import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.service.ContextAdsService;
 import vn.edu.hcmut.cse.smartads.settings.dev.DevConfigActivity;
 import vn.edu.hcmut.cse.smartads.util.Config;
-import vn.edu.hcmut.cse.smartads.util.GeofenceManager;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -90,9 +89,6 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                 }
             }).setNegativeButton(R.string.cancel, null).show();
-
-            GeofenceManager.getInstance(this).stopGeofencing();
-            Log.d(Config.TAG, "Stop Geofence at Logout");
 
             return true;
         }

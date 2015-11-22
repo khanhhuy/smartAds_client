@@ -268,6 +268,9 @@ public class LoginActivity extends AppCompatActivity implements LoginResponseLis
         SharedPreferences authPrefs = context.getSharedPreferences(AUTH_PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = authPrefs.edit();
 
+        GeofenceManager.getInstance(context).stopGeofencing();
+        Log.d(Config.TAG, "Stop Geofence at Logout");
+
         editor.remove(LOGGED_ID);
         editor.apply();
 
