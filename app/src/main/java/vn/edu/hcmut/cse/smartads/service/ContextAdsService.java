@@ -70,8 +70,8 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         Log.d("DHSmartAds", "ContextAdsService onCreate");
         JodaTimeAndroid.init(this);
         beaconManager = new BeaconManager(this);
-        beaconManager.setBackgroundScanPeriod(TimeUnit.MINUTES.toMillis(2), TimeUnit.MINUTES.toMillis(2));
-//        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));
+//        beaconManager.setBackgroundScanPeriod(TimeUnit.MINUTES.toMillis(2), TimeUnit.MINUTES.toMillis(2));
+        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));
         beaconManager.setForegroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));
         mFilterer = BeaconFilterer.getInstance();
         mConnector = Connector.getInstance(this);
@@ -93,7 +93,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
 
             @Override
             public void onExitedRegion(Region region) {
-                Log.d("DHSmartAds", "onExitedRegion");
+                Log.d(Config.TAG, "onExitedRegion");
                 beaconManager.stopRanging(region);
             }
         });
@@ -107,9 +107,6 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     }
 
     private synchronized void processBeacons(List<Beacon> beacons) {
-        if (Config.DEBUG) {
-            beacons = mFilterer.filterBeacons(beacons);
-        }
         if (beacons.isEmpty()) {
             return;
         }
@@ -117,18 +114,23 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         DateTime current_time = new DateTime();
         String last_updatedStr = mUpdateTimePref.getString(LAST_UPDATED, "");
 
-        Log.d(Config.TAG, "Last updated from server: " + last_updatedStr);
-        String customerID = Utils.getCustomerID(this);
+//        Log.d(Config.TAG, "Last updated from server: " + last_updatedStr);
 
         if (!last_updatedStr.isEmpty()) {
             DateTime last_updated = DateTime.parse(last_updatedStr, formatter);
             if (DateTimeComparator.getInstance().
-                    compare(current_time.minusDays(Config.SERVER_UPDATE_REQUEST_MIN_DATE), last_updated) > 0) {
+                    compare(current_time.minusSeconds(Config.SERVER_UPDATE_REQUEST_MIN_SEC), last_updated) > 0) {
+                String customerID = Utils.getCustomerID(this);
                 requestContextAds(customerID, beacons);
             } else {
+                beacons = mFilterer.filterBeacons(beacons);
+                if (beacons.isEmpty()) {
+                    return;
+                }
                 checkNotifyAds(beacons);
             }
         } else {
+            String customerID = Utils.getCustomerID(this);
             requestContextAds(customerID, beacons);
         }
     }
@@ -172,6 +174,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     public void onDestroy() {
         Log.d("Beacon manager", "Disconnect");
 
+        beaconManager.stopRanging(SMART_ADS_REGION);
         beaconManager.stopMonitoring(SMART_ADS_REGION);
         beaconManager.disconnect();
 

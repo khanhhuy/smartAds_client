@@ -15,6 +15,6 @@
         custom:fieldName="BEACON_MIN_RECEIVED_TIME_SEC" />
     <vn.edu.hcmut.cse.smartads.settings.dev.DevConfigEditTextPreference
         android:key="dev_server_update_request"
-        android:title="SERVER_UPDATE_REQUEST_MIN_DATE"
-        custom:fieldName="SERVER_UPDATE_REQUEST_MIN_DATE" />
+        android:title="SERVER_UPDATE_REQUEST_MIN_SEC"
+        custom:fieldName="SERVER_UPDATE_REQUEST_MIN_SEC" />
 </PreferenceScreen>
