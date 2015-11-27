@@ -11,9 +11,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
@@ -261,8 +263,15 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
             Intent notifyIntent = new Intent(this, ViewDetailAdsActivity.class);
             notifyIntent.putExtras(bundle);
 //            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+//            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+//            stackBuilder.addParentStack(ViewDetailAdsActivity.class);
+//            stackBuilder.addNextIntent(notifyIntent);
+
             PendingIntent pendingIntent = PendingIntent.getActivity(this, new Random().nextInt(1000),
                     notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//            PendingIntent pendingIntent = stackBuilder.getPendingIntent(new Random().nextInt(1000), PendingIntent.FLAG_UPDATE_CURRENT);
+
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.ic_launcher)

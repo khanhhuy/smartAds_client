@@ -3,6 +3,8 @@ package vn.edu.hcmut.cse.smartads.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -32,6 +34,7 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_detail_ads);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Bundle bun = getIntent().getExtras();
 
         mWebView = (WebView) findViewById(R.id.webview);
@@ -86,20 +89,31 @@ public class ViewDetailAdsActivity extends AppCompatActivity implements FeedBack
         // as you specify a parent activity in AndroidManifest.xml.
 
         //noinspection SimplifiableIfStatement
-
         switch (item.getItemId()) {
             case R.id.action_feedback:
                 showFeedbackDialog();
                 return true;
+            case android.R.id.home:
+                Intent upIntent = NavUtils.getParentActivityIntent(this);
+                if (supportShouldUpRecreateTask(upIntent) || isTaskRoot()) {
+                    Log.d(Config.TAG, "Up from launcher");
+                    // This activity is NOT part of this app's task, so create a new task
+                    // when navigating up, with a synthesized back stack.
+                    TaskStackBuilder.create(this)
+                            // Add all of this activity's parents to the back stack
+                            .addNextIntentWithParentStack(upIntent)
+                                    // Navigate up to the closest parent
+                            .startActivities();
+                } else {
+                    // This activity is part of this app's task, so simply
+                    // navigate up to the logical parent activity.
+                    Log.d(Config.TAG, "Up from MainActivity");
+                    supportNavigateUpTo(upIntent);
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        Log.d(Config.TAG, "ViewDetail Back pressed");
-        super.onBackPressed();
     }
 
     private void showFeedbackDialog() {

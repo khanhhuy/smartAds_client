@@ -108,7 +108,7 @@ public class AdsListRecycleAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             adsDate = mContext.getResources().getString(R.string.default_no_date);
 
         viewHolder.setAdsDate(adsDate);
-        viewHolder.setAdsThumbnail(Connector.ADS_BASE_THUMBNAIL + String.valueOf(mAdsData.get(position).getAdsId()));
+        viewHolder.setAdsThumbnail(String.format(Connector.ADS_BASE_THUMBNAIL, String.valueOf(mAdsData.get(position).getAdsId())));
 
         if (mAdsData.get(position).is_viewed()) {
             ((ViewHolder) holder).adsTitle.setTextAppearance(mContext, R.style.normalText);

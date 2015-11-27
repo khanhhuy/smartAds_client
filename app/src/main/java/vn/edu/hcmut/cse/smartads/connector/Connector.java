@@ -60,7 +60,7 @@ public class Connector {
     public static void updateURL() {
         CUSTOMER_URL = Config.HOST_API + "/customers/";
         CONTEXT_ADS_BASE_URL = Config.HOST_API + "/customers/";
-        ADS_BASE_THUMBNAIL = Config.HOST_BASE + "/ads/thumbnail/";
+        ADS_BASE_THUMBNAIL = Config.HOST_BASE + "/ads/%s/thumbnail";
         LOGIN_URL = Config.HOST_API + "/auth/login";
         ACCOUNT_STATUS_URL = Config.HOST_API + "/account-status?email=%s";
         REGISTER_URL = Config.HOST_API + "/auth/register";
