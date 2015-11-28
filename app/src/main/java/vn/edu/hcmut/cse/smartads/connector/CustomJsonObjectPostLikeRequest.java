@@ -29,7 +29,7 @@ public class CustomJsonObjectPostLikeRequest extends Request<JSONObject> {
         super(Method.POST, url, errorListener);
         this.listener = reponseListener;
         this.params = params;
-        this.setRetryPolicy(new DefaultRetryPolicy(5000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        this.setRetryPolicy(new DefaultRetryPolicy(8000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
     }
 
     public CustomJsonObjectPostLikeRequest(int method, String url, Map<String, String> params,
@@ -37,7 +37,7 @@ public class CustomJsonObjectPostLikeRequest extends Request<JSONObject> {
         super(method, url, errorListener);
         this.listener = reponseListener;
         this.params = params;
-        this.setRetryPolicy(new DefaultRetryPolicy(5000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        this.setRetryPolicy(new DefaultRetryPolicy(8000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
     }
 
     protected Map<String, String> getParams()

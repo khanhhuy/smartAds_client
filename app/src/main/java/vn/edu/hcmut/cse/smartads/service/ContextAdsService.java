@@ -11,11 +11,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
@@ -55,12 +53,20 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     public static final String LAST_ASK_FOR_INTERNET = "LAST_ASK_FOR_INTERNET";
     public static final String LAST_UPDATED = "lastUpdated";
     public static final String RECEIVE_CONTEXT_ADS = "RECEIVE_CONTEXT_ADS";
+    public static final long MONITORING_SCAN_PERIOD = TimeUnit.SECONDS.toMillis(5);
+    public static final long MONITORING_SLEEP_PERIOD = TimeUnit.MINUTES.toMillis(1);
+    public static final long RANGING_SLOW_SLEEP_PERIOD = TimeUnit.SECONDS.toMillis(9);
+    public static final long RANGING_SLEEP_PERIOD = TimeUnit.SECONDS.toMillis(2);
+    public static final long RANGING_SCAN_PERIOD = TimeUnit.SECONDS.toMillis(1);
 
     private BeaconManager beaconManager;
     private Region SMART_ADS_REGION = new Region("All_Region", null, null, null);
     private boolean mIsStarted = false;
+    private boolean mInRegion = false;
+    private DateTime mLastInRegion = new DateTime();
     private BeaconFilterer mFilterer;
     private Connector mConnector;
+    private ScanMode mScanMode = ScanMode.MONITORING;
     private SharedPreferences mUpdateTimePref;
     final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private DateTime mlastNotifySoundTime;
@@ -72,9 +78,8 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         Log.d("DHSmartAds", "ContextAdsService onCreate");
         JodaTimeAndroid.init(this);
         beaconManager = new BeaconManager(this);
-//        beaconManager.setBackgroundScanPeriod(TimeUnit.MINUTES.toMillis(2), TimeUnit.MINUTES.toMillis(2));
-        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));
-        beaconManager.setForegroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));
+        beaconManager.setBackgroundScanPeriod(MONITORING_SCAN_PERIOD, MONITORING_SLEEP_PERIOD);
+//        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));
         mFilterer = BeaconFilterer.getInstance();
         mConnector = Connector.getInstance(this);
         mUpdateTimePref = getSharedPreferences(UPDATE_PREFS_TIME, MODE_PRIVATE);
@@ -88,15 +93,21 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         beaconManager.setMonitoringListener(new MonitoringListener() {
             @Override
             public void onEnteredRegion(Region region, List<Beacon> beacons) {
-                Log.d(Config.TAG, "onEnteredRegion");
-                processBeacons(beacons);
-                beaconManager.startRanging(region);
+                Log.d(Config.TAG, "onEnteredRegion " + mScanMode);
+                if (mScanMode == ScanMode.MONITORING) {
+                    processBeacons(beacons);
+                    beaconManager.setForegroundScanPeriod(RANGING_SCAN_PERIOD, RANGING_SLEEP_PERIOD);
+                    mScanMode = ScanMode.RANGING;
+                    beaconManager.startRanging(region);
+                }
+                mInRegion = true;
             }
 
             @Override
             public void onExitedRegion(Region region) {
                 Log.d(Config.TAG, "onExitedRegion");
-                beaconManager.stopRanging(region);
+                mInRegion = false;
+                mLastInRegion = DateTime.now();
             }
         });
 
@@ -104,6 +115,30 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
             @Override
             public void onBeaconsDiscovered(Region region, List<Beacon> beacons) {
                 processBeacons(beacons);
+                if (!mInRegion && beacons.isEmpty()) {
+                    Log.d(Config.TAG, mScanMode.toString());
+                    DateTime now = DateTime.now();
+                    if (DateTimeComparator.getInstance().
+                            compare(now.minusMinutes(Config.DELAY_RANGING_SLOW_MIN), mLastInRegion) >= 0) {
+                        if (mScanMode == ScanMode.RANGING) {
+                            beaconManager.stopRanging(region);
+                            beaconManager.setForegroundScanPeriod(RANGING_SCAN_PERIOD, RANGING_SLOW_SLEEP_PERIOD);
+                            mScanMode = ScanMode.RANGING_SLOW;
+                            beaconManager.startRanging(region);
+                        } else {
+                            if (mScanMode == ScanMode.RANGING_SLOW && DateTimeComparator.getInstance().
+                                    compare(now.minusHours(Config.DELAY_MONITORING_HOUR), mLastInRegion) > 0) {
+                                mScanMode = ScanMode.MONITORING;
+                                beaconManager.stopRanging(region);
+                            }
+                        }
+                    }
+                } else if (mScanMode == ScanMode.RANGING_SLOW && !beacons.isEmpty()) {
+                    beaconManager.stopRanging(region);
+                    beaconManager.setForegroundScanPeriod(RANGING_SCAN_PERIOD, RANGING_SLEEP_PERIOD);
+                    mScanMode = ScanMode.RANGING;
+                    beaconManager.startRanging(region);
+                }
             }
         });
     }
@@ -113,15 +148,15 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
             return;
         }
 
-        DateTime current_time = new DateTime();
-        String last_updatedStr = mUpdateTimePref.getString(LAST_UPDATED, "");
+        DateTime currentTime = new DateTime();
+        String lastUpdatedStr = mUpdateTimePref.getString(LAST_UPDATED, "");
 
-//        Log.d(Config.TAG, "Last updated from server: " + last_updatedStr);
+//        Log.d(Config.TAG, "Last updated from server: " + lastUpdatedStr);
 
-        if (!last_updatedStr.isEmpty()) {
-            DateTime last_updated = DateTime.parse(last_updatedStr, formatter);
+        if (!lastUpdatedStr.isEmpty()) {
+            DateTime lastUpdated = DateTime.parse(lastUpdatedStr, formatter);
             if (DateTimeComparator.getInstance().
-                    compare(current_time.minusSeconds(Config.SERVER_UPDATE_REQUEST_MIN_SEC), last_updated) > 0) {
+                    compare(currentTime.minusSeconds(Config.SERVER_UPDATE_REQUEST_MIN_SEC), lastUpdated) > 0) {
                 String customerID = Utils.getCustomerID(this);
                 requestContextAds(customerID, beacons);
             } else {

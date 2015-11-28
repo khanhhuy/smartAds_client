@@ -13,13 +13,15 @@ public class Config {
     public static int BEACON_MIN_RECEIVED_TIME_SEC = 10;
     public static int SERVER_UPDATE_REQUEST_MIN_SEC = 15;//12*3600 = 43200
     public static int JUST_RECEIVED_TIME_HOUR = 2;
+    public static int DELAY_RANGING_SLOW_MIN = 15;
+    public static int DELAY_MONITORING_HOUR = 1;
     public static int MIN_NOTIFICATION_SOUND_DELAYED_SEC = 10;
 
-    //  public static String HOST_BASE = "http://smartads.esy.es";
-//  public static String HOST_BASE = "http://smartads.byethost7.com";
+    public static String HOST_BASE = "http://smartads.esy.es";
+//    public static String HOST_BASE = "http://smartads.byethost7.com";
 //  public static String HOST_BASE = "http://192.168.43.159/ttlvserver/public";
-    //public static String HOST_BASE = "http://192.168.1.110/ttlvserver/public";
-    public static String HOST_BASE = "http://192.168.1.2:8000";
+//    public static String HOST_BASE = "http://192.168.1.110/ttlvserver/public";
+//    public static String HOST_BASE = "http://192.168.1.2:8000";
 
     public static String HOST_API = HOST_BASE + "/api/v1";
     public static String APP_NAME = "Smart Ads";
@@ -35,9 +37,11 @@ public class Config {
     }
 
     public static final HashMap<String, LatLng> AREA_LANDMARKS = new HashMap<String, LatLng>();
+
     static {
         AREA_LANDMARKS.put("HUY_HOUSE", new LatLng(10.850651, 106.750741));
     }
+
     public static final float GEOFENCE_RADIUS_IN_METERS = 200;
     public static final int GEOFENCE_LOITERING_IN_MINUTES = 1 * 60 * 1000;
 
