@@ -21,4 +21,8 @@
         android:key="dev_monitoring_sleep_period"
         android:title="MONITORING_SLEEP_PERIOD_SEC"
         custom:fieldName="MONITORING_SLEEP_PERIOD_SEC" />
+    <vn.edu.hcmut.cse.smartads.settings.dev.DevConfigEditTextPreference
+        android:key="dev_min_notification_sound_delayed"
+        android:title="MIN_NOTIFICATION_SOUND_DELAYED_SEC"
+        custom:fieldName="MIN_NOTIFICATION_SOUND_DELAYED_SEC" />
 </PreferenceScreen>
