@@ -11,11 +11,12 @@ import vn.edu.hcmut.cse.smartads.connector.Connector;
  */
 public class Config {
     public static int BEACON_MIN_RECEIVED_TIME_SEC = 10;
-    public static int SERVER_UPDATE_REQUEST_MIN_SEC = 15;//12*3600 = 43200
+    public static int SERVER_UPDATE_REQUEST_MIN_SEC = 7;//12*3600 = 43200
     public static int JUST_RECEIVED_TIME_HOUR = 2;
     public static int DELAY_RANGING_SLOW_MIN = 15;
     public static int DELAY_MONITORING_HOUR = 1;
-    public static int MIN_NOTIFICATION_SOUND_DELAYED_SEC = 10;
+    public static int MIN_NOTIFICATION_SOUND_DELAYED_SEC = 2;
+    public static int MONITORING_SLEEP_PERIOD_SEC = 60;//60
 
     public static String HOST_BASE = "http://smartads.esy.es";
 //    public static String HOST_BASE = "http://smartads.byethost7.com";
@@ -53,5 +54,5 @@ public class Config {
     DEBUG = false
     - Remember to set SERVER_GET_ADS_MIN_HOUR = 1
      */
-    public static boolean DEBUG = false;
+    public static boolean DEBUG = true;
 }

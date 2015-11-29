@@ -2,6 +2,8 @@ package vn.edu.hcmut.cse.smartads.activity;
 
 import android.app.NotificationManager;
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
 /**
  * Created by Huy on 10/12/2015.
  */
@@ -17,4 +19,9 @@ public class MyApplication extends com.orm.SugarApp {
         mNotificationManager = manager;
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        JodaTimeAndroid.init(this);
+    }
 }

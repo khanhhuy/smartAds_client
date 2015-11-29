@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -18,8 +19,6 @@ import android.util.Log;
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
-
-import net.danlew.android.joda.JodaTimeAndroid;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
@@ -54,7 +53,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     public static final String LAST_UPDATED = "lastUpdated";
     public static final String RECEIVE_CONTEXT_ADS = "RECEIVE_CONTEXT_ADS";
     public static final long MONITORING_SCAN_PERIOD = TimeUnit.SECONDS.toMillis(5);
-    public static final long MONITORING_SLEEP_PERIOD = TimeUnit.MINUTES.toMillis(1);
+    public static final long MONITORING_SLEEP_PERIOD = TimeUnit.SECONDS.toMillis(Config.MONITORING_SLEEP_PERIOD_SEC);
     public static final long RANGING_SLOW_SLEEP_PERIOD = TimeUnit.SECONDS.toMillis(9);
     public static final long RANGING_SLEEP_PERIOD = TimeUnit.SECONDS.toMillis(2);
     public static final long RANGING_SCAN_PERIOD = TimeUnit.SECONDS.toMillis(1);
@@ -70,13 +69,13 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     private SharedPreferences mUpdateTimePref;
     final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private DateTime mlastNotifySoundTime;
+    private final Handler mHandler = new Handler();
     private static NotificationManager mNotificationManager;
 
 
     @Override
     public void onCreate() {
         Log.d("DHSmartAds", "ContextAdsService onCreate");
-        JodaTimeAndroid.init(this);
         beaconManager = new BeaconManager(this);
         beaconManager.setBackgroundScanPeriod(MONITORING_SCAN_PERIOD, MONITORING_SLEEP_PERIOD);
 //        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));
@@ -98,7 +97,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
                     processBeacons(beacons);
                     beaconManager.setForegroundScanPeriod(RANGING_SCAN_PERIOD, RANGING_SLEEP_PERIOD);
                     mScanMode = ScanMode.RANGING;
-                    beaconManager.startRanging(region);
+                    startRangingAfter(1000, region);
                 }
                 mInRegion = true;
             }
@@ -137,10 +136,19 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
                     beaconManager.stopRanging(region);
                     beaconManager.setForegroundScanPeriod(RANGING_SCAN_PERIOD, RANGING_SLEEP_PERIOD);
                     mScanMode = ScanMode.RANGING;
-                    beaconManager.startRanging(region);
+                    startRangingAfter(1000, region);
                 }
             }
         });
+    }
+
+    private void startRangingAfter(long delay, final Region region) {
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                beaconManager.startRanging(region);
+            }
+        }, delay);
     }
 
     private synchronized void processBeacons(List<Beacon> beacons) {

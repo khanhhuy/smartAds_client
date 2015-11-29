@@ -14,9 +14,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import net.danlew.android.joda.JodaTimeAndroid;
-
-
 import vn.edu.hcmut.cse.smartads.R;
 import vn.edu.hcmut.cse.smartads.service.ContextAdsService;
 import vn.edu.hcmut.cse.smartads.settings.dev.DevConfigActivity;
@@ -32,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        JodaTimeAndroid.init(this);
 
         setContentView(R.layout.activity_main);
 
