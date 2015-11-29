@@ -83,12 +83,6 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         mConnector = Connector.getInstance(this);
         mUpdateTimePref = getSharedPreferences(UPDATE_PREFS_TIME, MODE_PRIVATE);
 
-        if (Config.DEBUG) {
-            Ads.deleteAll(Ads.class);
-            Minor.deleteAll(Minor.class);
-            //Todo: testing here
-        }
-
         beaconManager.setMonitoringListener(new MonitoringListener() {
             @Override
             public void onEnteredRegion(Region region, List<Beacon> beacons) {
@@ -159,7 +153,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
         DateTime currentTime = new DateTime();
         String lastUpdatedStr = mUpdateTimePref.getString(LAST_UPDATED, "");
 
-//        Log.d(Config.TAG, "Last updated from server: " + lastUpdatedStr);
+        Log.d(Config.TAG, "Last updated from server: " + lastUpdatedStr);
 
         if (!lastUpdatedStr.isEmpty()) {
             DateTime lastUpdated = DateTime.parse(lastUpdatedStr, formatter);
@@ -252,6 +246,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
 
             List<Integer> adsMinors = ads.getMinors();
             for (Beacon beacon : receivedBeacons) {
+                Log.d(Config.TAG, "Notify ad = " + ads.getAdsId() + " notified = " + ads.is_notified());
                 if (isNotifiedAds(ads, adsMinors, beacon.getMinor())) {
                     if (!Config.DEBUG) {
                         ads.setNotified(true);

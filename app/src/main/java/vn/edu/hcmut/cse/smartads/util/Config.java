@@ -18,11 +18,11 @@ public class Config {
     public static int MIN_NOTIFICATION_SOUND_DELAYED_SEC = 2;
     public static int MONITORING_SLEEP_PERIOD_SEC = 60;//60
 
-    public static String HOST_BASE = "http://smartads.esy.es";
+    //public static String HOST_BASE = "http://smartads.esy.es";
 //    public static String HOST_BASE = "http://smartads.byethost7.com";
 //  public static String HOST_BASE = "http://192.168.43.159/ttlvserver/public";
 //    public static String HOST_BASE = "http://192.168.1.110/ttlvserver/public";
-//    public static String HOST_BASE = "http://192.168.1.2:8000";
+    public static String HOST_BASE = "http://192.168.1.2:8000";
 
     public static String HOST_API = HOST_BASE + "/api/v1";
     public static String APP_NAME = "Smart Ads";

@@ -136,10 +136,6 @@ public class DiskLruImageCache implements ImageClearCache  {
             }
         }
 
-        if ( Config.DEBUG ) {
-            Log.d( "cache_test_DISK_", bitmap == null ? "" : "image read from disk " + key);
-        }
-
         return bitmap;
 
     }
@@ -165,9 +161,6 @@ public class DiskLruImageCache implements ImageClearCache  {
 
     @Override
     public void clearCache() {
-        if ( Config.DEBUG ) {
-            Log.d( "cache_test_DISK_", "disk cache CLEARED");
-        }
         try {
             mDiskCache.delete();
             mDiskCache = DiskLruCache.open( mDiscCacheDir, APP_VERSION, VALUE_COUNT, mDiskCacheSize );

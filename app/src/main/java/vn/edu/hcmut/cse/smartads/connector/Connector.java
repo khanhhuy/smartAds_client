@@ -130,8 +130,6 @@ public class Connector {
 
                     imageManager.clearCache();
 
-                    if (Config.DEBUG)
-                        logDB();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
