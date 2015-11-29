@@ -53,7 +53,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     public static final String LAST_UPDATED = "lastUpdated";
     public static final String RECEIVE_CONTEXT_ADS = "RECEIVE_CONTEXT_ADS";
     public static final long MONITORING_SCAN_PERIOD = TimeUnit.SECONDS.toMillis(5);
-    public static final long MONITORING_SLEEP_PERIOD = TimeUnit.SECONDS.toMillis(Config.MONITORING_SLEEP_PERIOD_SEC);
+    public static long MONITORING_SLEEP_PERIOD;
     public static final long RANGING_SLOW_SLEEP_PERIOD = TimeUnit.SECONDS.toMillis(9);
     public static final long RANGING_SLEEP_PERIOD = TimeUnit.SECONDS.toMillis(2);
     public static final long RANGING_SCAN_PERIOD = TimeUnit.SECONDS.toMillis(1);
@@ -76,6 +76,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
     @Override
     public void onCreate() {
         Log.d("DHSmartAds", "ContextAdsService onCreate");
+        MONITORING_SLEEP_PERIOD = TimeUnit.SECONDS.toMillis(Config.MONITORING_SLEEP_PERIOD_SEC);
         beaconManager = new BeaconManager(this);
         beaconManager.setBackgroundScanPeriod(MONITORING_SCAN_PERIOD, MONITORING_SLEEP_PERIOD);
 //        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1));

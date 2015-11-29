@@ -15,7 +15,7 @@ public class Config {
     public static int JUST_RECEIVED_TIME_HOUR = 2;
     public static int DELAY_RANGING_SLOW_MIN = 15;
     public static int DELAY_MONITORING_HOUR = 1;
-    public static int MIN_NOTIFICATION_SOUND_DELAYED_SEC = 2;
+    public static int MIN_NOTIFICATION_SOUND_DELAYED_SEC = 10;
     public static int MONITORING_SLEEP_PERIOD_SEC = 60;//60
 
     public static String HOST_BASE = "http://smartads.esy.es";
