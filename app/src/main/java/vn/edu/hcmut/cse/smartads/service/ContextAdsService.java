@@ -247,7 +247,6 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
 
             List<Integer> adsMinors = ads.getMinors();
             for (Beacon beacon : receivedBeacons) {
-                Log.d(Config.TAG, "Notify ad = " + ads.getAdsId() + " notified = " + ads.is_notified());
                 if (isNotifiedAds(ads, adsMinors, beacon.getMinor())) {
                     if (!Config.DEBUG) {
                         ads.setNotified(true);
