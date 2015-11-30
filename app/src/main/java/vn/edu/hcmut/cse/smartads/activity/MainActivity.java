@@ -37,8 +37,6 @@ public class MainActivity extends AppCompatActivity {
 
         checkLoggedIn();
 
-
-        ContextAdsService.checkBluetoothAndStart(this);
     }
 
     private void checkLoggedIn() {
@@ -51,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             initFragment();
+            ContextAdsService.checkBluetoothAndStart(this);
         }
     }
 
