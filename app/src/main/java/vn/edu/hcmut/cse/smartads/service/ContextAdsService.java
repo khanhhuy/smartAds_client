@@ -315,7 +315,7 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
                     .setSmallIcon(R.drawable.ic_launcher)
                     .setContentTitle(Config.APP_NAME)
                     .setContentText(ads.getTitle())
-                    .setDefaults(Notification.FLAG_AUTO_CANCEL)
+                    .setDefaults(Notification.DEFAULT_ALL)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true);
 

@@ -10,15 +10,16 @@ import vn.edu.hcmut.cse.smartads.connector.Connector;
  * Created by Huy on 5/1/2015.
  */
 public class Config {
-    public static int BEACON_MIN_RECEIVED_TIME_SEC = 10;
+    public static int BEACON_MIN_RECEIVED_TIME_SEC = 5;
     public static int SERVER_UPDATE_REQUEST_MIN_SEC = 7;//12*3600 = 43200
     public static int JUST_RECEIVED_TIME_HOUR = 2;
     public static int DELAY_RANGING_SLOW_MIN = 15;
     public static int DELAY_MONITORING_HOUR = 1;
-    public static int MIN_NOTIFICATION_SOUND_DELAYED_SEC = 10;
-    public static int MONITORING_SLEEP_PERIOD_SEC = 60;//60
+    public static int MIN_NOTIFICATION_SOUND_DELAYED_SEC = 5;
+    public static int MONITORING_SLEEP_PERIOD_SEC = 30;//60
 
-    public static String HOST_BASE = "http://smartads.esy.es";
+    public static String HOST_BASE = "http://116.106.178.86:9339/ttlvserver/public";
+    //public static String HOST_BASE = "http://smartads.esy.es";
 //    public static String HOST_BASE = "http://smartads.byethost7.com";
 //  public static String HOST_BASE = "http://192.168.43.159/ttlvserver/public";
 //    public static String HOST_BASE = "http://192.168.1.110/ttlvserver/public";
