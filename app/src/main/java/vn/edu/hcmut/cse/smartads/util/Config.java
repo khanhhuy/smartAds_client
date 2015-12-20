@@ -18,8 +18,8 @@ public class Config {
     public static int MIN_NOTIFICATION_SOUND_DELAYED_SEC = 5;
     public static int MONITORING_SLEEP_PERIOD_SEC = 30;//60
 
-    public static String HOST_BASE = "http://116.106.178.86:9339/ttlvserver/public";
-    //public static String HOST_BASE = "http://smartads.esy.es";
+    //public static String HOST_BASE = "http://116.106.178.86:9339/ttlvserver/public";
+    public static String HOST_BASE = "http://smartads.esy.es";
 //    public static String HOST_BASE = "http://smartads.byethost7.com";
 //  public static String HOST_BASE = "http://192.168.43.159/ttlvserver/public";
 //    public static String HOST_BASE = "http://192.168.1.110/ttlvserver/public";
@@ -55,5 +55,5 @@ public class Config {
     DEBUG = false
     - Remember to set SERVER_GET_ADS_MIN_HOUR = 1
      */
-    public static boolean DEBUG = true;
+    public static boolean DEBUG = false;
 }
