@@ -19,9 +19,9 @@ public class Config {
     public static int MONITORING_SLEEP_PERIOD_SEC = 30;//60
 
     //public static String HOST_BASE = "http://116.106.178.86:9339/ttlvserver/public";
-    public static String HOST_BASE = "http://smartads.esy.es";
+//    public static String HOST_BASE = "http://life4vn.com";
 //    public static String HOST_BASE = "http://smartads.byethost7.com";
-//  public static String HOST_BASE = "http://192.168.43.159/ttlvserver/public";
+      public static String HOST_BASE = "http://192.168.43.39:8000";
 //    public static String HOST_BASE = "http://192.168.1.110/ttlvserver/public";
     //public static String HOST_BASE = "http://192.168.1.2:8000";
 

@@ -310,12 +310,11 @@ public class ContextAdsService extends Service implements ContextAdsResponseList
                     notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 //            PendingIntent pendingIntent = stackBuilder.getPendingIntent(new Random().nextInt(1000), PendingIntent.FLAG_UPDATE_CURRENT);
 
-
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.ic_launcher)
                     .setContentTitle(Config.APP_NAME)
                     .setContentText(ads.getTitle())
-                    .setDefaults(Notification.DEFAULT_ALL)
+                    .setVibrate(new long[] {0, 1000, 0, 0, 0})
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true);
 
